@@ -44,3 +44,17 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 }
+.ant-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  color: var(--text-white);
+  background: var(--bg-secondary);
+  .ant-card-head {
+    color: var(--text-white);
+    padding: 0 16px;
+  }
+}
+
+.ant-btn-default.ant-btn-background-ghost:disabled {
+  color: #fff !important;
+}

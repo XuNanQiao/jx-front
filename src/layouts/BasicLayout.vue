@@ -36,7 +36,7 @@ onMounted(() => {
 }
 
 .main-content {
-  padding: var(--spacing-lg);
+  /* padding: var(--spacing-lg); */
   min-height: calc(100vh - 64px);
   background: var(--bg-primary);
 }

@@ -22,6 +22,7 @@
     "@types/node": "^20.11.5",
     "@vitejs/plugin-vue": "^5.0.3",
     "mockjs": "^1.1.0",
+    "sass-embedded": "^1.97.2",
     "typescript": "^5.3.3",
     "unocss": "^0.58.3",
     "vite": "^5.0.12",

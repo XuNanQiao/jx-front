@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/model/development',
         name: 'ModelDevelopment',
-        component: () => import('@/views/model/Development.vue'),
+        component: () => import('@/views/development/index.vue'),
         meta: {
           title: '模型开发',
           requiresAuth: true
@@ -50,7 +50,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/model/operators',
         name: 'ModelOperators',
-        component: () => import('@/views/model/Operators.vue'),
+        component: () => import('@/views/operators/index.vue'),
         meta: {
           title: '算子管理',
           requiresAuth: true
@@ -59,7 +59,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/model/deployment',
         name: 'ModelDeployment',
-        component: () => import('@/views/model/Deployment.vue'),
+        component: () => import('@/views/deployment/index.vue'),
         meta: {
           title: '模型部署',
           requiresAuth: true
@@ -68,66 +68,14 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/model/jobs',
         name: 'ModelJobs',
-        component: () => import('@/views/model/Jobs.vue'),
+        component: () => import('@/views/jobs/index.vue'),
         meta: {
           title: '模型作业',
           requiresAuth: true
         }
       },
-      {
-        path: '/dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/Dashboard.vue'),
-        meta: {
-          title: '仪表盘',
-          requiresAuth: true
-        }
-      },
-      {
-        path: '/users',
-        name: 'Users',
-        component: () => import('@/views/system/Users.vue'),
-        meta: {
-          title: '用户管理',
-          requiresAuth: true
-        }
-      },
-      {
-        path: '/roles',
-        name: 'Roles',
-        component: () => import('@/views/system/Roles.vue'),
-        meta: {
-          title: '角色管理',
-          requiresAuth: true
-        }
-      },
-      {
-        path: '/permissions',
-        name: 'Permissions',
-        component: () => import('@/views/system/Permissions.vue'),
-        meta: {
-          title: '权限管理',
-          requiresAuth: true
-        }
-      },
-      {
-        path: '/articles',
-        name: 'Articles',
-        component: () => import('@/views/content/Articles.vue'),
-        meta: {
-          title: '文章列表',
-          requiresAuth: true
-        }
-      },
-      {
-        path: '/categories',
-        name: 'Categories',
-        component: () => import('@/views/content/Categories.vue'),
-        meta: {
-          title: '分类管理',
-          requiresAuth: true
-        }
-      }
+      
+     
     ]
   },
   {
