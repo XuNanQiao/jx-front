@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-06 15:03:49
+ * @LastEditTime: 2026-01-06 15:52:15
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\index.vue
@@ -32,21 +32,15 @@
             批量删除 ({{ selectedRowKeys.length }})
           </a-button>
         </div>
-        <a-space-compact block class="filter-item">
-          <div class="filter-label">类别:</div>
-          <a-select v-model:value="filters.category" placeholder="请选择类别" style="width: 150px" allow-clear>
-            <a-select-option value="图像">图像</a-select-option>
-            <a-select-option value="图像">图像</a-select-option>
-            <a-select-option value="文本">文本</a-select-option>
-            <a-select-option value="音频">音频</a-select-option>
-            <a-select-option value="视频">视频</a-select-option>
-          </a-select>
-        </a-space-compact>
+        <div class="filter-inter">
+          <a-select :options="selectOptions" v-model:value="filters.category" placeholder="请选择类别" style="width: 150px"> </a-select>
+        </div>
+        
       </a-space>
       <a-space :size="16" wrap>
         <div class="filter-item">
-          <span class="filter-label">关键词:</span>
-          <a-input v-model:value="searchKeyword" placeholder="搜索名称、属性、类别" style="width: 200px" allow-clear>
+          <!-- <span class="filter-label">关键词:</span> -->
+          <a-input v-model:value="searchKeyword" placeholder="搜索名称、属性、类别" style="width: 220px" allow-clear>
             <template #suffix>
               <SearchOutlined />
             </template>
@@ -107,13 +101,15 @@
         </template>
       </template>
     </a-table>
+    <!-- 新增/编辑弹窗组件 -->
+    <InputOutputFormModal v-model="modalVisible" :edit-data="editingRecord" :select-options="selectOptions" @save="onModalSave" />
   </a-card>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from "vue";
 import { message, Modal } from "ant-design-vue";
-import type { TableColumnType, TableProps } from "ant-design-vue";
+import type { TableProps } from "ant-design-vue";
 import type { ModelInputOutput, TableFilterParams } from "@/types/model";
 import dayjs, { Dayjs } from "dayjs";
 import VChart from "vue-echarts";
@@ -122,8 +118,9 @@ import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import type { EChartsOption } from "echarts";
-import { columns } from "./index";
-import Icon, { MoreOutlined } from "@ant-design/icons-vue";
+import { columns, selectOptions } from "./index";
+import InputOutputFormModal from "./InputOutputFormModal.vue";
+import { PlusOutlined, ImportOutlined, DeleteOutlined, SearchOutlined, MoreOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons-vue";
 
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
@@ -362,8 +359,12 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
 };
 
 // 新建
+const modalVisible = ref(false);
+const editingRecord = ref<Partial<ModelInputOutput> | null>(null);
+
 const handleCreate = () => {
-  message.info("打开新建对话框");
+  editingRecord.value = null;
+  modalVisible.value = true;
 };
 
 // 导入
@@ -399,7 +400,9 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
       message.info(`查看详情: ${record.name}`);
       break;
     case "edit":
-      message.info(`编辑: ${record.name}`);
+      // 打开编辑弹窗并加载数据
+      editingRecord.value = record;
+      modalVisible.value = true;
       break;
     case "copy":
       message.info(`复制: ${record.name}`);
@@ -427,6 +430,54 @@ const handleDelete = (id: string) => {
     },
   });
 };
+
+const generateId = () => `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+const onModalSave = (evt: { error: string | null; payload: Partial<ModelInputOutput> | null }) => {
+  if (evt.error === "validation") {
+    message.warning("请填写名称、属性和类别");
+    return;
+  }
+
+  const payload = evt.payload as Partial<ModelInputOutput> | null;
+  if (!payload) {
+    modalVisible.value = false;
+    return;
+  }
+
+  if (payload.id) {
+    const idx = dataSource.value.findIndex((i) => i.id === payload.id);
+    if (idx > -1) {
+      dataSource.value[idx] = Object.assign({}, dataSource.value[idx], {
+        name: payload.name,
+        attribute: payload.attribute,
+        category: payload.category,
+        completeness: payload.completeness ?? dataSource.value[idx].completeness,
+        cycle: payload.cycle ?? dataSource.value[idx].cycle,
+      });
+      message.success("更新成功");
+    }
+  } else {
+    const newItem: ModelInputOutput = {
+      id: generateId(),
+      name: payload.name as string,
+      attribute: (payload.attribute as string) || "输入",
+      category: (payload.category as string) || "",
+      completeness: (payload.completeness as number) || 0,
+      dataInput: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+      dataInputTrend: [100, 120, 110],
+      cycle: (payload.cycle as number) || 1000,
+      createTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+      createBy: "系统",
+    };
+    dataSource.value.unshift(newItem);
+    pagination.total = dataSource.value.length;
+    message.success("创建成功");
+  }
+
+  modalVisible.value = false;
+  editingRecord.value = null;
+};
 </script>
 
 <style scoped lang="scss">
@@ -440,7 +491,9 @@ const handleDelete = (id: string) => {
     box-shadow: var(--shadow-md);
   }
 }
-
+.filter-inter{
+  
+}
 .filter-section {
   margin-bottom: var(--spacing-lg);
 }
@@ -456,46 +509,5 @@ const handleDelete = (id: string) => {
   color: var(--text-primary);
   white-space: nowrap;
   border: 1px solid #fff;
-}
-
-.model-table {
-  margin-top: var(--spacing-md);
-  :deep(.ant-table) {
-    color: #fff;
-    .ant-table-column-has-sorters {
-      &:hover {
-        background: #304162 !important;
-      }
-    }
-    .ant-table-column-sorter {
-      color: #fff;
-    }
-  }
-
-  :deep(.ant-table-thead > tr > th) {
-    background: #285187;
-    color: #fff;
-    font-weight: 600;
-    box-shadow: inset 0px 1px 8px 10px #305c99;
-  }
-
-  // 斑马纹效果
-  :deep(.ant-table-tbody > tr:nth-child(odd) > td) {
-    background: #304162;
-  }
-
-  :deep(.ant-table-tbody > tr:nth-child(even) > td) {
-    background: #32476e;
-  }
-
-  :deep(.ant-table-tbody > tr:hover > td) {
-    background: #2f618e !important;
-  }
-}
-
-.data-input-chart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 </style>

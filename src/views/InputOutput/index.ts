@@ -60,3 +60,8 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
     width: 70,
   },
 ];
+export const selectOptions = [
+  { label: "全部", value: "" },
+  { label: "输入", value: "input" },
+  { label: "输出", value: "output" },
+];

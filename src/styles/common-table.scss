@@ -1,0 +1,44 @@
+.model-table {
+  margin-top: var(--spacing-md);
+  .ant-table {
+    color: #fff;
+    .ant-table-column-has-sorters {
+      &:hover {
+        background: #304162 !important;
+      }
+    }
+    .ant-table-column-sorter {
+      color: #fff;
+    }
+    .ant-pagination-total-text,
+    .page {
+      color: #fff !important;
+    }
+  }
+
+  .ant-table-thead > tr > th {
+    background: #285187;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: inset 0px 1px 8px 10px #305c99;
+  }
+
+  // 斑马纹效果
+  .ant-table-tbody > tr:nth-child(odd) > td {
+    background: #304162;
+  }
+
+  .ant-table-tbody > tr:nth-child(even) > td {
+    background: #32476e;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #2f618e !important;
+  }
+}
+
+.data-input-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
