@@ -1,10 +1,10 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-06 14:17:48
+ * @LastEditTime: 2026-01-06 15:03:49
  * @LastEditors: ZHAO
  * @Description: 
- * @FilePath: \jx\src\views\model\InputOutput.vue
+ * @FilePath: \jx\src\views\InputOutput\index.vue
  * 
 -->
 <template>
@@ -47,7 +47,7 @@
         <div class="filter-item">
           <span class="filter-label">关键词:</span>
           <a-input v-model:value="searchKeyword" placeholder="搜索名称、属性、类别" style="width: 200px" allow-clear>
-            <template #prefix>
+            <template #suffix>
               <SearchOutlined />
             </template>
           </a-input>
@@ -69,7 +69,11 @@
               '100%': '#87d068',
             }"
             size="small"
-          />
+          >
+            <template #format="percent">
+              <span class="text-white">{{ percent }}</span>
+            </template></a-progress
+          >
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">
@@ -80,7 +84,7 @@
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
             <a-button type="text" size="small">
-              <MoreOutlined style="font-size: 16px" />
+              <MoreOutlined class="text-16px text-white" />
             </a-button>
             <template #overlay>
               <a-menu @click="(e) => handleMenuClick(e, record)">
@@ -118,7 +122,8 @@ import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import type { EChartsOption } from "echarts";
-import { PlusOutlined, ImportOutlined, ExportOutlined, DeleteOutlined, SearchOutlined, MoreOutlined, EyeOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons-vue";
+import { columns } from "./index";
+import Icon, { MoreOutlined } from "@ant-design/icons-vue";
 
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
@@ -133,66 +138,6 @@ const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number = 300)
     }, delay);
   };
 };
-
-// 表格列定义
-const columns: TableColumnType<ModelInputOutput>[] = [
-  {
-    title: "名称",
-    dataIndex: "name",
-    key: "name",
-    sorter: true,
-    width: 150,
-  },
-  {
-    title: "属性",
-    dataIndex: "attribute",
-    key: "attribute",
-    width: 120,
-  },
-  {
-    title: "类别",
-    dataIndex: "category",
-    key: "category",
-    width: 120,
-  },
-  {
-    title: "完整度",
-    dataIndex: "completeness",
-    key: "completeness",
-    width: 150,
-  },
-  {
-    title: "数据输入",
-    dataIndex: "dataInput",
-    key: "dataInput",
-    width: 180,
-  },
-  {
-    title: "周期（毫秒）",
-    dataIndex: "cycle",
-    key: "cycle",
-    width: 120,
-  },
-  {
-    title: "创建时间",
-    dataIndex: "createTime",
-    key: "createTime",
-    sorter: true,
-    width: 180,
-  },
-  {
-    title: "创建人",
-    dataIndex: "createBy",
-    key: "createBy",
-    width: 120,
-  },
-  {
-    title: "操作",
-    key: "action",
-    fixed: "right",
-    width: 70,
-  },
-];
 
 // 加载状态
 const loading = ref(false);
@@ -515,18 +460,36 @@ const handleDelete = (id: string) => {
 
 .model-table {
   margin-top: var(--spacing-md);
-
   :deep(.ant-table) {
-    background: var(--bg-white);
+    color: #fff;
+    .ant-table-column-has-sorters {
+      &:hover {
+        background: #304162 !important;
+      }
+    }
+    .ant-table-column-sorter {
+      color: #fff;
+    }
   }
 
   :deep(.ant-table-thead > tr > th) {
-    background: var(--bg-gray);
+    background: #285187;
+    color: #fff;
     font-weight: 600;
+    box-shadow: inset 0px 1px 8px 10px #305c99;
+  }
+
+  // 斑马纹效果
+  :deep(.ant-table-tbody > tr:nth-child(odd) > td) {
+    background: #304162;
+  }
+
+  :deep(.ant-table-tbody > tr:nth-child(even) > td) {
+    background: #32476e;
   }
 
   :deep(.ant-table-tbody > tr:hover > td) {
-    background: #fafafa;
+    background: #2f618e !important;
   }
 }
 

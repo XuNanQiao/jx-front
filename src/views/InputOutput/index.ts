@@ -2,7 +2,7 @@ import { ModelInputOutput } from "@/types/model";
 import type { TableColumnType, TableProps } from "ant-design-vue";
 
 // 表格列定义
-const columns: TableColumnType<ModelInputOutput>[] = [
+export const columns: TableColumnType<ModelInputOutput>[] = [
   {
     title: "名称",
     dataIndex: "name",
