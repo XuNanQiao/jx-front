@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 09:56:02
+ * @LastEditTime: 2026-01-07 14:51:02
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\index.vue
@@ -68,7 +68,7 @@
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">
-            <v-chart :option="getChartOption(record.dataInputTrend)" :autoresize="true" style="height: 40px; width: 150px" />
+            <ChartView :showAxis="false" :width="'150px'" :height="'40px'" :xAxisData="record.dataInputTrend" :yAxisData="record.dataInputTrend" />
           </div>
         </template>
         <template v-else-if="column.key === 'cycleTime'"> {{ record.cycleTime }} ms </template>
@@ -110,21 +110,13 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined
 import type { TableProps } from "ant-design-vue";
 import { message, Modal } from "ant-design-vue";
 import { Dayjs } from "dayjs";
-import type { EChartsOption } from "echarts";
-import { LineChart } from "echarts/charts";
-import { GridComponent, TooltipComponent } from "echarts/components";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import VChart from "vue-echarts";
 import { useRouter } from "vue-router";
 import { columns, selectOptions } from "./index";
 import InputOutputFormModal from "./InputOutputFormModal.vue";
+import ChartView from "@/components/chart/chartView.vue";
 
 const router = useRouter();
-
-// 注册 ECharts 组件
-use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
 
 // 防抖函数
 const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number = 300): ((...args: Parameters<T>) => void) => {
@@ -230,63 +222,7 @@ const rowSelection = computed(() => ({
   }),
 }));
 
-// 生成折线图配置
-const getChartOption = (data: number[]): EChartsOption => {
-  return {
-    grid: {
-      left: 5,
-      right: 5,
-      top: 5,
-      bottom: 5,
-    },
-    xAxis: {
-      type: "category",
-      show: false,
-      data: data.map((_, index) => index),
-    },
-    yAxis: {
-      type: "value",
-      show: false,
-    },
-    series: [
-      {
-        type: "line",
-        data: data,
-        smooth: true,
-        showSymbol: false,
-        lineStyle: {
-          width: 2,
-          color: "#1890ff",
-        },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: "rgba(24, 144, 255, 0.3)",
-              },
-              {
-                offset: 1,
-                color: "rgba(24, 144, 255, 0.05)",
-              },
-            ],
-          },
-        },
-      },
-    ],
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "line",
-      },
-    },
-  };
-};
+// Chart is rendered by ChartView component
 
 // 表格变化处理（排序、分页）
 const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
@@ -318,7 +254,7 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
 
 // 新建
 const formModalRef = ref(null);
-const handleCreate = (record: any) => {
+const handleCreate = (record?: any) => {
   if (formModalRef.value) {
     formModalRef.value.openModal(record);
   }

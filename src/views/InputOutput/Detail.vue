@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-06 17:37:23
+ * @LastEditTime: 2026-01-07 15:42:56
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\Detail.vue
@@ -94,7 +94,7 @@ onMounted(async () => {
 }
 :deep(.ant-tabs) {
   .ant-tabs-nav-wrap {
-    border-bottom: 1px solid #fff !important;
+    border-bottom: 1px solid #fff;
   }
   .ant-tabs-tab {
     padding: 0 0 8px 0;

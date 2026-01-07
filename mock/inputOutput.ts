@@ -341,4 +341,28 @@ export default [
       };
     },
   },
+  // 数据完整度（按年）
+  {
+    url: '/api/input-output/completeness',
+    method: 'get',
+    response: ({ query }) => {
+      const year = query?.year || new Date().getFullYear();
+      const month = query?.month;
+      const day = query?.day;
+      // 根据粒度可以返回同样的示例行（后端可返回不同聚合）
+      const rows = [];
+      for (let r = 1; r <= 8; r++) {
+        const row: any = { key: `dev-${r}`, device: `设备-${r}` };
+        for (let m = 1; m <= 12; m++) {
+          row[`m${m}`] = Math.floor(Math.random() * 101);
+        }
+        rows.push(row);
+      }
+      return {
+        code: 200,
+        message: 'success',
+        data: { year, month, day, rows },
+      };
+    },
+  },
 ] as MockMethod[]

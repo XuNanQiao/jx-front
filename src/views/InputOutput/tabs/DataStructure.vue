@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 10:23:25
+ * @LastEditTime: 2026-01-07 15:38:03
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\tabs\DataStructure.vue
@@ -39,7 +39,7 @@
   <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
-        <a-button type="text" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+        <a-button type="text" class="text-white" size="small" @click="handleEdit(record)"> 编辑 </a-button>
       </template>
     </template>
   </a-table>
@@ -149,11 +149,7 @@ const filteredData = computed(() => {
   // 关键词搜索
   if (filters.keyword) {
     const keyword = filters.keyword.toLowerCase();
-    result = result.filter((item) =>
-      item.name.toLowerCase().includes(keyword) ||
-      item.column.toLowerCase().includes(keyword) ||
-      item.dataType.toLowerCase().includes(keyword)
-    );
+    result = result.filter((item) => item.name.toLowerCase().includes(keyword) || item.column.toLowerCase().includes(keyword) || item.dataType.toLowerCase().includes(keyword));
   }
   // 更新分页总数
   pagination.total = result.length;
