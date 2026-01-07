@@ -1,125 +1,68 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 08:47:27
+ * @LastEditTime: 2026-01-07 10:23:25
  * @LastEditors: ZHAO
  * @Description: 
- * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
+ * @FilePath: \jx\src\views\InputOutput\tabs\DataStructure.vue
  * 
 -->
 <template>
-  <a-card title="模型输入输出" :bordered="false">
-    <!-- 筛选区域 -->
-    <div class="filter-section flex-between">
-      <a-space :size="16" wrap>
-        <a-button type="primary" @click="handleCreate">
-          <template #icon>
-            <PlusOutlined />
+  <!-- 筛选区域 -->
+  <div class="filter-section flex-between">
+    <a-space :size="16" wrap>
+      <a-button type="primary" @click="handleEdit()">
+        <template #icon>
+          <PlusOutlined />
+        </template>
+        新建
+      </a-button>
+      <a-button ghost :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+        <template #icon>
+          <DeleteOutlined />
+        </template>
+        批量删除 ({{ selectedRowKeys.length }})
+      </a-button>
+    </a-space>
+    <a-space :size="16" wrap>
+      <div class="filter-inter">
+        <a-input v-model:value="searchKeyword" placeholder="请输入关键词搜索" style="width: 220px" allow-clear>
+          <template #suffix>
+            <SearchOutlined />
           </template>
-          新建
-        </a-button>
-        <a-button ghost @click="handleImport">
-          <template #icon>
-            <ImportOutlined />
-          </template>
-          导入
-        </a-button>
-        <a-button ghost :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-          <template #icon>
-            <DeleteOutlined />
-          </template>
-          批量删除 ({{ selectedRowKeys.length }})
-        </a-button>
-        <div class="filter-inter">
-          <span class="select-inter">类别：</span>
-          <a-select :options="selectOptions" v-model:value="filters.category" placeholder="请选择类别" style="width: 150px"> </a-select>
-        </div>
-      </a-space>
-      <a-space :size="16" wrap>
-        <div class="filter-inter">
-          <a-input v-model:value="searchKeyword" placeholder="搜索名称、属性、类别" style="width: 220px" allow-clear>
-            <template #suffix>
-              <SearchOutlined />
-            </template>
-          </a-input>
-        </div>
-      </a-space>
-    </div>
+        </a-input>
+      </div>
+    </a-space>
+  </div>
 
-    <!-- 表格 -->
-    <a-table :columns="columns" :data-source="filteredData" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'name'">
-          <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
-        </template>
-        <template v-else-if="column.key === 'completeness'">
-          <a-progress
-            :percent="record.completeness"
-            :stroke-color="{
-              '0%': '#108ee9',
-              '100%': '#87d068',
-            }"
-            size="small"
-          >
-            <template #format="percent">
-              <span class="text-white">{{ percent }}</span>
-            </template></a-progress
-          >
-        </template>
-        <template v-else-if="column.key === 'dataInput'">
-          <div class="data-input-chart">
-            <v-chart :option="getChartOption(record.dataInputTrend)" :autoresize="true" style="height: 40px; width: 150px" />
-          </div>
-        </template>
-        <template v-else-if="column.key === 'cycle'"> {{ record.cycle }} ms </template>
-        <template v-else-if="column.key === 'action'">
-          <a-dropdown :trigger="['hover']">
-            <a-button type="text" size="small">
-              <MoreOutlined class="text-16px text-white" />
-            </a-button>
-            <template #overlay>
-              <a-menu @click="(e) => handleMenuClick(e, record)">
-                <a-menu-item key="view">
-                  <EyeOutlined />
-                  <span style="margin-left: 8px">查看详情</span>
-                </a-menu-item>
-                <a-menu-item key="edit">
-                  <EditOutlined />
-                  <span style="margin-left: 8px">编辑</span>
-                </a-menu-item>
-                <a-menu-divider />
-                <a-menu-item key="delete" danger>
-                  <DeleteOutlined />
-                  <span style="margin-left: 8px">删除</span>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-        </template>
+  <!-- 表格 -->
+  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.key === 'action'">
+        <a-button type="text" size="small" @click="handleEdit(record)"> 编辑 </a-button>
       </template>
-    </a-table>
-    <!-- 新增/编辑弹窗组件 -->
-    <InputOutputFormModal v-model="modalVisible" :edit-data="editingRecord" :select-options="selectOptions" @saved="handleSaved" />
-  </a-card>
+    </template>
+  </a-table>
+  <!-- 新增/编辑弹窗组件 -->
+  <DataStructureForm ref="dataFormRef" @saved="handleSaved" />
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { message, Modal } from "ant-design-vue";
+import { getDataStructureList } from "@/api/inputOutput";
+import type { DataStructure } from "@/types/model";
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
-import type { ModelInputOutput, TableFilterParams } from "@/types/model";
-import dayjs, { Dayjs } from "dayjs";
-import VChart from "vue-echarts";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
+import { message, Modal } from "ant-design-vue";
+import { Dayjs } from "dayjs";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
-import type { EChartsOption } from "echarts";
-import { columns, selectOptions } from "../index";
-import InputOutputFormModal from "../InputOutputFormModal.vue";
-import { getList } from "@/api/inputOutput";
-import { PlusOutlined, ImportOutlined, DeleteOutlined, SearchOutlined, MoreOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons-vue";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import VChart from "vue-echarts";
+import { useRouter } from "vue-router";
+import { columnsDataStructure } from "../index";
+import DataStructureForm from "./DataStructureForm.vue";
 
 const router = useRouter();
 
@@ -167,12 +110,12 @@ const pagination = reactive({
 });
 
 // data source will be loaded from mock API
-const dataSource = ref<ModelInputOutput[]>([]);
+const dataSource = ref<DataStructure[]>([]);
 
 const loadData = async () => {
   loading.value = true;
   try {
-    const res: any = await getList();
+    const res: any = await getDataStructureList();
     dataSource.value = res?.data || [];
     pagination.total = dataSource.value.length;
   } catch (err) {
@@ -206,14 +149,12 @@ const filteredData = computed(() => {
   // 关键词搜索
   if (filters.keyword) {
     const keyword = filters.keyword.toLowerCase();
-    result = result.filter((item) => item.name.toLowerCase().includes(keyword) || item.attribute.toLowerCase().includes(keyword) || item.category.toLowerCase().includes(keyword));
+    result = result.filter((item) =>
+      item.name.toLowerCase().includes(keyword) ||
+      item.column.toLowerCase().includes(keyword) ||
+      item.dataType.toLowerCase().includes(keyword)
+    );
   }
-
-  // 类别筛选
-  if (filters.category) {
-    result = result.filter((item) => item.category === filters.category);
-  }
-
   // 更新分页总数
   pagination.total = result.length;
   return result;
@@ -225,68 +166,10 @@ const rowSelection = computed(() => ({
   onChange: (keys: string[]) => {
     selectedRowKeys.value = keys;
   },
-  getCheckboxProps: (record: ModelInputOutput) => ({
+  getCheckboxProps: (record: DataStructure) => ({
     name: record.name,
   }),
 }));
-
-// 生成折线图配置
-const getChartOption = (data: number[]): EChartsOption => {
-  return {
-    grid: {
-      left: 5,
-      right: 5,
-      top: 5,
-      bottom: 5,
-    },
-    xAxis: {
-      type: "category",
-      show: false,
-      data: data.map((_, index) => index),
-    },
-    yAxis: {
-      type: "value",
-      show: false,
-    },
-    series: [
-      {
-        type: "line",
-        data: data,
-        smooth: true,
-        showSymbol: false,
-        lineStyle: {
-          width: 2,
-          color: "#1890ff",
-        },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: "rgba(24, 144, 255, 0.3)",
-              },
-              {
-                offset: 1,
-                color: "rgba(24, 144, 255, 0.05)",
-              },
-            ],
-          },
-        },
-      },
-    ],
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "line",
-      },
-    },
-  };
-};
 
 // 表格变化处理（排序、分页）
 const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
@@ -303,8 +186,8 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
     const { field, order } = sorter;
     if (order) {
       dataSource.value.sort((a, b) => {
-        const aValue = a[field as keyof ModelInputOutput];
-        const bValue = b[field as keyof ModelInputOutput];
+        const aValue = a[field as keyof DataStructure];
+        const bValue = b[field as keyof DataStructure];
 
         if (order === "ascend") {
           return aValue > bValue ? 1 : -1;
@@ -317,18 +200,7 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
 };
 
 // 新建
-const modalVisible = ref(false);
-const editingRecord = ref<Partial<ModelInputOutput> | null>(null);
-
-const handleCreate = () => {
-  editingRecord.value = null;
-  modalVisible.value = true;
-};
-
-// 导入
-const handleImport = () => {
-  message.info("打开导入对话框");
-};
+const dataFormRef = ref<any>(null);
 
 // 批量删除
 const handleBatchDelete = () => {
@@ -350,51 +222,12 @@ const handleBatchDelete = () => {
     },
   });
 };
-
-// 菜单点击处理
-const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
-  switch (e.key) {
-    case "view":
-      // 跳转到详情页
-      router.push({ name: "ModelInputOutputDetail", params: { id: record.id } });
-      break;
-    case "edit":
-      // 打开编辑弹窗并加载数据
-      editingRecord.value = record;
-      modalVisible.value = true;
-      break;
-    case "copy":
-      message.info(`复制: ${record.name}`);
-      break;
-    case "delete":
-      handleDelete(record.id);
-      break;
-  }
+const handleEdit = (record?: DataStructure) => {
+  dataFormRef.value?.openModal?.(record);
 };
-
-// 删除操作
-const handleDelete = (id: string) => {
-  Modal.confirm({
-    title: "确认删除",
-    content: "确定要删除这条数据吗？",
-    okText: "确定",
-    cancelText: "取消",
-    onOk() {
-      const index = dataSource.value.findIndex((item) => item.id === id);
-      if (index > -1) {
-        dataSource.value.splice(index, 1);
-        pagination.total = dataSource.value.length;
-        message.success("删除成功");
-      }
-    },
-  });
-};
-
-const handleSaved = async (savedData: any) => {
+const handleSaved = async () => {
   // 保存成功后刷新列表
   await loadData();
-  modalVisible.value = false;
-  editingRecord.value = null;
 };
 </script>
 

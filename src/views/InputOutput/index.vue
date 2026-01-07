@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-06 17:01:22
+ * @LastEditTime: 2026-01-07 09:56:02
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\index.vue
@@ -12,7 +12,7 @@
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
-        <a-button type="primary" @click="handleCreate">
+        <a-button type="primary" @click="handleCreate()">
           <template #icon>
             <PlusOutlined />
           </template>
@@ -32,7 +32,7 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="selectOptions" v-model:value="filters.category" placeholder="请选择类别" style="width: 150px"> </a-select>
+          <a-select :options="selectOptions" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -52,9 +52,9 @@
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
-        <template v-else-if="column.key === 'completeness'">
+        <template v-else-if="column.key === 'integrity'">
           <a-progress
-            :percent="record.completeness"
+            :percent="record.integrity"
             :stroke-color="{
               '0%': '#108ee9',
               '100%': '#87d068',
@@ -71,7 +71,7 @@
             <v-chart :option="getChartOption(record.dataInputTrend)" :autoresize="true" style="height: 40px; width: 150px" />
           </div>
         </template>
-        <template v-else-if="column.key === 'cycle'"> {{ record.cycle }} ms </template>
+        <template v-else-if="column.key === 'cycleTime'"> {{ record.cycleTime }} ms </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
             <a-button type="text" size="small">
@@ -99,27 +99,27 @@
       </template>
     </a-table>
     <!-- 新增/编辑弹窗组件 -->
-    <InputOutputFormModal v-model="modalVisible" :edit-data="editingRecord" :select-options="selectOptions" @saved="handleSaved" />
+    <InputOutputFormModal ref="formModalRef" @saved="handleSaved" />
   </a-card>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { message, Modal } from "ant-design-vue";
+import { getList } from "@/api/inputOutput";
+import type { ModelInputOutput } from "@/types/model";
+import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
-import type { ModelInputOutput, TableFilterParams } from "@/types/model";
-import dayjs, { Dayjs } from "dayjs";
-import VChart from "vue-echarts";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
+import { message, Modal } from "ant-design-vue";
+import { Dayjs } from "dayjs";
+import type { EChartsOption } from "echarts";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
-import type { EChartsOption } from "echarts";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import VChart from "vue-echarts";
+import { useRouter } from "vue-router";
 import { columns, selectOptions } from "./index";
 import InputOutputFormModal from "./InputOutputFormModal.vue";
-import { getList } from "@/api/inputOutput";
-import { PlusOutlined, ImportOutlined, DeleteOutlined, SearchOutlined, MoreOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons-vue";
 
 const router = useRouter();
 
@@ -317,12 +317,11 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
 };
 
 // 新建
-const modalVisible = ref(false);
-const editingRecord = ref<Partial<ModelInputOutput> | null>(null);
-
-const handleCreate = () => {
-  editingRecord.value = null;
-  modalVisible.value = true;
+const formModalRef = ref(null);
+const handleCreate = (record: any) => {
+  if (formModalRef.value) {
+    formModalRef.value.openModal(record);
+  }
 };
 
 // 导入
@@ -360,8 +359,7 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
       break;
     case "edit":
       // 打开编辑弹窗并加载数据
-      editingRecord.value = record;
-      modalVisible.value = true;
+      handleCreate(record);
       break;
     case "copy":
       message.info(`复制: ${record.name}`);
@@ -390,11 +388,9 @@ const handleDelete = (id: string) => {
   });
 };
 
-const handleSaved = async (savedData: any) => {
+const handleSaved = async () => {
   // 保存成功后刷新列表
   await loadData();
-  modalVisible.value = false;
-  editingRecord.value = null;
 };
 </script>
 

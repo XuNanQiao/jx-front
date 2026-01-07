@@ -1,141 +1,189 @@
 <template>
   <div class="basic-info">
+    <!-- 全局操作 -->
+    <div class="global-actions">
+      <a-space>
+        <a-button type="default" size="small" v-if="!editMode" @click="toggleEdit">编辑</a-button>
+        <a-space v-else>
+          <a-button size="small" @click="cancelEdit">取消</a-button>
+          <a-button type="primary" size="small" @click="onSave">保存</a-button>
+        </a-space>
+      </a-space>
+    </div>
+
     <!-- 基础信息 模块 -->
     <div class="module">
-        <div class="module-header" @click="toggle('basic')">
-          <DownOutlined :class="{ open: open.basic }" />
-          <span class="module-title">基础信息</span>
-        </div>
+      <div class="module-header" @click="toggle('basic')">
+        <span class="triangle" :class="{ open: open.basic }" aria-hidden="true"></span>
+        <span class="module-title">基础信息</span>
+      </div>
       <div v-show="open.basic" class="module-body">
-        <a-row :gutter="16">
-          <a-col :span="12" v-for="field in basicFields" :key="field.key">
-            <div class="field-row">
-              <div class="field-label">{{ field.label }}</div>
-              <div class="field-value">
+        <a-descriptions :column="2" bordered>
+          <a-descriptions-item v-for="field in basicFields" :key="field.key" :label="field.label">
+            <template v-if="editMode">
+              <template v-if="field.key === 'defaultDevice'">
+                <a-switch v-model:checked="form.defaultDevice" />
+              </template>
+              <template v-else-if="field.key === 'storageEngine'">
+                <a-input v-model:value="form.storageEngine" style="width: calc(100% - 160px); display: inline-block" />
+                <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal">配置</a-button>
+              </template>
+              <template v-else>
                 <a-input v-model:value="form[field.key]" />
-              </div>
-            </div>
-          </a-col>
-        </a-row>
+              </template>
+            </template>
+            <template v-else>
+              <template v-if="field.key === 'storageEngine'">
+                <span class="desc-text">{{ form.storageEngine ?? "-" }}</span>
+                <a-button size="small" type="link" style="margin-left: 8px" @click="viewDatabaseConfig">查看配置</a-button>
+              </template>
+              <template v-else>
+                <span class="desc-text">{{ field.key === "defaultDevice" ? (form.defaultDevice ? "是" : "否") : form[field.key] ?? "-" }}</span>
+              </template>
+            </template>
+          </a-descriptions-item>
+        </a-descriptions>
       </div>
     </div>
 
     <!-- 数据保留 模块 -->
     <div class="module">
       <div class="module-header" @click="toggle('retention')">
-        <DownOutlined :class="{ open: open.retention }" />
+        <span class="triangle" :class="{ open: open.retention }" aria-hidden="true"></span>
         <span class="module-title">数据保留</span>
       </div>
       <div v-show="open.retention" class="module-body">
-        <a-row :gutter="16">
-          <a-col :span="12" v-for="field in retentionFields" :key="field.key">
-            <div class="field-row">
-              <div class="field-label">{{ field.label }}</div>
-              <div class="field-value">
-                <a-input v-model:value="form[field.key]" />
-              </div>
-            </div>
-          </a-col>
-        </a-row>
+        <a-descriptions :column="2" bordered>
+          <a-descriptions-item v-for="field in retentionFields" :key="field.key" :label="field.label">
+            <template v-if="editMode">
+              <a-input v-model:value="form[field.key]" />
+            </template>
+            <template v-else>
+              <span class="desc-text">{{ form[field.key] ?? "-" }}</span>
+            </template>
+          </a-descriptions-item>
+        </a-descriptions>
       </div>
     </div>
 
     <!-- 其他信息 模块 -->
     <div class="module">
       <div class="module-header" @click="toggle('other')">
-        <DownOutlined :class="{ open: open.other }" />
+        <span class="triangle" :class="{ open: open.other }" aria-hidden="true"></span>
         <span class="module-title">其他信息</span>
       </div>
       <div v-show="open.other" class="module-body">
-        <a-row :gutter="16">
-          <a-col :span="12" v-for="field in otherFields" :key="field.key">
-            <div class="field-row">
-              <div class="field-label">{{ field.label }}</div>
-              <div class="field-value">
-                <a-input v-model:value="form[field.key]" />
-              </div>
-            </div>
-          </a-col>
-        </a-row>
+        <a-descriptions :column="2" bordered>
+          <a-descriptions-item v-for="field in otherFields" :key="field.key" :label="field.label">
+            <template v-if="editMode">
+              <a-input v-model:value="form[field.key]" />
+            </template>
+            <template v-else>
+              <span class="desc-text">{{ form[field.key] ?? "-" }}</span>
+            </template>
+          </a-descriptions-item>
+        </a-descriptions>
       </div>
     </div>
-    <div class="actions">
-      <a-button type="primary" @click="save">保存</a-button>
-    </div>
+
+    <!-- 数据库连接配置弹窗 -->
+    <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="form.id" @saved="handleDatabaseConfigSaved" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue'
-import { DownOutlined } from '@ant-design/icons-vue'
-import { updateItem } from '@/api/inputOutput'
-import { message } from 'ant-design-vue'
+import { ref, watch, reactive } from "vue";
+import { updateItem } from "@/api/inputOutput";
+import { message } from "ant-design-vue";
+import { basicFields, retentionFields, otherFields } from "../index";
+import DatabaseConfigModal from "./DatabaseConfigModal.vue";
 
-const props = defineProps<{ detailData: any | null }>()
+const props = defineProps<{ detailData: any | null }>();
 const emit = defineEmits<{
-  (e: 'saved', data: any): void
-}>()
+  (e: "saved", data: any): void;
+}>();
 
-const open = ref({ basic: true, retention: false, other: false })
+const open = ref({ basic: true, retention: true, other: true });
+const editMode = ref(false);
 
-const form = reactive<any>({})
+const form = reactive<any>({});
+
+// 数据库配置弹窗引用
+const databaseConfigModalRef = ref<any>(null);
 
 watch(
   () => props.detailData,
   (val) => {
     if (val) {
-      Object.assign(form, val)
+      Object.assign(form, val);
     }
   },
   { immediate: true }
-)
+);
 
-const basicFields = [
-  { key: 'name', label: '名称' },
-  { key: 'displayName', label: '星示名称' },
-  { key: 'dataType', label: '数据类型' },
-  { key: 'defaultDevice', label: '使用默认设备' },
-  { key: 'storageEngine', label: '存储引擎' },
-  { key: 'dataCycle', label: '数据周期' },
-]
+// field definitions moved to ./index.ts
 
-const retentionFields = [
-  { key: 'batchRetention', label: '批量数据保留' },
-  { key: 'streamRetention', label: '流式数据保留' },
-  { key: 'archiveBatchRetention', label: '归档数批保留' },
-]
+const toggle = (key: "basic" | "retention" | "other") => {
+  open.value[key] = !open.value[key];
+};
 
-const otherFields = [
-  { key: 'created', label: '创建人 / 创建时间' },
-  { key: 'scope', label: '可用范围' },
-  { key: 'customPK', label: '自定义主键' },
-  { key: 'ledger', label: '关联台账' },
-  { key: 'mockCycle', label: 'Mock周期' },
-  { key: 'category', label: '类别' },
-  { key: 'ioType', label: '输入输出类型' },
-]
+const toggleEdit = () => {
+  editMode.value = true;
+};
 
-const toggle = (key: 'basic' | 'retention' | 'other') => {
-  open.value[key] = !open.value[key]
-}
+const cancelEdit = () => {
+  editMode.value = false;
+  // revert changes
+  if (props.detailData) {
+    Object.keys(form).forEach((k) => delete form[k]);
+    Object.assign(form, props.detailData);
+  }
+};
+
+const onSave = async () => {
+  await save();
+  editMode.value = false;
+};
 
 const save = async () => {
   if (!form.id) {
-    message.error('缺少 id，无法保存')
-    return
+    message.error("缺少 id，无法保存");
+    return;
   }
   try {
-    const res: any = await updateItem(form.id, form)
-    const updated = res?.data || form
-    message.success('保存成功')
-    emit('saved', updated)
+    const res: any = await updateItem(form.id, form);
+    const updated = res?.data || form;
+    message.success("保存成功");
+    emit("saved", updated);
   } catch (err) {
-    console.error(err)
-    message.error('保存失败')
+    console.error(err);
+    message.error("保存失败");
   }
-}
-</script>
+};
 
+// 打开数据库配置弹窗（编辑模式）
+const openDatabaseConfigModal = () => {
+  if (!form.id) {
+    message.warning("请先保存基础信息");
+    return;
+  }
+  databaseConfigModalRef.value?.openModal(form.id);
+};
+
+// 查看数据库配置（查看模式）
+const viewDatabaseConfig = () => {
+  if (!form.id) {
+    message.warning("暂无配置信息");
+    return;
+  }
+  databaseConfigModalRef.value?.viewModal(form.id);
+};
+
+// 数据库配置保存成功回调
+const handleDatabaseConfigSaved = () => {
+  message.success("数据库配置已保存");
+};
+</script>
 <style scoped lang="scss">
 .basic-info {
   .module {
@@ -147,11 +195,20 @@ const save = async () => {
       cursor: pointer;
       padding: 8px 0;
 
-      .anticon {
-        color: var(--theme-info);
+      .header-actions {
+        margin-left: auto;
+      }
+
+      .triangle {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid var(--theme-info);
+        display: inline-block;
         transition: transform 0.2s ease;
       }
-      .anticon.open {
+      .triangle.open {
         transform: rotate(180deg);
       }
 
@@ -163,21 +220,21 @@ const save = async () => {
     }
 
     .module-body {
-      padding: 12px 0 0 8px;
+      padding: 0 0 0 8px;
+      :deep(.ant-descriptions) {
+        /* 强制两列各占 50% */
 
-      .field-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 12px;
-        color: #ffffff;
-
-        .field-label {
-          color: rgba(255,255,255,0.85);
-        }
-        .field-value {
+        .ant-descriptions-item-label {
           color: #ffffff;
-          font-weight: 600;
+          width: 150px;
+          padding: 8px 16px;
+        }
+        .ant-descriptions-item-content {
+          width: calc(100% - 150px);
+        }
+        .ant-descriptions-item-content,
+        .desc-text {
+          color: #ffffff;
         }
       }
     }
@@ -189,5 +246,11 @@ const save = async () => {
     justify-content: flex-end;
     gap: 8px;
   }
+}
+
+.global-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 </style>
