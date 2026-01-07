@@ -1,10 +1,10 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-06 17:01:22
+ * @LastEditTime: 2026-01-07 08:47:27
  * @LastEditors: ZHAO
  * @Description: 
- * @FilePath: \jx\src\views\InputOutput\index.vue
+ * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
  * 
 -->
 <template>
@@ -116,8 +116,8 @@ import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import type { EChartsOption } from "echarts";
-import { columns, selectOptions } from "./index";
-import InputOutputFormModal from "./InputOutputFormModal.vue";
+import { columns, selectOptions } from "../index";
+import InputOutputFormModal from "../InputOutputFormModal.vue";
 import { getList } from "@/api/inputOutput";
 import { PlusOutlined, ImportOutlined, DeleteOutlined, SearchOutlined, MoreOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons-vue";
 

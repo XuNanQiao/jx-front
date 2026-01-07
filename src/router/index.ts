@@ -39,6 +39,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: "/model/input-output/:id",
+        name: "ModelInputOutputDetail",
+        component: () => import("@/views/InputOutput/Detail.vue"),
+        meta: {
+          title: "模型输入输出详情",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "/model/development",
         name: "ModelDevelopment",
         component: () => import("@/views/development/index.vue"),

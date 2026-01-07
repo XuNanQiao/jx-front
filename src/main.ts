@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import Antd from 'ant-design-vue'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import router from './router'
 import App from './App.vue'
 
@@ -13,6 +14,6 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-app.use(Antd)
+app.use(Antd, { locale: zhCN })
 
 app.mount('#app')

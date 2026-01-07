@@ -1,3 +1,4 @@
+.ant-card{}
 .model-table {
   margin-top: var(--spacing-md);
   .ant-table {
@@ -23,6 +24,9 @@
     box-shadow: inset 0px 1px 8px 10px #305c99;
   }
 
+  .ant-table-tbody > tr > td {
+    padding: 8px;
+  }
   // 斑马纹效果
   .ant-table-tbody > tr:nth-child(odd) > td {
     background: #304162;
@@ -36,7 +40,56 @@
     background: #2f618e !important;
   }
 }
-
+.filter-section {
+  margin-bottom: var(--spacing-lg);
+  .filter-inter {
+    position: relative;
+    .select-inter {
+      position: absolute;
+      top: 0;
+      left: 6px;
+      line-height: 32px;
+    }
+    .ant-select {
+      color: #fff;
+      position: relative;
+      .ant-select-selector {
+        background: transparent;
+        color: #fff;
+        padding-left: 42px !important;
+      }
+      .ant-select-arrow,
+      .ant-select-selection-search-input,
+      .ant-select-selection-item,
+      .ant-select-selection-placeholder {
+        color: #fff;
+      }
+    }
+    .ant-input-affix-wrapper {
+      color: #fff;
+      position: relative;
+      background: transparent;
+      .ant-input {
+        background: transparent;
+        color: #fff;
+        &::placeholder {
+          color: #fff;
+        }
+      }
+      .ant-input-clear-icon {
+        color: #fff;
+      }
+    }
+  }
+}
+.ant-empty-description,
+.ant-pagination-total-text,
+.ant-pagination-item-link {
+  color: #fff;
+  .anticon {
+    color: #fff;
+  }
+}
 .data-input-chart {
   display: flex;
   align-items: center;
