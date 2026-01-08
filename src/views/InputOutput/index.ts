@@ -42,20 +42,20 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
   },
   {
     title: "周期（毫秒）",
-    dataIndex: "cycleTime",
+    dataIndex: "cycle_time",
     key: "cycleTime",
     width: 120,
   },
   {
     title: "创建时间",
-    dataIndex: "createdTime",
+    dataIndex: "created_time",
     key: "createdTime",
     sorter: true,
     width: 180,
   },
   {
     title: "创建人",
-    dataIndex: "createdUserId",
+    dataIndex: "created_user_id",
     key: "createdUserId",
     width: 120,
   },

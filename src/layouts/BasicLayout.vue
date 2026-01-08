@@ -17,16 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
 import AppHeader from '@/components/AppHeader.vue'
-
-const userStore = useUserStore()
-
-// 初始化用户信息
-onMounted(() => {
-  userStore.initUserInfo()
-})
+// 用户信息已在 main.ts 中初始化到全局状态
 </script>
 
 <style scoped>

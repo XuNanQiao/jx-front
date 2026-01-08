@@ -1,11 +1,11 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 14:51:02
+ * @LastEditTime: 2026-01-07 17:53:40
  * @LastEditors: ZHAO
- * @Description: 
+ * @Description:
  * @FilePath: \jx\src\views\InputOutput\index.vue
- * 
+ *
 -->
 <template>
   <a-card title="模型输入输出" :bordered="false">
@@ -32,7 +32,7 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="selectOptions" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
+          <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -47,14 +47,14 @@
     </div>
 
     <!-- 表格 -->
-    <a-table :columns="columns" :data-source="filteredData" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
-      <template #bodyCell="{ column, record }">
+    <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+      <template #bodyCell="{ column, record, text }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
         <template v-else-if="column.key === 'integrity'">
           <a-progress
-            :percent="record.integrity"
+            :percent="record.integrity * 100"
             :stroke-color="{
               '0%': '#108ee9',
               '100%': '#87d068',
@@ -71,7 +71,7 @@
             <ChartView :showAxis="false" :width="'150px'" :height="'40px'" :xAxisData="record.dataInputTrend" :yAxisData="record.dataInputTrend" />
           </div>
         </template>
-        <template v-else-if="column.key === 'cycleTime'"> {{ record.cycleTime }} ms </template>
+        <template v-else-if="column.key === 'cycleTime'"> {{ text }} ms </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
             <a-button type="text" size="small">
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { getList } from "@/api/inputOutput";
+import { getList, type ListQueryParams } from "@/api/inputOutput";
 import type { ModelInputOutput } from "@/types/model";
 import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
@@ -115,19 +115,9 @@ import { useRouter } from "vue-router";
 import { columns, selectOptions } from "./index";
 import InputOutputFormModal from "./InputOutputFormModal.vue";
 import ChartView from "@/components/chart/chartView.vue";
+import { debounce } from "lodash-es";
 
 const router = useRouter();
-
-// 防抖函数
-const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number = 300): ((...args: Parameters<T>) => void) => {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  return (...args: Parameters<T>) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      fn(...args);
-    }, delay);
-  };
-};
 
 // 加载状态
 const loading = ref(false);
@@ -150,6 +140,8 @@ const selectedRowKeys = ref<string[]>([]);
 
 // 分页配置
 const pagination = reactive({
+  size: 10,
+  page: 1,
   current: 1,
   pageSize: 10,
   total: 0,
@@ -158,18 +150,28 @@ const pagination = reactive({
   showTotal: (total: number) => `共 ${total} 条`,
 });
 
-// data source will be loaded from mock API
+// data source will be loaded from API
 const dataSource = ref<ModelInputOutput[]>([]);
 
 const loadData = async () => {
   loading.value = true;
   try {
-    const res: any = await getList();
-    dataSource.value = res?.data || [];
-    pagination.total = dataSource.value.length;
+    // 构建查询参数
+    const params: ListQueryParams = {
+      size: pagination.size,
+      page: pagination.page,
+      keyword: filters.keyword || undefined,
+      category: filters.category || undefined,
+    };
+    getList(params).then((res) => {
+      dataSource.value = res?.data?.items || [];
+      pagination.total = res?.data?.total || 0;
+    });
   } catch (err) {
     console.error(err);
     message.error("加载数据失败");
+    dataSource.value = [];
+    pagination.total = 0;
   } finally {
     loading.value = false;
   }
@@ -183,34 +185,29 @@ onMounted(() => {
 const searchKeyword = ref("");
 
 // 监听搜索关键词变化（带防抖）
-const debouncedSearch = debounce(() => {
-  filters.keyword = searchKeyword.value;
-}, 300);
+// 使用 lodash-es 的 debounce 函数，延迟 300ms
+const debouncedSearch = debounce(
+  () => {
+    filters.keyword = searchKeyword.value;
+    // 搜索时重置到第一页
+    pagination.current = 1;
+    loadData();
+  },
+  300,
+  {
+    leading: false, // 不在延迟开始时调用
+    trailing: true, // 在延迟结束后调用
+  }
+);
 
 watch(searchKeyword, () => {
   debouncedSearch();
 });
 
-// 筛选后的数据
-const filteredData = computed(() => {
-  let result = [...dataSource.value];
-
-  // 关键词搜索
-  if (filters.keyword) {
-    const keyword = filters.keyword.toLowerCase();
-    result = result.filter((item) => item.name.toLowerCase().includes(keyword) || item.attribute.toLowerCase().includes(keyword) || item.category.toLowerCase().includes(keyword));
-  }
-
-  // 类别筛选
-  if (filters.category) {
-    result = result.filter((item) => item.category === filters.category);
-  }
-
-  // 更新分页总数
-  pagination.total = result.length;
-  return result;
-});
-
+const searchHandler = () => {
+  pagination.current = 1;
+  loadData();
+};
 // 行选择配置
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
@@ -234,22 +231,8 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
     pagination.pageSize = paginationConfig.pageSize;
   }
 
-  // 处理排序
-  if (sorter.field) {
-    const { field, order } = sorter;
-    if (order) {
-      dataSource.value.sort((a, b) => {
-        const aValue = a[field as keyof ModelInputOutput];
-        const bValue = b[field as keyof ModelInputOutput];
-
-        if (order === "ascend") {
-          return aValue > bValue ? 1 : -1;
-        } else {
-          return aValue < bValue ? 1 : -1;
-        }
-      });
-    }
-  }
+  // 重新加载数据（服务端分页）
+  loadData();
 };
 
 // 新建

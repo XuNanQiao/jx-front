@@ -1,3 +1,12 @@
+/*
+ * @Author: ZHAO
+ * @Date: 2026-01-07 16:28:06
+ * @LastEditTime: 2026-01-07 16:50:45
+ * @LastEditors: ZHAO
+ * @Description: 
+ * @FilePath: \jx\src\utils\request.ts
+ * 
+ */
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 
 // 创建 axios 实例

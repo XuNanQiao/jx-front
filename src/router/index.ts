@@ -15,20 +15,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/",
     component: BasicLayout,
-    redirect: "/home",
+    redirect: "/model/input-output",
     meta: {
       requiresAuth: true,
     },
     children: [
-      {
-        path: "/home",
-        name: "Home",
-        component: () => import("@/views/Home.vue"),
-        meta: {
-          title: "首页",
-          requiresAuth: true,
-        },
-      },
       {
         path: "/model/input-output",
         name: "ModelInputOutput",
@@ -99,6 +90,8 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
+  console.log("-----------qq");
+  
   const isLoggedIn = userStore.isLoggedIn;
 
   // 设置页面标题
@@ -115,7 +108,7 @@ router.beforeEach((to, from, next) => {
   }
   // 如果已登录访问登录页，跳转到首页
   else if (to.path === "/login" && isLoggedIn) {
-    next("/home");
+    next("/");
   }
   // 其他情况正常跳转
   else {

@@ -6,8 +6,18 @@ interface ApiResponse<T = any> {
   data: T
 }
 
-export function getList(): Promise<ApiResponse<any[]>> {
-  return request.get('/input-output/list')
+// 列表查询参数
+export interface ListQueryParams {
+  size?: number      // 当前页码
+  page?: number     // 每页数量
+  keyword?: string      // 搜索关键词
+  category?: string     // 类别筛选
+  [key: string]: any    // 其他筛选参数
+}
+
+// 列表查询接口
+export function getList(params?: ListQueryParams): Promise<ApiResponse<any>> {
+  return request.post('/api/model_input_output/retrieve', params || {})
 }
 
 export function getDetail(id: string): Promise<ApiResponse<any>> {
