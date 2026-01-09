@@ -89,6 +89,7 @@ const openModal = (record?: any) => {
   visibleLocal.value = true;
   if (record) {
     Object.assign(form, record);
+    form.integrity = record.integrity ? record.integrity * 100 : 0;
   } else {
     resetForm();
   }

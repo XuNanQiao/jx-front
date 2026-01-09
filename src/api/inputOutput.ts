@@ -36,6 +36,7 @@ export function createItem(payload: any): Promise<ApiResponse<any>> {
 
 // 更新接口
 export function updateItem(payload: any): Promise<ApiResponse<any>> {
+  delete payload.updated_user_id;
   return request.put("/api/model_input_output/update", payload, { showMessage: true });
 }
 

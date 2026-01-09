@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-09 10:25:31
+ * @LastEditTime: 2026-01-09 16:10:57
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
@@ -85,31 +85,20 @@
               class="model-table"
               :scroll="{ x: 'max-content' }"
             >
-              <template #bodyCell="{ column, record }">
-                <template v-if="column.key === 'index'">
-                  {{ record.index }}
-                </template>
-              </template>
             </a-table>
           </template>
 
           <!-- 按设备分图 -->
           <template v-else-if="displayMode === 'deviceChart'">
             <div class="charts-grid">
-              <div v-for="device in deviceChartData" :key="device.id" class="chart-item">
-                <div class="chart-title">{{ device.name }}</div>
-                <chart-view :mockData="true" height="300px" />
-              </div>
+              <chart-view :mockData="true" height="300px" />
             </div>
           </template>
 
           <!-- 按数据列分图 -->
           <template v-else-if="displayMode === 'columnChart'">
             <div class="charts-grid">
-              <div v-for="column in columnChartData" :key="column.key" class="chart-item">
-                <div class="chart-title">{{ column.name }}</div>
-                <chart-view :mockData="true" height="300px" />
-              </div>
+              <chart-view :mockData="true" height="300px" />
             </div>
           </template>
 
@@ -123,7 +112,7 @@
           <!-- 关联关系 -->
           <template v-else-if="displayMode === 'correlation'">
             <div class="correlation-container">
-              <v-chart :option="correlationChartOption" :autoresize="true" style="height: 500px" />
+              <scatter-chart :mockData="true" height="500px" xAxisName="温度(°C)" yAxisName="湿度(%)" />
             </div>
           </template>
         </div>
@@ -163,47 +152,19 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import { DownOutlined } from "@ant-design/icons-vue";
-import VChart from "vue-echarts";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { ScatterChart } from "echarts/charts";
-import { GridComponent, TooltipComponent, LegendComponent } from "echarts/components";
-import type { EChartsOption } from "echarts";
 import type { Dayjs } from "dayjs";
 import { useRoute } from "vue-router";
-import { getBrowseData, getDataStructureList, type DataBrowseParams } from "@/api/inputOutput";
+import { getBrowseData, type DataBrowseParams } from "@/api/inputOutput";
 import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
 import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
 import { useTablePagination } from "@/views/InputOutput/composables/useTablePagination";
 import { useTimeRangeFilter } from "@/views/InputOutput/composables/useTimeRangeFilter";
 import ChartView from "@/components/chart/chartView.vue";
-
-// 类型定义
-interface ChartData {
-  time: string;
-  temperature: number;
-  humidity: number;
-  pressure: number;
-}
-
-interface DeviceChartItem {
-  id: string;
-  name: string;
-  data: ChartData[];
-}
-
-interface ColumnChartItem {
-  key: string;
-  name: string;
-  data: number[];
-}
+import ScatterChart from "@/components/chart/scatterChart.vue";
 
 type DisplayMode = "table" | "deviceChart" | "columnChart" | "distribution" | "correlation";
 type TimeRangeType = "0" | "1" | "7" | "30" | "custom";
 type SortOrder = "asc" | "none" | "desc";
-
-// 注册 ECharts 组件
-use([CanvasRenderer, ScatterChart, GridComponent, TooltipComponent, LegendComponent]);
 
 // 路由和组合式函数
 const route = useRoute();
@@ -230,62 +191,14 @@ const tableData = ref<any[]>([]);
 // 选项数据
 const timeOptions = TIME_RANGE_OPTIONS;
 const deviceInstances = ref([{ label: "电脑", value: "电脑" }]);
-const dataColumnsOptions = ref<{ label: string; value: string }[]>([]);
-
-// 设备图表数据
-const deviceChartData = ref<DeviceChartItem[]>([
-  {
-    id: "device1",
-    name: "设备1",
-    data: [
-      { time: "00:00", temperature: 25, humidity: 60, pressure: 101 },
-      { time: "04:00", temperature: 24, humidity: 62, pressure: 100 },
-      { time: "08:00", temperature: 26, humidity: 58, pressure: 102 },
-      { time: "12:00", temperature: 28, humidity: 55, pressure: 103 },
-      { time: "16:00", temperature: 27, humidity: 57, pressure: 101 },
-      { time: "20:00", temperature: 25, humidity: 60, pressure: 100 },
-    ],
-  },
-  {
-    id: "device2",
-    name: "设备2",
-    data: [
-      { time: "00:00", temperature: 23, humidity: 65, pressure: 99 },
-      { time: "04:00", temperature: 22, humidity: 67, pressure: 98 },
-      { time: "08:00", temperature: 24, humidity: 63, pressure: 100 },
-      { time: "12:00", temperature: 26, humidity: 60, pressure: 101 },
-      { time: "16:00", temperature: 25, humidity: 62, pressure: 99 },
-      { time: "20:00", temperature: 23, humidity: 65, pressure: 98 },
-    ],
-  },
-]);
-
-// 数据列图表数据
-const columnChartData = ref<ColumnChartItem[]>([
-  {
-    key: "temperature",
-    name: "温度",
-    data: [25, 24, 26, 28, 27, 25, 23, 22, 24, 26],
-  },
-  {
-    key: "humidity",
-    name: "湿度",
-    data: [60, 62, 58, 55, 57, 60, 65, 67, 63, 60],
-  },
-]);
-
-// 数据分布数据
-const distributionXData = ref<string[]>(["0-5", "5-10", "10-15", "15-20", "20-25", "25-30", "30-35"]);
-const distributionYData = ref<number[]>([2, 5, 12, 25, 18, 8, 3]);
 
 // 动态生成的表格列配置
 const dynamicColumns = computed(() => {
   // 如果用户选择了数据列，只显示选中的列
-  let dynamicDataColumns = JSON.parse(JSON.stringify(DataBrowseColumns));
+  let dynamicDataColumns = DataBrowseColumns;
   if (filters.dataColumns && filters.dataColumns.length > 0) {
-    dynamicDataColumns = dynamicDataColumns.filter((col) => filters.dataColumns!.includes(col.key));
+    dynamicDataColumns = DataBrowseColumns.filter((col: any) => filters.dataColumns!.includes(col.key));
   }
-
   return [...dynamicDataColumns];
 });
 
@@ -309,20 +222,12 @@ const handleQuery = async () => {
       sort_order: filters.sortOrder,
       page: pagination.current,
       size: pagination.pageSize,
-      /*       selected_columns:
-        filters.dataColumns?.length > 0
-          ? filters.dataColumns.filter((col) => {
-              // 只传递动态数据列给后端，过滤掉基础列(index, device, time)
-              const baseColumnKeys = DataBrowseColumns.map((c) => c.key);
-              return !baseColumnKeys.includes(col);
-            })
-          : dataColumnsOptions.value.map((opt) => opt.value), */
       ...timeRange,
     };
 
     const res = await getBrowseData(params);
     if (res.code === 200) {
-      tableData.value = res.data.records || [];
+      tableData.value = res.data.items || [];
       pagination.total = res.data.total || 0;
     }
   } catch (error: any) {
@@ -342,47 +247,6 @@ const handleTableChange = (pag: any) => {
 const handleDownload = ({ key }: { key: string }) => {
   message.success(`正在导出 ${key.toUpperCase()} 格式`);
 };
-
-// 关联关系图配置
-const correlationChartOption = computed<EChartsOption>(() => {
-  // 生成模拟散点数据
-  const data: [number, number][] = [];
-  for (let i = 0; i < 100; i++) {
-    const temp = 20 + Math.random() * 10;
-    const humidity = 70 - temp * 1.5 + Math.random() * 10;
-    data.push([temp, humidity]);
-  }
-
-  return {
-    tooltip: {
-      trigger: "item",
-      formatter: (params: any) => {
-        return `温度: ${params.value[0].toFixed(1)}°C<br/>湿度: ${params.value[1].toFixed(1)}%`;
-      },
-    },
-    xAxis: {
-      name: "温度(°C)",
-      nameLocation: "middle",
-      nameGap: 25,
-    },
-    yAxis: {
-      name: "湿度(%)",
-      nameLocation: "middle",
-      nameGap: 25,
-    },
-    series: [
-      {
-        type: "scatter",
-        data: data,
-        symbolSize: 8,
-        itemStyle: {
-          color: "#5470c6",
-          opacity: 0.6,
-        },
-      },
-    ],
-  };
-});
 
 // 时间范围类型变化处理
 const handleTimeRangeTypeChange = () => {

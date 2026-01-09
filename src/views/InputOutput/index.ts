@@ -49,9 +49,9 @@ export const columnsDataStructure: TableColumnType<DataStructure>[] = [
 
 // 数据浏览表格基础列（固定列）
 export const DataBrowseColumns = [
-  { title: "序号", key: "index", width: 80, fixed: "left" as const },
-  { title: "设备", dataIndex: "device", key: "device", width: 150 },
-  { title: "时间", dataIndex: "time", key: "time", width: 180 },
+  { title: "序号", key: "index", width: 80, customRender: ({ index }) => index + 1 },
+  { title: "设备", dataIndex: "name", key: "device", width: 150 },
+  { title: "时间", dataIndex: "created_time", key: "time", width: 180, customRender: ({ text }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-") },
 ];
 
 /**
@@ -90,7 +90,7 @@ export const basicFields: FieldConfig[] = [
   { key: "display_name", label: "显示名称" },
   { key: "data_type", label: "数据类型", sort: "dataType" },
   { key: "default_device", label: "使用默认设备", sort: "defaultDevice" },
-  { key: "storage_engine", label: "存储引擎", sort: "storageEngine" },
+  { key: "database_category", label: "存储引擎", sort: "storageEngine" },
   { key: "cycle_time", label: "数据周期(ms)", sort: "cycleTime" },
 ];
 
@@ -114,6 +114,6 @@ export const otherFields: FieldConfig[] = [
   { key: "custom_pk", label: "自定义主键" },
   { key: "ledger", label: "关联台账" },
   { key: "mock_cycle", label: "Mock周期" },
-  { key: "category", label: "类别" },
+  { key: "category", label: "类别", sort: "category" },
   { key: "attribute", label: "输入输出类型" },
 ];

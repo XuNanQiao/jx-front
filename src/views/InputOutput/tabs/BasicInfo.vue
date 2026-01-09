@@ -1,5 +1,5 @@
 <template>
-  <div class="basic-info">
+  <div class="basic-info page">
     <!-- 全局操作 -->
     <div class="global-actions">
       <a-space>
@@ -19,14 +19,13 @@
       </div>
       <div v-show="open.basic" class="module-body">
         <a-descriptions :column="2" bordered>
-          <a-descriptions-item v-for="field in basicFields" :key="field.key" :label="field.label">
+          <a-descriptions-item :span="1" v-for="field in basicFields" :key="field.key" :label="field.label">
             <template v-if="editMode">
               <template v-if="field.sort === 'defaultDevice'">
                 <a-switch v-model:checked="form.defaultDevice" />
               </template>
               <template v-else-if="field.sort === 'storageEngine'">
-                <!-- <a-input v-model:value="form.storageEngine" style="width: calc(100% - 160px); display: inline-block" /> -->
-                <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal">配置</a-button>
+                <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal(true)">配置</a-button>
               </template>
               <template v-else-if="field.sort === 'cycleTime'">
                 <a-input-number v-model:value="form[field.key]" :min="0" style="width: 100%" placeholder="请输入数据周期" />
@@ -37,15 +36,13 @@
             </template>
             <template v-else>
               <template v-if="field.sort === 'storageEngine'">
-                <span class="desc-text" @click="viewDatabaseConfig">{{ detail.storageEngine ?? "-" }}</span>
-                <a-button size="small" type="link" style="margin-left: 8px" @click="openDatabaseConfigModal">查看配置</a-button>
+                <span class="desc-text" @click="viewDatabaseConfig">{{ detail["database_category"] ?? "-" }}</span>
+                <a-button size="small" type="link" style="margin-left: 8px" @click="openDatabaseConfigModal(false)">查看配置</a-button>
               </template>
               <template v-else-if="field.sort === 'defaultDevice'">
                 <span class="desc-text">{{ detail.defaultDevice ? "是" : "否" }}</span>
               </template>
-              <template v-else-if="field.sort === 'dataType'">
-                <span class="desc-text">{{ detail[field.key] ?? "时序数据" }}</span>
-              </template>
+
               <template v-else>
                 <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
               </template>
@@ -89,7 +86,10 @@
         <a-descriptions :column="2" bordered>
           <a-descriptions-item v-for="field in otherFields" :key="field.key" :label="field.label">
             <template v-if="field.sort == 'created'">
-              <span class="desc-text">{{ detail["created_time"] ? dayjs(detail["created_time"]).format("YYYY-MM-DD HH:mm:ss") : "-" }}/{{ detail["created_user_id"] ?? "-" }}</span>
+              <span class="desc-text">{{ detail["created_user_id"] ?? "-" }} / {{ detail["created_time"] ? dayjs(detail["created_time"]).format("YYYY-MM-DD HH:mm:ss") : "-" }}</span>
+            </template>
+            <template v-else-if="field.sort === 'category'">
+              <span class="desc-text">{{ detail.category == "1" ? "系统" : "台账" }}</span>
             </template>
             <span v-else class="desc-text">{{ detail[field.key] ?? "-" }}</span>
           </a-descriptions-item>
@@ -160,12 +160,12 @@ const save = async () => {
 };
 
 // 打开数据库配置弹窗（编辑模式）
-const openDatabaseConfigModal = () => {
+const openDatabaseConfigModal = (isAddMode: boolean) => {
   if (!detail.value.id) {
     message.warning("请先保存基础信息");
     return;
   }
-  databaseConfigModalRef.value?.openModal(detail.value.id);
+  databaseConfigModalRef.value?.openModal(detail.value, isAddMode);
 };
 
 // 查看数据库配置（查看模式）
@@ -174,11 +174,16 @@ const viewDatabaseConfig = () => {
     message.warning("暂无配置信息");
     return;
   }
-  databaseConfigModalRef.value?.viewModal(detail.value.id);
+  databaseConfigModalRef.value?.viewModal(detail.value);
 };
 
 // 数据库配置保存成功回调
-const handleDatabaseConfigSaved = () => {
+const handleDatabaseConfigSaved = (data: any) => {
+  if (editMode.value) {
+    Object.assign(form, data);
+  } else {
+    loadDetail();
+  }
   message.success("数据库配置已保存");
 };
 
@@ -268,10 +273,11 @@ watch(
         .ant-descriptions-item-label {
           color: #ffffff;
           width: 150px;
+          min-width: 150px !important;
           padding: 8px 16px;
         }
         .ant-descriptions-item-content {
-          width: calc(100% - 150px);
+          width: 50%;
         }
         .ant-descriptions-item-content,
         .desc-text {

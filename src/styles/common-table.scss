@@ -21,7 +21,7 @@
   .ant-pagination-item a {
     color: #fff !important;
   }
-  .ant-pagination-item-active a{
+  .ant-pagination-item-active a {
     color: #1677ff !important;
   }
   .ant-table-thead > tr > th {
@@ -86,20 +86,25 @@
       color: #fff;
     }
   }
-  .ant-input-affix-wrapper {
+  .ant-input-affix-wrapper,
+  .ant-input-number {
     color: #fff;
     position: relative;
     background: transparent;
-    .ant-input {
-      background: transparent;
-      color: #fff;
-      &::placeholder {
-        color: #fff;
-      }
-    }
-    .ant-input-clear-icon {
+  }
+  .ant-input,
+  .ant-input-number-input {
+    background: transparent;
+    color: #fff;
+    &::placeholder {
       color: #fff;
     }
+  }
+  .ant-input-clear-icon {
+    color: #fff;
+  }
+  .ant-picker-disabled input {
+    color: #fff !important;
   }
 }
 .ant-empty-description,
