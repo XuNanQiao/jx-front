@@ -13,11 +13,17 @@
       color: #fff;
     }
     .ant-pagination-total-text,
-    .page {
+    .page,
+    .ant-pagination-item a {
       color: #fff !important;
     }
   }
-
+  .ant-pagination-item a {
+    color: #fff !important;
+  }
+  .ant-pagination-item-active a{
+    color: #1677ff !important;
+  }
   .ant-table-thead > tr > th {
     background: #285187;
     color: #fff;

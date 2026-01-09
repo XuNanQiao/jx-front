@@ -25,8 +25,11 @@
                 <a-switch v-model:checked="form.defaultDevice" />
               </template>
               <template v-else-if="field.sort === 'storageEngine'">
-                <a-input v-model:value="form.storageEngine" style="width: calc(100% - 160px); display: inline-block" />
+                <!-- <a-input v-model:value="form.storageEngine" style="width: calc(100% - 160px); display: inline-block" /> -->
                 <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal">配置</a-button>
+              </template>
+              <template v-else-if="field.sort === 'cycleTime'">
+                <a-input-number v-model:value="form[field.key]" :min="0" style="width: 100%" placeholder="请输入数据周期" />
               </template>
               <template v-else>
                 <a-input v-model:value="form[field.key]" />
@@ -34,8 +37,8 @@
             </template>
             <template v-else>
               <template v-if="field.sort === 'storageEngine'">
-                <span class="desc-text">{{ detail.storageEngine ?? "-" }}</span>
-                <a-button size="small" type="link" style="margin-left: 8px" @click="viewDatabaseConfig">查看配置</a-button>
+                <span class="desc-text" @click="viewDatabaseConfig">{{ detail.storageEngine ?? "-" }}</span>
+                <a-button size="small" type="link" style="margin-left: 8px" @click="openDatabaseConfigModal">查看配置</a-button>
               </template>
               <template v-else-if="field.sort === 'defaultDevice'">
                 <span class="desc-text">{{ detail.defaultDevice ? "是" : "否" }}</span>
@@ -62,10 +65,14 @@
         <a-descriptions :column="2" bordered>
           <a-descriptions-item v-for="field in retentionFields" :key="field.key" :label="field.label">
             <template v-if="editMode">
-              <a-input v-model:value="form[field.key]" />
+              <a-select v-model:value="form[field.key]" style="width: 100%" placeholder="请选择">
+                <a-select-option v-for="option in retentionOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </a-select-option>
+              </a-select>
             </template>
             <template v-else>
-              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
+              <span class="desc-text">{{ getRetentionLabel(detail[field.key]) }}</span>
             </template>
           </a-descriptions-item>
         </a-descriptions>
@@ -81,28 +88,27 @@
       <div v-show="open.other" class="module-body">
         <a-descriptions :column="2" bordered>
           <a-descriptions-item v-for="field in otherFields" :key="field.key" :label="field.label">
-            <template v-if="editMode">
-              <a-input v-model:value="form[field.key]" />
+            <template v-if="field.sort == 'created'">
+              <span class="desc-text">{{ detail["created_time"] ? dayjs(detail["created_time"]).format("YYYY-MM-DD HH:mm:ss") : "-" }}/{{ detail["created_user_id"] ?? "-" }}</span>
             </template>
-            <template v-else>
-              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
-            </template>
+            <span v-else class="desc-text">{{ detail[field.key] ?? "-" }}</span>
           </a-descriptions-item>
         </a-descriptions>
       </div>
     </div>
 
     <!-- 数据库连接配置弹窗 -->
-    <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="form.id" @saved="handleDatabaseConfigSaved" />
+    <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="detail.id" @saved="handleDatabaseConfigSaved" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, onMounted } from "vue";
+import { ref, watch, reactive } from "vue";
 import { getDetail, updateItem } from "@/api/inputOutput";
 import { message } from "ant-design-vue";
-import { basicFields, retentionFields, otherFields } from "../index";
+import { basicFields, retentionFields, otherFields, retentionOptions } from "../index";
 import DatabaseConfigModal from "./DatabaseConfigModal.vue";
+import dayjs from "dayjs";
 
 const props = defineProps<{ id: any | null }>();
 
@@ -145,8 +151,9 @@ const save = async () => {
     return;
   }
   try {
-    updateItem(form);
+    await updateItem(form);
     message.success("保存成功");
+    await loadDetail(); // 保存后重新加载数据
   } catch (err) {
     message.error("保存失败");
   }
@@ -154,25 +161,35 @@ const save = async () => {
 
 // 打开数据库配置弹窗（编辑模式）
 const openDatabaseConfigModal = () => {
-  if (!form.id) {
+  if (!detail.value.id) {
     message.warning("请先保存基础信息");
     return;
   }
-  databaseConfigModalRef.value?.openModal(form.id);
+  databaseConfigModalRef.value?.openModal(detail.value.id);
 };
 
 // 查看数据库配置（查看模式）
 const viewDatabaseConfig = () => {
-  if (!form.id) {
+  if (!detail.value.id) {
     message.warning("暂无配置信息");
     return;
   }
-  databaseConfigModalRef.value?.viewModal(form.id);
+  databaseConfigModalRef.value?.viewModal(detail.value.id);
 };
 
 // 数据库配置保存成功回调
 const handleDatabaseConfigSaved = () => {
   message.success("数据库配置已保存");
+};
+
+// 获取数据保留显示标签
+const getRetentionLabel = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+  const strValue = String(value);
+  const option = retentionOptions.find((opt) => opt.value === strValue);
+  return option ? option.label : strValue;
 };
 // 加载详情数据
 const loadDetail = async () => {
@@ -186,7 +203,9 @@ const loadDetail = async () => {
     const res: any = await getDetail(props.id);
     if (res?.code === 200 && res?.data) {
       detail.value = res.data;
-      console.log("✅ 详情数据加载成功:", detail.value);
+      // 同步到表单
+      Object.keys(form).forEach((k) => delete form[k]);
+      Object.assign(form, res.data);
     }
   } catch (err: any) {
     console.error("❌ 详情数据加载错误:", err);
@@ -195,9 +214,7 @@ const loadDetail = async () => {
   }
 };
 
-onMounted(() => {
-  loadDetail();
-});
+// 监听 id 变化
 watch(
   () => props.id,
   (val) => {
@@ -275,6 +292,9 @@ watch(
 .global-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 8px;
+  margin-top: -48px;
+  margin-bottom: 16px;
+  width: 200px;
+  float: right;
 }
 </style>

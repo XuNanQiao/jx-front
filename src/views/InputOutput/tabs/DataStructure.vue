@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 15:38:03
+ * @LastEditTime: 2026-01-09 11:58:26
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\tabs\DataStructure.vue
@@ -36,7 +36,7 @@
   </div>
 
   <!-- 表格 -->
-  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="paginationConfig" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
         <a-button type="text" class="text-white" size="small" @click="handleEdit(record)"> 编辑 </a-button>
@@ -109,7 +109,6 @@ const pagination = reactive({
   pageSize: 10,
   total: 0,
   showSizeChanger: true,
-  showQuickJumper: true,
   showTotal: (total: number) => `共 ${total} 条`,
 });
 
@@ -125,7 +124,12 @@ const loadData = async () => {
   loading.value = true;
   try {
     console.log("📤 正在加载数据结构列表，model_input_output_id:", modelInputOutputId.value);
-    const res: any = await getDataStructureList(modelInputOutputId.value);
+    let dataParams: any = {
+      model_input_output_id: modelInputOutputId.value,
+      page: pagination.current,
+      size: pagination.pageSize,
+    };
+    const res: any = await getDataStructureList(dataParams);
     console.log("📥 数据结构列表响应:", res);
 
     if (res?.code === 200) {
@@ -135,12 +139,10 @@ const loadData = async () => {
       pagination.total = res.data?.total || items.length;
       console.log("✅ 数据结构列表加载成功，共", pagination.total, "条");
     } else {
-      message.error(res?.message || "加载数据失败");
       console.error("❌ 数据结构列表加载失败:", res);
     }
   } catch (err: any) {
     console.error("❌ 数据结构列表加载错误:", err);
-    message.error(err?.message || "加载数据失败，请稍后重试");
   } finally {
     loading.value = false;
   }
@@ -177,10 +179,18 @@ const filteredData = computed(() => {
       return name.includes(keyword) || column.includes(keyword) || dataType.includes(keyword);
     });
   }
-  // 更新分页总数
-  pagination.total = result.length;
+
   return result;
 });
+
+// 分页配置（基于过滤后的数据）
+const paginationConfig = computed(() => ({
+  current: pagination.current,
+  pageSize: pagination.pageSize,
+  total: pagination.total,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}));
 
 // 行选择配置
 const rowSelection = computed(() => ({
@@ -196,13 +206,14 @@ const rowSelection = computed(() => ({
 // 表格变化处理（排序、分页）
 const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
   // 更新分页
+
   if (paginationConfig.current) {
     pagination.current = paginationConfig.current;
   }
   if (paginationConfig.pageSize) {
     pagination.pageSize = paginationConfig.pageSize;
   }
-
+  loadData();
   // 处理排序
   if (sorter.field) {
     const { field, order } = sorter;

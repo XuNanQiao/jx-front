@@ -1,6 +1,9 @@
 import { DataBrowseParams } from "@/types/model";
 import { request } from "@/utils/request";
 
+// 重新导出类型以便其他模块使用
+export type { DataBrowseParams };
+
 interface ApiResponse<T = any> {
   code: number;
   message: string;
@@ -52,10 +55,8 @@ export function batchDeleteItems(ids: (string | number)[]): Promise<ApiResponse<
 
 // 数据结构相关 API
 // 数据结构列表查询接口 - 使用真实后端 API
-export function getDataStructureList(model_input_output_id: string | number): Promise<ApiResponse<any>> {
-  return request.get("/api/model_input_output/data_struct/retrieve", {
-    params: { model_input_output_id },
-  });
+export function getDataStructureList(params: any): Promise<ApiResponse<any>> {
+  return request.get("/api/model_input_output/data_struct/retrieve", { params: params });
 }
 export function createDataStructure(payload: any): Promise<ApiResponse<any>> {
   return request.post("/api/model_input_output/data_struct/create", payload, { showMessage: true });
@@ -113,7 +114,7 @@ export function deleteDatabaseConfig(id: string): Promise<ApiResponse<any>> {
 // 数据浏览相关 API
 
 export function getBrowseData(params: DataBrowseParams): Promise<ApiResponse<any>> {
-  return request.post("/api/model_input_output/data_browsing/retrieve",   params  );
+  return request.post("/api/model_input_output/data_browsing/retrieve", params);
 }
 
 export function getDeviceInstances(): Promise<ApiResponse<any[]>> {

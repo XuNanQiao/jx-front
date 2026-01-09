@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-08 10:12:17
+ * @LastEditTime: 2026-01-09 11:39:58
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\InputOutput\index.vue
@@ -32,7 +32,7 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
+          <a-select :options="attributeOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -68,10 +68,9 @@
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">
-            <ChartView :showAxis="false" :width="'150px'" :height="'40px'" :xAxisData="record.dataInputTrend" :yAxisData="record.dataInputTrend" />
+            <ChartView :showAxis="false" :axisPointerShow="false" :width="'150px'" :height="'40px'" :grid="{ left: 0, bottom: 0, right: 0, top: 0 }" :mockData="true" />
           </div>
         </template>
-        <template v-else-if="column.key === 'cycleTime'"> {{ text }} ms </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
             <a-button type="text" size="small">
@@ -111,7 +110,7 @@ import type { TableProps } from "ant-design-vue";
 import { message, Modal } from "ant-design-vue";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { columns, selectOptions } from "./index";
+import { columns, attributeOptions } from "./index";
 import InputOutputFormModal from "./InputOutputFormModal.vue";
 import ChartView from "@/components/chart/chartView.vue";
 import { debounce } from "lodash-es";
@@ -123,10 +122,10 @@ const loading = ref(false);
 
 // 筛选条件
 const filters = reactive<{
-  keyword: string;
+  name: string;
   category: string | undefined;
 }>({
-  keyword: "",
+  name: "",
   category: undefined,
 });
 
@@ -139,7 +138,6 @@ const pagination = reactive({
   pageSize: 10,
   total: 0,
   showSizeChanger: true,
-  showQuickJumper: true,
   showTotal: (total: number) => `共 ${total} 条`,
 });
 
@@ -153,7 +151,7 @@ const loadData = async () => {
     const params: ListQueryParams = {
       size: pagination.pageSize,
       page: pagination.current,
-      keyword: filters.keyword || undefined,
+      name: filters.name || undefined,
       category: filters.category || undefined,
     };
     const res = await getList(params);
@@ -161,7 +159,6 @@ const loadData = async () => {
     pagination.total = res?.data?.total || 0;
   } catch (err) {
     console.error(err);
-    message.error("加载数据失败");
     dataSource.value = [];
     pagination.total = 0;
   } finally {
@@ -178,7 +175,7 @@ const searchKeyword = ref("");
 
 // 监听搜索关键词变化（带防抖）
 const debouncedSearch = debounce(() => {
-  filters.keyword = searchKeyword.value;
+  filters.name = searchKeyword.value;
   pagination.current = 1;
   loadData();
 }, 300);

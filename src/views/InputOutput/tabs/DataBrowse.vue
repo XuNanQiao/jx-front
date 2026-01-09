@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-08 17:37:55
+ * @LastEditTime: 2026-01-09 10:25:31
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
@@ -20,7 +20,7 @@
 
           <div class="filter-item">
             <label class="filter-label">数据列</label>
-            <a-select :options="dataColumnsOptions" v-model:value="filters.dataColumns" mode="multiple" placeholder="默认显示全部" style="width: 100%" allow-clear :max-tag-count="2"> </a-select>
+            <a-select :options="allColumnsOptions" v-model:value="filters.dataColumns" mode="multiple" placeholder="默认显示全部" style="width: 100%" allow-clear :max-tag-count="2"> </a-select>
           </div>
 
           <div class="filter-item">
@@ -69,7 +69,7 @@
           <!-- 表格预览模式 -->
           <template v-if="displayMode === 'table'">
             <a-table
-              :columns="DataBrowseColumns"
+              :columns="dynamicColumns"
               :data-source="tableData"
               :loading="loading"
               :pagination="{
@@ -98,7 +98,7 @@
             <div class="charts-grid">
               <div v-for="device in deviceChartData" :key="device.id" class="chart-item">
                 <div class="chart-title">{{ device.name }}</div>
-                <chart-view :x-axis-data="device.data.map((d) => d.time)" :y-axis-data="[device.data.map((d) => d.temperature)]" :show-axis="true" height="300px" />
+                <chart-view :mockData="true" height="300px" />
               </div>
             </div>
           </template>
@@ -108,7 +108,7 @@
             <div class="charts-grid">
               <div v-for="column in columnChartData" :key="column.key" class="chart-item">
                 <div class="chart-title">{{ column.name }}</div>
-                <chart-view :x-axis-data="column.data.map((_, i) => `T${i + 1}`)" :y-axis-data="[column.data]" :show-axis="true" height="300px" />
+                <chart-view :mockData="true" height="300px" />
               </div>
             </div>
           </template>
@@ -116,7 +116,7 @@
           <!-- 数据分布 -->
           <template v-else-if="displayMode === 'distribution'">
             <div class="distribution-container">
-              <chart-view :x-axis-data="distributionXData" :y-axis-data="[distributionYData]" :show-axis="true" height="500px" />
+              <chart-view :mockData="true" height="500px" />
             </div>
           </template>
 
@@ -170,23 +170,15 @@ import { ScatterChart } from "echarts/charts";
 import { GridComponent, TooltipComponent, LegendComponent } from "echarts/components";
 import type { EChartsOption } from "echarts";
 import type { Dayjs } from "dayjs";
-import { getBrowseData, getDataColumns, type DataBrowseParams } from "@/api/inputOutput";
-import { DataBrowseColumns } from "@/views/InputOutput/index";
-import ChartView from "@/components/chart/chartView.vue";
-import dayjs from "dayjs";
 import { useRoute } from "vue-router";
+import { getBrowseData, getDataStructureList, type DataBrowseParams } from "@/api/inputOutput";
+import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
+import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
+import { useTablePagination } from "@/views/InputOutput/composables/useTablePagination";
+import { useTimeRangeFilter } from "@/views/InputOutput/composables/useTimeRangeFilter";
+import ChartView from "@/components/chart/chartView.vue";
 
 // 类型定义
-interface DeviceInstance {
-  id: string;
-  name: string;
-}
-
-interface DataColumn {
-  key: string;
-  name: string;
-}
-
 interface ChartData {
   time: string;
   temperature: number;
@@ -206,19 +198,17 @@ interface ColumnChartItem {
   data: number[];
 }
 
-interface TableRecord {
-  id: string;
-  index: number;
-  [key: string]: any;
-}
-
 type DisplayMode = "table" | "deviceChart" | "columnChart" | "distribution" | "correlation";
 type TimeRangeType = "0" | "1" | "7" | "30" | "custom";
 type SortOrder = "asc" | "none" | "desc";
 
-// 注册 ECharts 组件(折线图和柱状图使用 ChartView 组件)
+// 注册 ECharts 组件
 use([CanvasRenderer, ScatterChart, GridComponent, TooltipComponent, LegendComponent]);
+
+// 路由和组合式函数
 const route = useRoute();
+const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
+const { getTimeRange } = useTimeRangeFilter();
 
 // 筛选条件
 const filters = reactive({
@@ -231,26 +221,16 @@ const filters = reactive({
   samplingRate: 60 as number,
 });
 
+// 状态管理
 const moreFiltersVisible = ref<string[]>([]);
 const displayMode = ref<DisplayMode>("table");
 const loading = ref(false);
-const tableData = ref<TableRecord[]>([]);
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-});
-const timeOptions = ref([
-  { label: "最近", value: "0" },
-  { label: "昨天", value: "1" },
-  { label: "最近一周", value: "7" },
-  { label: "最近一月", value: "30" },
-  { label: "自定义", value: "custom" },
-]);
-// 设备实例列表
-const deviceInstances = ref<DeviceInstance[]>([{ label: "电脑", value: "电脑" }]);
-// 数据列选项
-const dataColumnsOptions = ref<DataColumn[]>([]);
+const tableData = ref<any[]>([]);
+
+// 选项数据
+const timeOptions = TIME_RANGE_OPTIONS;
+const deviceInstances = ref([{ label: "电脑", value: "电脑" }]);
+const dataColumnsOptions = ref<{ label: string; value: string }[]>([]);
 
 // 设备图表数据
 const deviceChartData = ref<DeviceChartItem[]>([
@@ -298,9 +278,20 @@ const columnChartData = ref<ColumnChartItem[]>([
 const distributionXData = ref<string[]>(["0-5", "5-10", "10-15", "15-20", "20-25", "25-30", "30-35"]);
 const distributionYData = ref<number[]>([2, 5, 12, 25, 18, 8, 3]);
 
+// 动态生成的表格列配置
+const dynamicColumns = computed(() => {
+  // 如果用户选择了数据列，只显示选中的列
+  let dynamicDataColumns = JSON.parse(JSON.stringify(DataBrowseColumns));
+  if (filters.dataColumns && filters.dataColumns.length > 0) {
+    dynamicDataColumns = dynamicDataColumns.filter((col) => filters.dataColumns!.includes(col.key));
+  }
+
+  return [...dynamicDataColumns];
+});
+
 // 搜索
 const search = () => {
-  pagination.pageSize = 1;
+  pagination.current = 1;
   handleQuery();
 };
 
@@ -308,32 +299,26 @@ const search = () => {
 const handleQuery = async () => {
   loading.value = true;
   try {
+    // 获取时间范围
+    const timeRange = getTimeRange(filters.timeRangeType as TimeRangeType, filters.dateRange);
+
+    // 构建查询参数
     const params: DataBrowseParams = {
       model_input_output_id: route.params.id,
       device_value: filters.deviceInstance,
       sort_order: filters.sortOrder,
       page: pagination.current,
       size: pagination.pageSize,
-      selected_columns:['name']
+      /*       selected_columns:
+        filters.dataColumns?.length > 0
+          ? filters.dataColumns.filter((col) => {
+              // 只传递动态数据列给后端，过滤掉基础列(index, device, time)
+              const baseColumnKeys = DataBrowseColumns.map((c) => c.key);
+              return !baseColumnKeys.includes(col);
+            })
+          : dataColumnsOptions.value.map((opt) => opt.value), */
+      ...timeRange,
     };
-
-    // 处理日期范围
-    if (filters.timeRangeType == "0") {
-      params.start_time = dayjs().subtract(0, "day").format("YYYY-MM-DD");
-      params.end_time = dayjs().subtract(0, "day").format("YYYY-MM-DD");
-    } else if (filters.timeRangeType == "1") {
-      params.start_time = dayjs().subtract(1, "day").format("YYYY-MM-DD");
-      params.end_time = dayjs().subtract(1, "day").format("YYYY-MM-DD");
-    } else if (filters.timeRangeType == "7") {
-      params.start_time = dayjs().subtract(0, "day").format("YYYY-MM-DD");
-      params.end_time = dayjs().subtract(7, "day").format("YYYY-MM-DD");
-    } else if (filters.timeRangeType == "30") {
-      params.start_time = dayjs().subtract(0, "day").format("YYYY-MM-DD");
-      params.end_time = dayjs().subtract(30, "day").format("YYYY-MM-DD");
-    } else if (filters.dateRange && filters.dateRange.length === 2) {
-      params.start_time = filters.dateRange[0].format("YYYY-MM-DD");
-      params.end_time = filters.dateRange[1].format("YYYY-MM-DD");
-    }
 
     const res = await getBrowseData(params);
     if (res.code === 200) {
@@ -348,13 +333,8 @@ const handleQuery = async () => {
 };
 
 // 表格变化
-const handleTableChange = (pag: any, _filters: any, _sorter: any) => {
-  if (pag.current) {
-    pagination.current = pag.current;
-  }
-  if (pag.pageSize) {
-    pagination.pageSize = pag.pageSize;
-  }
+const handleTableChange = (pag: any) => {
+  onTableChange(pag);
   handleQuery();
 };
 
@@ -404,9 +384,17 @@ const correlationChartOption = computed<EChartsOption>(() => {
   };
 });
 
+// 时间范围类型变化处理
+const handleTimeRangeTypeChange = () => {
+  // 如果不是自定义时间，清空日期范围选择
+  if (filters.timeRangeType !== "custom") {
+    filters.dateRange = null;
+  }
+};
+
 // 初始化
-onMounted(() => {
-  handleQuery();
+onMounted(async () => {
+  handleQuery(); // 再查询数据
 });
 </script>
 

@@ -43,14 +43,21 @@ export interface DatabaseConfig {
   updatedUserId?: string // 更新人
 }
 export interface DataBrowseParams {
+  model_input_output_id?: string | string[];
+  device_value?: string;
   device_instance?: string;
+  selected_columns?: string[];
   data_columns?: string[];
   time_range_type?: string;
+  start_time?: string;
+  end_time?: string;
   start_date?: string;
   end_date?: string;
   sort_order?: "asc" | "desc" | "none";
   data_type?: string;
   sampling_rate?: number;
+  page?: number;
+  size?: number;
   current?: number;
   page_size?: number;
 }

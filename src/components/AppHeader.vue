@@ -154,8 +154,8 @@ const handleLogout = async () => {
   background: var(--nav-bg) !important;
   box-shadow: var(--nav-shadow);
   padding: 0 var(--spacing-lg);
-  height: 64px;
-  line-height: 64px;
+  height: 48px;
+  line-height: 48px;
   position: sticky;
   top: 0;
   z-index: 999;

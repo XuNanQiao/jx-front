@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-08 15:53:47
+ * @LastEditTime: 2026-01-09 10:41:44
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\components\chart\chartView.vue
@@ -21,15 +21,26 @@ import { computed } from "vue";
 import VChart from "vue-echarts";
 
 const props = defineProps({
+  axisPointerShow: { type: Boolean, default: true },
   showAxis: { type: Boolean, default: true },
+  mockData: { type: Boolean, default: false },
   width: { type: String, default: "100%" },
   height: { type: String, default: "100%" },
   xAxisData: { type: Array as () => string[], default: () => [] },
   yAxisData: { type: Array as () => number[][], default: () => [[]] },
   showAreaStyle: { type: Boolean, default: true },
+  grid: {
+    type: Object as () => { left?: number; right?: number; top?: number; bottom?: number },
+    default: () => ({
+      left: 40,
+      right: 20,
+      top: 20,
+      bottom: 30,
+    }),
+  },
   areaColors: {
     type: Array as () => Array<{ start: string; end: string }>,
-    default: () => [{ start: "rgba(24, 144, 255, 0.3)", end: "rgba(24, 144, 255, 0.05)" }]
+    default: () => [{ start: "rgba(24, 144, 255, 0.3)", end: "rgba(24, 144, 255, 0.05)" }],
   },
 });
 
@@ -39,14 +50,19 @@ use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
 const chartStyle = computed(() => `height:${props.height}; width:${props.width}`);
 
 const chartOption = computed<EChartsOption>(() => {
-  const data = props.yAxisData || [];
+  let yAxisData = props.yAxisData || [];
+  let xAxisData = props.xAxisData;
+  if (props.mockData) {
+    yAxisData = [Array.from({ length: 10 }, () => Math.floor(Math.random() * 100))];
+    xAxisData = Array.from({ length: 10 }, (_, i) => `Label ${i + 1}`);
+  }
   let series = [];
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < yAxisData.length; i++) {
     const colors = props.areaColors[i] || props.areaColors[0];
     const seriesItem: any = {
       type: "line" as const,
       smooth: true,
-      data: data[i],
+      data: yAxisData[i],
       showSymbol: false,
       lineStyle: {
         width: 2,
@@ -75,11 +91,11 @@ const chartOption = computed<EChartsOption>(() => {
     series.push(seriesItem);
   }
   return {
-    grid: { left: 40, right: 20, top: 20, bottom: 30 },
+    grid: { left: props.grid?.left, right: props.grid?.right, top: props.grid?.top, bottom: props.grid?.bottom },
     xAxis: {
       type: "category",
       show: props.showAxis,
-      data: props.xAxisData,
+      data: xAxisData,
       axisLabel: {
         color: "#ffffff",
         formatter: (value: string) => {
@@ -96,6 +112,7 @@ const chartOption = computed<EChartsOption>(() => {
       },
       axisPointer: {
         type: "line",
+        // show: props.axisPointerShow,
         label: {
           show: true,
           backgroundColor: "#1890ff",
@@ -123,6 +140,7 @@ const chartOption = computed<EChartsOption>(() => {
       },
       axisPointer: {
         type: "line",
+        show: props.axisPointerShow,
         label: {
           show: true,
           backgroundColor: "#1890ff",
