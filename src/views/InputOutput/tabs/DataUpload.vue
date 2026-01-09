@@ -8,8 +8,8 @@
  *
 -->
 <template>
-  <div class="data-upload">
-    <!-- 顶部操作栏 -->
+  <div class="data-upload page">
+    <!-- 顶部操作栏 --> 
     <div class="upload-header">
       <div class="header-left">
         <a-button size="small" ghost @click="handleRefresh">

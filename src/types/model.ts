@@ -23,12 +23,12 @@ export interface DataStructure {
   id: string
   column: string // 列名
   name: string // 显示名称
-  dataType: string // 数据类型
-  modelInputOutputId: number // 模型输入输出主键ID
-  createdTime: string // 创建时间
-  createdUserId: string // 创建人
-  updatedTime?: string // 更新时间
-  updatedUserId?: string // 更新人
+  data_type?: string // 数据类型（下划线命名，后端返回）
+  model_input_output_id?: string // 模型输入输出主键ID（下划线命名）
+  created_time?: string // 创建时间（下划线命名）
+  created_user_id?: string // 创建人（下划线命名）
+  updated_time?: string // 更新时间（下划线命名）
+  updated_user_id?: string // 更新人（下划线命名）
 }
 
 // 数据库连接配置
@@ -41,6 +41,18 @@ export interface DatabaseConfig {
   createdUserId: string // 创建人
   updatedTime?: string // 更新时间
   updatedUserId?: string // 更新人
+}
+export interface DataBrowseParams {
+  device_instance?: string;
+  data_columns?: string[];
+  time_range_type?: string;
+  start_date?: string;
+  end_date?: string;
+  sort_order?: "asc" | "desc" | "none";
+  data_type?: string;
+  sampling_rate?: number;
+  current?: number;
+  page_size?: number;
 }
 
 // 不同数据库的连接配置接口

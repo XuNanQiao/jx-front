@@ -1,14 +1,14 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 17:53:40
+ * @LastEditTime: 2026-01-08 10:12:17
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\InputOutput\index.vue
  *
 -->
 <template>
-  <a-card title="模型输入输出" :bordered="false">
+  <a-card title="模型输入输出" :bordered="false" class="page">
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
@@ -104,13 +104,12 @@
 </template>
 
 <script setup lang="ts">
-import { getList, type ListQueryParams } from "@/api/inputOutput";
+import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from "@/api/inputOutput";
 import type { ModelInputOutput } from "@/types/model";
 import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
 import { message, Modal } from "ant-design-vue";
-import { Dayjs } from "dayjs";
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { columns, selectOptions } from "./index";
 import InputOutputFormModal from "./InputOutputFormModal.vue";
@@ -126,13 +125,9 @@ const loading = ref(false);
 const filters = reactive<{
   keyword: string;
   category: string | undefined;
-  completenessDateRange: [Dayjs, Dayjs] | null;
-  dataInputDateRange: [Dayjs, Dayjs] | null;
 }>({
   keyword: "",
   category: undefined,
-  completenessDateRange: null,
-  dataInputDateRange: null,
 });
 
 // 选中的行
@@ -140,8 +135,6 @@ const selectedRowKeys = ref<string[]>([]);
 
 // 分页配置
 const pagination = reactive({
-  size: 10,
-  page: 1,
   current: 1,
   pageSize: 10,
   total: 0,
@@ -158,15 +151,14 @@ const loadData = async () => {
   try {
     // 构建查询参数
     const params: ListQueryParams = {
-      size: pagination.size,
-      page: pagination.page,
+      size: pagination.pageSize,
+      page: pagination.current,
       keyword: filters.keyword || undefined,
       category: filters.category || undefined,
     };
-    getList(params).then((res) => {
-      dataSource.value = res?.data?.items || [];
-      pagination.total = res?.data?.total || 0;
-    });
+    const res = await getList(params);
+    dataSource.value = res?.data?.items || [];
+    pagination.total = res?.data?.total || 0;
   } catch (err) {
     console.error(err);
     message.error("加载数据失败");
@@ -185,23 +177,17 @@ onMounted(() => {
 const searchKeyword = ref("");
 
 // 监听搜索关键词变化（带防抖）
-// 使用 lodash-es 的 debounce 函数，延迟 300ms
-const debouncedSearch = debounce(
-  () => {
-    filters.keyword = searchKeyword.value;
-    // 搜索时重置到第一页
-    pagination.current = 1;
-    loadData();
-  },
-  300,
-  {
-    leading: false, // 不在延迟开始时调用
-    trailing: true, // 在延迟结束后调用
-  }
-);
+const debouncedSearch = debounce(() => {
+  filters.keyword = searchKeyword.value;
+  pagination.current = 1;
+  loadData();
+}, 300);
 
-watch(searchKeyword, () => {
-  debouncedSearch();
+watch(searchKeyword, debouncedSearch);
+
+// 组件卸载时取消防抖
+onUnmounted(() => {
+  debouncedSearch.cancel();
 });
 
 const searchHandler = () => {
@@ -260,11 +246,16 @@ const handleBatchDelete = () => {
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
     okText: "确定",
     cancelText: "取消",
-    onOk() {
-      dataSource.value = dataSource.value.filter((item) => !selectedRowKeys.value.includes(item.id));
-      selectedRowKeys.value = [];
-      pagination.total = dataSource.value.length;
-      message.success("批量删除成功");
+    async onOk() {
+      try {
+        const res = await batchDeleteItems(selectedRowKeys.value);
+        if (res.code === 200) {
+          selectedRowKeys.value = [];
+          await loadData();
+        }
+      } catch (error: any) {
+        console.error("批量删除失败:", error);
+      }
     },
   });
 };
@@ -293,15 +284,17 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 const handleDelete = (id: string) => {
   Modal.confirm({
     title: "确认删除",
-    content: "确定要删除这条数据吗？",
+    content: "确定要删除这条数据吗？删除后无法恢复。",
     okText: "确定",
     cancelText: "取消",
-    onOk() {
-      const index = dataSource.value.findIndex((item) => item.id === id);
-      if (index > -1) {
-        dataSource.value.splice(index, 1);
-        pagination.total = dataSource.value.length;
-        message.success("删除成功");
+    async onOk() {
+      try {
+        const res = await deleteItem(id);
+        if (res.code === 200) {
+          await loadData();
+        }
+      } catch (error: any) {
+        console.error("删除失败:", error);
       }
     },
   });

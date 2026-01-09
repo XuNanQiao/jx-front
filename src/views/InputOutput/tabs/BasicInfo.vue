@@ -21,10 +21,10 @@
         <a-descriptions :column="2" bordered>
           <a-descriptions-item v-for="field in basicFields" :key="field.key" :label="field.label">
             <template v-if="editMode">
-              <template v-if="field.key === 'defaultDevice'">
+              <template v-if="field.sort === 'defaultDevice'">
                 <a-switch v-model:checked="form.defaultDevice" />
               </template>
-              <template v-else-if="field.key === 'storageEngine'">
+              <template v-else-if="field.sort === 'storageEngine'">
                 <a-input v-model:value="form.storageEngine" style="width: calc(100% - 160px); display: inline-block" />
                 <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal">配置</a-button>
               </template>
@@ -33,12 +33,18 @@
               </template>
             </template>
             <template v-else>
-              <template v-if="field.key === 'storageEngine'">
-                <span class="desc-text">{{ form.storageEngine ?? "-" }}</span>
+              <template v-if="field.sort === 'storageEngine'">
+                <span class="desc-text">{{ detail.storageEngine ?? "-" }}</span>
                 <a-button size="small" type="link" style="margin-left: 8px" @click="viewDatabaseConfig">查看配置</a-button>
               </template>
+              <template v-else-if="field.sort === 'defaultDevice'">
+                <span class="desc-text">{{ detail.defaultDevice ? "是" : "否" }}</span>
+              </template>
+              <template v-else-if="field.sort === 'dataType'">
+                <span class="desc-text">{{ detail[field.key] ?? "时序数据" }}</span>
+              </template>
               <template v-else>
-                <span class="desc-text">{{ field.key === "defaultDevice" ? (form.defaultDevice ? "是" : "否") : form[field.key] ?? "-" }}</span>
+                <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
               </template>
             </template>
           </a-descriptions-item>
@@ -59,7 +65,7 @@
               <a-input v-model:value="form[field.key]" />
             </template>
             <template v-else>
-              <span class="desc-text">{{ form[field.key] ?? "-" }}</span>
+              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
             </template>
           </a-descriptions-item>
         </a-descriptions>
@@ -79,7 +85,7 @@
               <a-input v-model:value="form[field.key]" />
             </template>
             <template v-else>
-              <span class="desc-text">{{ form[field.key] ?? "-" }}</span>
+              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
             </template>
           </a-descriptions-item>
         </a-descriptions>
@@ -92,34 +98,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from "vue";
-import { updateItem } from "@/api/inputOutput";
+import { ref, watch, reactive, onMounted } from "vue";
+import { getDetail, updateItem } from "@/api/inputOutput";
 import { message } from "ant-design-vue";
 import { basicFields, retentionFields, otherFields } from "../index";
 import DatabaseConfigModal from "./DatabaseConfigModal.vue";
 
-const props = defineProps<{ detailData: any | null }>();
-const emit = defineEmits<{
-  (e: "saved", data: any): void;
-}>();
+const props = defineProps<{ id: any | null }>();
 
 const open = ref({ basic: true, retention: true, other: true });
 const editMode = ref(false);
-
+const loading = ref(false);
+const detail = ref<any>({});
 const form = reactive<any>({});
 
 // 数据库配置弹窗引用
 const databaseConfigModalRef = ref<any>(null);
-
-watch(
-  () => props.detailData,
-  (val) => {
-    if (val) {
-      Object.assign(form, val);
-    }
-  },
-  { immediate: true }
-);
 
 // field definitions moved to ./index.ts
 
@@ -134,9 +128,9 @@ const toggleEdit = () => {
 const cancelEdit = () => {
   editMode.value = false;
   // revert changes
-  if (props.detailData) {
+  if (detail.value) {
     Object.keys(form).forEach((k) => delete form[k]);
-    Object.assign(form, props.detailData);
+    Object.assign(form, detail.value);
   }
 };
 
@@ -151,12 +145,9 @@ const save = async () => {
     return;
   }
   try {
-    const res: any = await updateItem(form.id, form);
-    const updated = res?.data || form;
+    updateItem(form);
     message.success("保存成功");
-    emit("saved", updated);
   } catch (err) {
-    console.error(err);
     message.error("保存失败");
   }
 };
@@ -183,6 +174,39 @@ const viewDatabaseConfig = () => {
 const handleDatabaseConfigSaved = () => {
   message.success("数据库配置已保存");
 };
+// 加载详情数据
+const loadDetail = async () => {
+  if (!props.id) {
+    message.error("缺少ID参数");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const res: any = await getDetail(props.id);
+    if (res?.code === 200 && res?.data) {
+      detail.value = res.data;
+      console.log("✅ 详情数据加载成功:", detail.value);
+    }
+  } catch (err: any) {
+    console.error("❌ 详情数据加载错误:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadDetail();
+});
+watch(
+  () => props.id,
+  (val) => {
+    if (val) {
+      loadDetail();
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style scoped lang="scss">
 .basic-info {

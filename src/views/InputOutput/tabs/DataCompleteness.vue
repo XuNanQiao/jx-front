@@ -1,5 +1,5 @@
 <template>
-  <div class="query-bar">
+  <div class="query-bar page">
       <div class="query-left">
         <a-space :size="12">
           <a-select v-model:value="metric" :options="metricOptions" style="width: 160px" />

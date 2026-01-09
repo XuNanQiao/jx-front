@@ -1,14 +1,14 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-07 15:00:00
- * @LastEditTime: 2026-01-07 15:31:12
+ * @LastEditTime: 2026-01-08 15:46:16
  * @LastEditors: ZHAO
  * @Description: 接入统计页面
  * @FilePath: \jx\src\views\InputOutput\tabs\AccessStats.vue
  *
 -->
 <template>
-  <div class="access-stats">
+  <div class="access-stats page">
     <!-- 顶部操作栏 -->
     <div class="stats-header">
       <div class="header-left">
@@ -35,7 +35,7 @@
       <!-- 最近 30 天 -->
       <div class="chart-section main-chart">
         <div class="chart-title">最近 30 天</div>
-        <chart-view :x-axis-data="last30DaysData.xAxis" :y-axis-data="last30DaysData.yAxis" :show-axis="true" height="300px" />
+        <chart-view :x-axis-data="last30DaysData.xAxis" :y-axis-data="[last30DaysData.yAxis,last1HourData.yAxis]" :show-axis="true" height="300px" />
       </div>
 
       <!-- 其他时间维度图表 -->
@@ -43,25 +43,25 @@
         <!-- 最近 1 小时 -->
         <div class="chart-section">
           <div class="chart-title">最近 1 小时</div>
-          <chart-view :x-axis-data="last1HourData.xAxis" :y-axis-data="last1HourData.yAxis" :show-axis="true" height="200px" />
+          <chart-view :x-axis-data="last1HourData.xAxis" :y-axis-data="[last1HourData.yAxis]" :show-axis="true" height="200px" />
         </div>
 
         <!-- 最近 1 天 -->
         <div class="chart-section">
           <div class="chart-title">最近 1 天</div>
-          <chart-view :x-axis-data="last1DayData.xAxis" :y-axis-data="last1DayData.yAxis" :show-axis="true" height="200px" />
+          <chart-view :x-axis-data="last1DayData.xAxis" :y-axis-data="[last1DayData.yAxis]" :show-axis="true" height="200px" />
         </div>
 
         <!-- 最近 1 年 -->
         <div class="chart-section">
           <div class="chart-title">最近 1 年</div>
-          <chart-view :x-axis-data="last1YearData.xAxis" :y-axis-data="last1YearData.yAxis" :show-axis="true" height="200px" />
+          <chart-view :x-axis-data="last1YearData.xAxis" :y-axis-data="[last1YearData.yAxis]" :show-axis="true" height="200px" />
         </div>
 
         <!-- 最近 3 年 -->
         <div class="chart-section">
           <div class="chart-title">最近 3 年</div>
-          <chart-view :x-axis-data="last3YearsData.xAxis" :y-axis-data="last3YearsData.yAxis" :show-axis="true" height="200px" />
+          <chart-view :x-axis-data="last3YearsData.xAxis" :y-axis-data="[last3YearsData.yAxis]" :show-axis="true" height="200px" />
         </div>
       </div>
     </div>

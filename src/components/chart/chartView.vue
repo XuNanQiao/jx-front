@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-07 15:41:02
+ * @LastEditTime: 2026-01-08 15:53:47
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\components\chart\chartView.vue
@@ -25,7 +25,12 @@ const props = defineProps({
   width: { type: String, default: "100%" },
   height: { type: String, default: "100%" },
   xAxisData: { type: Array as () => string[], default: () => [] },
-  yAxisData: { type: Array as () => number[], default: () => [] },
+  yAxisData: { type: Array as () => number[][], default: () => [[]] },
+  showAreaStyle: { type: Boolean, default: true },
+  areaColors: {
+    type: Array as () => Array<{ start: string; end: string }>,
+    default: () => [{ start: "rgba(24, 144, 255, 0.3)", end: "rgba(24, 144, 255, 0.05)" }]
+  },
 });
 
 // 注册 ECharts 组件
@@ -35,6 +40,40 @@ const chartStyle = computed(() => `height:${props.height}; width:${props.width}`
 
 const chartOption = computed<EChartsOption>(() => {
   const data = props.yAxisData || [];
+  let series = [];
+  for (let i = 0; i < data.length; i++) {
+    const colors = props.areaColors[i] || props.areaColors[0];
+    const seriesItem: any = {
+      type: "line" as const,
+      smooth: true,
+      data: data[i],
+      showSymbol: false,
+      lineStyle: {
+        width: 2,
+      },
+      symbol: "circle",
+      symbolSize: 6,
+    };
+
+    // 根据 showAreaStyle 动态添加 areaStyle
+    if (props.showAreaStyle) {
+      seriesItem.areaStyle = {
+        color: {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: colors.start },
+            { offset: 1, color: colors.end },
+          ],
+        },
+      };
+    }
+
+    series.push(seriesItem);
+  }
   return {
     grid: { left: 40, right: 20, top: 20, bottom: 30 },
     xAxis: {
@@ -94,28 +133,7 @@ const chartOption = computed<EChartsOption>(() => {
         },
       },
     },
-    series: [
-      {
-        type: "line",
-        data,
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 2, color: "#1890ff" },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(24, 144, 255, 0.3)" },
-              { offset: 1, color: "rgba(24, 144, 255, 0.05)" },
-            ],
-          },
-        },
-      },
-    ],
+    series,
     tooltip: {
       trigger: "axis",
       backgroundColor: "rgba(0, 0, 0, 0.8)",

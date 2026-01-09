@@ -36,7 +36,7 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
   },
   {
     title: "数据输入",
-    dataIndex: "dataInput",
+    dataIndex: "data_input",
     key: "dataInput",
     width: 180,
   },
@@ -66,15 +66,15 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
     width: 70,
   },
 ];
-export const selectOptions = [ 
-  { label: "输入", value: "input" },
-  { label: "输出", value: "output" },
+export const selectOptions = [
+  { label: "输入", value: "输入" },
+  { label: "输出", value: "输出" },
 ];
 
 // 属性选项（用于表单）
 export const attributeOptions: SelectOption[] = [
-  { label: "输入", value: "输入" },
-  { label: "输出", value: "输出" },
+  { label: "系统", value: "1" },
+  { label: "台账", value: "2" },
 ];
 
 /* -------------------------- */
@@ -94,18 +94,19 @@ export const columnsDataStructure: TableColumnType<DataStructure>[] = [
   },
   {
     title: "数据类型",
-    dataIndex: "dataType",
+    dataIndex: "data_type",
     key: "dataType",
+    sorter: true,
   },
   {
     title: "创建时间",
-    dataIndex: "createdTime",
+    dataIndex: "created_time",
     key: "createdTime",
     sorter: true,
   },
   {
     title: "创建人",
-    dataIndex: "createdUserId",
+    dataIndex: "created_user_id",
     key: "createdUserId",
   },
   {
@@ -117,25 +118,73 @@ export const columnsDataStructure: TableColumnType<DataStructure>[] = [
 ];
 export const basicFields = [
   { key: "name", label: "名称" },
-  { key: "displayName", label: "星示名称" },
-  { key: "dataType", label: "数据类型" },
-  { key: "defaultDevice", label: "使用默认设备" },
-  { key: "storageEngine", label: "存储引擎" },
-  { key: "dataCycle", label: "数据周期" },
+  { key: "display_name", label: "显示名称" },
+  { key: "data_type", label: "数据类型", sort: "dataType" },
+  { key: "default_device", label: "使用默认设备", sort: "defaultDevice" },
+  { key: "data_type", label: "存储引擎", sort: "storageEngine" },
+  { key: "cycle_time", label: "数据周期(ms)" },
 ];
 
 export const retentionFields = [
-  { key: "batchRetention", label: "批量数据保留" },
-  { key: "streamRetention", label: "流式数据保留" },
-  { key: "archiveBatchRetention", label: "归档数批保留" },
+  { key: "batch_retention", label: "批量数据保留" },
+  { key: "stream_retention", label: "流式数据保留" },
+  { key: "archive_batch_retention", label: "归档数批保留" },
 ];
 
 export const otherFields = [
-  { key: "created", label: "创建人 / 创建时间" },
+  { key: "created_time", label: "创建人 / 创建时间" },
   { key: "scope", label: "可用范围" },
-  { key: "customPK", label: "自定义主键" },
+  { key: "custom_pk", label: "自定义主键" },
   { key: "ledger", label: "关联台账" },
-  { key: "mockCycle", label: "Mock周期" },
+  { key: "mock_cycle", label: "Mock周期" },
   { key: "category", label: "类别" },
-  { key: "ioType", label: "输入输出类型" },
+  { key: "attribute", label: "输入输出类型" },
+];
+/* -------模型输入输出 - 数据浏览--------------- */
+// 表格配置
+export const DataBrowseColumns = [
+  {
+    title: "序号",
+    key: "index",
+    width: 80,
+    fixed: "left",
+  },
+  {
+    title: "设备",
+    dataIndex: "device",
+    key: "device",
+    width: 150,
+    sorter: true,
+  },
+  {
+    title: "时间",
+    dataIndex: "time",
+    key: "time",
+    width: 180,
+    sorter: true,
+  },
+  {
+    title: "温度(°C)",
+    dataIndex: "temperature",
+    key: "temperature",
+    width: 120,
+  },
+  {
+    title: "湿度(%)",
+    dataIndex: "humidity",
+    key: "humidity",
+    width: 120,
+  },
+  {
+    title: "压力(Pa)",
+    dataIndex: "pressure",
+    key: "pressure",
+    width: 120,
+  },
+  {
+    title: "状态",
+    dataIndex: "status",
+    key: "status",
+    width: 100,
+  },
 ];

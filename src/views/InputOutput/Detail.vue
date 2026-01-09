@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-07 15:42:56
+ * @LastEditTime: 2026-01-08 10:41:04
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\Detail.vue
@@ -9,7 +9,7 @@
 -->
 <template>
   <div>
-    <a-card :bordered="false">
+    <a-card :bordered="false" class="page">
       <template #title>
         <a-breadcrumb style="margin-bottom: 0">
           <a-breadcrumb-item class="crumb-parent">
@@ -19,25 +19,30 @@
         </a-breadcrumb>
       </template>
       <div class="detail-content">
+        <!-- Loading -->
+        <div v-if="loading" class="loading-container">
+          <a-spin size="large" tip="加载中..." />
+        </div>
+
         <!-- Tabs -->
-        <a-tabs v-model:activeKey="activeKey" type="line" size="large">
+        <a-tabs v-else v-model:activeKey="activeKey" type="line" size="large">
           <a-tab-pane key="basic" tab="基础信息">
-            <BasicInfo :detail-data="detail" @saved="handleChildSaved" />
+            <BasicInfo :id="id" />
           </a-tab-pane>
           <a-tab-pane key="structure" tab="数据结构">
-            <DataStructure />
+            <DataStructure :id="id" />
           </a-tab-pane>
           <a-tab-pane key="browse" tab="数据浏览">
-            <DataBrowse />
+            <DataBrowse :id="id" />
           </a-tab-pane>
           <a-tab-pane key="completeness" tab="数据完整度">
-            <DataCompleteness />
+            <DataCompleteness :id="id" />
           </a-tab-pane>
           <a-tab-pane key="stats" tab="接入统计">
-            <AccessStats />
+            <AccessStats :id="id" />
           </a-tab-pane>
           <a-tab-pane key="upload" tab="数据上传">
-            <DataUpload />
+            <DataUpload :id="id" />
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -48,7 +53,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref, onMounted } from "vue";
-import { getDetail } from "@/api/inputOutput";
 import BasicInfo from "./tabs/BasicInfo.vue";
 import DataStructure from "./tabs/DataStructure.vue";
 import DataBrowse from "./tabs/DataBrowse.vue";
@@ -60,30 +64,18 @@ const route = useRoute();
 const router = useRouter();
 
 const id = computed(() => (route.params.id as string) || "");
-const name = ref("");
+const name = computed(() => (route.params.name as string) || "");
 const activeKey = ref("basic");
-const detail = ref<any>(null);
-
-const handleChildSaved = (updated: any) => {
-  detail.value = updated;
-  name.value = updated?.name || name.value;
-};
-
-onMounted(async () => {
-  try {
-    const res: any = await getDetail(id.value);
-    const item = res?.data || null;
-    if (item) {
-      detail.value = item;
-      name.value = item.name || "";
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
 </script>
 
 <style scoped lang="scss">
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
 .crumb-parent {
   a {
     color: var(--theme-info) !important;
@@ -113,6 +105,11 @@ onMounted(async () => {
   }
   /* Ensure extra tab styles for line type */
   .ant-tabs.ant-tabs-line > .ant-tabs-nav .ant-tabs-tab {
+    color: #ffffff !important;
+  }
+}
+:deep(.ant-breadcrumb) {
+  .ant-breadcrumb-separator {
     color: #ffffff !important;
   }
 }

@@ -9,7 +9,7 @@
 -->
 <template>
   <!-- 筛选区域 -->
-  <div class="filter-section flex-between">
+  <div class="filter-section flex-between page">
     <a-space :size="16" wrap>
       <a-button type="primary" @click="handleEdit()">
         <template #icon>
@@ -44,11 +44,11 @@
     </template>
   </a-table>
   <!-- 新增/编辑弹窗组件 -->
-  <DataStructureForm ref="dataFormRef" @saved="handleSaved" />
+  <DataStructureForm :modelInputOutputId="modelInputOutputId" ref="dataFormRef" @saved="handleSaved" />
 </template>
 
 <script setup lang="ts">
-import { getDataStructureList } from "@/api/inputOutput";
+import { getDataStructureList, batchDeleteDataStructures } from "@/api/inputOutput";
 import type { DataStructure } from "@/types/model";
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
@@ -60,11 +60,15 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import VChart from "vue-echarts";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { columnsDataStructure } from "../index";
 import DataStructureForm from "./DataStructureForm.vue";
 
 const router = useRouter();
+const route = useRoute();
+
+// 获取当前模型输入输出的ID
+const modelInputOutputId = computed(() => (route.params.id as string) || "");
 
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
@@ -109,18 +113,34 @@ const pagination = reactive({
   showTotal: (total: number) => `共 ${total} 条`,
 });
 
-// data source will be loaded from mock API
+// data source will be loaded from real API
 const dataSource = ref<DataStructure[]>([]);
 
 const loadData = async () => {
+  if (!modelInputOutputId.value) {
+    message.error("缺少模型输入输出ID参数");
+    return;
+  }
+
   loading.value = true;
   try {
-    const res: any = await getDataStructureList();
-    dataSource.value = res?.data || [];
-    pagination.total = dataSource.value.length;
-  } catch (err) {
-    console.error(err);
-    message.error("加载数据失败");
+    console.log("📤 正在加载数据结构列表，model_input_output_id:", modelInputOutputId.value);
+    const res: any = await getDataStructureList(modelInputOutputId.value);
+    console.log("📥 数据结构列表响应:", res);
+
+    if (res?.code === 200) {
+      // 后端返回的数据可能在 res.data.items 或 res.data
+      const items = res.data?.items || res.data || [];
+      dataSource.value = items;
+      pagination.total = res.data?.total || items.length;
+      console.log("✅ 数据结构列表加载成功，共", pagination.total, "条");
+    } else {
+      message.error(res?.message || "加载数据失败");
+      console.error("❌ 数据结构列表加载失败:", res);
+    }
+  } catch (err: any) {
+    console.error("❌ 数据结构列表加载错误:", err);
+    message.error(err?.message || "加载数据失败，请稍后重试");
   } finally {
     loading.value = false;
   }
@@ -149,7 +169,13 @@ const filteredData = computed(() => {
   // 关键词搜索
   if (filters.keyword) {
     const keyword = filters.keyword.toLowerCase();
-    result = result.filter((item) => item.name.toLowerCase().includes(keyword) || item.column.toLowerCase().includes(keyword) || item.dataType.toLowerCase().includes(keyword));
+    result = result.filter((item) => {
+      const name = item.name?.toLowerCase() || "";
+      const column = item.column?.toLowerCase() || "";
+      // 支持 dataType 和 data_type 两种字段名
+      const dataType = (item.dataType || item.data_type || "").toLowerCase();
+      return name.includes(keyword) || column.includes(keyword) || dataType.includes(keyword);
+    });
   }
   // 更新分页总数
   pagination.total = result.length;
@@ -210,11 +236,16 @@ const handleBatchDelete = () => {
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
     okText: "确定",
     cancelText: "取消",
-    onOk() {
-      dataSource.value = dataSource.value.filter((item) => !selectedRowKeys.value.includes(item.id));
-      selectedRowKeys.value = [];
-      pagination.total = dataSource.value.length;
-      message.success("批量删除成功");
+    async onOk() {
+      try {
+        const res = await batchDeleteDataStructures(selectedRowKeys.value);
+        if (res.code === 200) {
+          selectedRowKeys.value = [];
+          await loadData();
+        }
+      } catch (error: any) {
+        console.error("批量删除失败:", error);
+      }
     },
   });
 };

@@ -58,39 +58,42 @@
     }
   }
 }
-.ant-select {
-  color: #fff;
-  position: relative;
-  background: transparent;
-  .ant-select-selector {
-    background: transparent !important;
+
+.page {
+  .ant-select {
     color: #fff;
-  }
-  .ant-select-clear {
+    position: relative;
     background: transparent;
-  }
-  .ant-select-arrow,
-  .ant-select-clear,
-  .ant-select-selection-item-remove,
-  .ant-select-selection-search-input,
-  .ant-select-selection-item,
-  .ant-select-selection-placeholder {
-    color: #fff;
-  }
-}
-.ant-input-affix-wrapper {
-  color: #fff;
-  position: relative;
-  background: transparent;
-  .ant-input {
-    background: transparent;
-    color: #fff;
-    &::placeholder {
+    .ant-select-selector {
+      background: transparent !important;
+      color: #fff;
+    }
+    .ant-select-clear {
+      background: transparent;
+    }
+    .ant-select-arrow,
+    .ant-select-clear,
+    .ant-select-selection-item-remove,
+    .ant-select-selection-search-input,
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
       color: #fff;
     }
   }
-  .ant-input-clear-icon {
+  .ant-input-affix-wrapper {
     color: #fff;
+    position: relative;
+    background: transparent;
+    .ant-input {
+      background: transparent;
+      color: #fff;
+      &::placeholder {
+        color: #fff;
+      }
+    }
+    .ant-input-clear-icon {
+      color: #fff;
+    }
   }
 }
 .ant-empty-description,

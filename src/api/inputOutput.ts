@@ -1,61 +1,83 @@
-import { request } from '@/utils/request'
+import { DataBrowseParams } from "@/types/model";
+import { request } from "@/utils/request";
 
 interface ApiResponse<T = any> {
-  code: number
-  message: string
-  data: T
+  code: number;
+  message: string;
+  data: T;
 }
-
+/* -------------------------列表-------------------------------- */
 // 列表查询参数
 export interface ListQueryParams {
-  size?: number      // 当前页码
-  page?: number     // 每页数量
-  keyword?: string      // 搜索关键词
-  category?: string     // 类别筛选
-  [key: string]: any    // 其他筛选参数
+  size?: number; // 当前页码
+  page?: number; // 每页数量
+  keyword?: string; // 搜索关键词
+  category?: string; // 类别筛选
+  [key: string]: any; // 其他筛选参数
 }
 
 // 列表查询接口
 export function getList(params?: ListQueryParams): Promise<ApiResponse<any>> {
-  return request.post('/api/model_input_output/retrieve', params || {})
+  return request.post("/api/model_input_output/retrieve", params || {});
 }
 
+// 详情查询接口 - 通过真实后端 API 获取数据
 export function getDetail(id: string): Promise<ApiResponse<any>> {
-  return request.get('/input-output/detail', { params: { id } })
+  return request.post(`/api/model_input_output/detail`, { id });
 }
 
+// 创建接口
 export function createItem(payload: any): Promise<ApiResponse<any>> {
-  return request.post('/input-output/create', payload)
+  return request.post("/api/model_input_output/create", payload, { showMessage: true });
 }
 
-export function updateItem(id: string, payload: any): Promise<ApiResponse<any>> {
-  return request.put(`/input-output/update/${id}`, payload)
+// 更新接口
+export function updateItem(payload: any): Promise<ApiResponse<any>> {
+  return request.put("/api/model_input_output/update", payload, { showMessage: true });
 }
 
-export function deleteItem(id: string): Promise<ApiResponse<any>> {
-  return request.delete(`/input-output/delete/${id}`)
+// 删除接口
+export function deleteItem(id: string | number): Promise<ApiResponse<any>> {
+  return request.delete("/api/model_input_output/delete", { data: { id }, showMessage: true });
 }
+
+// 批量删除接口
+export function batchDeleteItems(ids: (string | number)[]): Promise<ApiResponse<any>> {
+  return request.delete("/api/model_input_output/batch_delete", {
+    data: { ids },
+    showMessage: true,
+  });
+}
+/* -------------------------数据结构-------------------------------- */
 
 // 数据结构相关 API
-export function getDataStructureList(): Promise<ApiResponse<any[]>> {
-  return request.get('/input-output/data-structure/list')
+// 数据结构列表查询接口 - 使用真实后端 API
+export function getDataStructureList(model_input_output_id: string | number): Promise<ApiResponse<any>> {
+  return request.get("/api/model_input_output/data_struct/retrieve", {
+    params: { model_input_output_id },
+  });
 }
-
-export function getDataStructureDetail(id: string): Promise<ApiResponse<any>> {
-  return request.get('/input-output/data-structure/detail', { params: { id } })
-}
-
 export function createDataStructure(payload: any): Promise<ApiResponse<any>> {
-  return request.post('/input-output/data-structure/create', payload)
+  return request.post("/api/model_input_output/data_struct/create", payload, { showMessage: true });
 }
 
 export function updateDataStructure(id: string, payload: any): Promise<ApiResponse<any>> {
-  return request.put(`/input-output/data-structure/update/${id}`, payload)
+  return request.put(`/api/model_input_output/data_struct/update`, { id, ...payload }, { showMessage: true });
 }
 
-export function deleteDataStructure(id: string): Promise<ApiResponse<any>> {
-  return request.delete(`/input-output/data-structure/delete/${id}`)
+// 数据结构删除接口 - 使用真实后端 API
+export function deleteDataStructure(id: string | number): Promise<ApiResponse<any>> {
+  return request.delete("/api/model_input_output/data_struct/delete", { data: { id }, showMessage: true });
 }
+
+// 数据结构批量删除接口
+export function batchDeleteDataStructures(ids: (string | number)[]): Promise<ApiResponse<any>> {
+  return request.delete("/api/model_input_output/data_struct/batch_delete", {
+    data: { ids },
+    showMessage: true,
+  });
+}
+/* -------------------------数据完整度-------------------------------- */
 
 // 数据完整度查询
 export type CompletenessParams = {
@@ -63,51 +85,41 @@ export type CompletenessParams = {
   month?: number | string;
   day?: string;
   metric?: string;
-}
+};
 
 export function getCompleteness(params: CompletenessParams): Promise<ApiResponse<any[]>> {
-  return request.get('/input-output/completeness', { params })
+  return request.get("/input-output/completeness", { params });
 }
+/* -------------------------数据库配置-------------------------------- */
 
 // 数据库配置相关 API
-export function getDatabaseConfig(modelInputOutputId: number): Promise<ApiResponse<any>> {
-  return request.get('/input-output/database-config', { params: { modelInputOutputId } })
+export function getDatabaseConfig(model_input_output_id: number): Promise<ApiResponse<any>> {
+  return request.get("/input-output/database-config", { params: { model_input_output_id } });
 }
 
 export function createDatabaseConfig(payload: any): Promise<ApiResponse<any>> {
-  return request.post('/input-output/database-config/create', payload)
+  return request.post("/input-output/database-config/create", payload, { showMessage: true });
 }
 
 export function updateDatabaseConfig(id: string, payload: any): Promise<ApiResponse<any>> {
-  return request.put(`/input-output/database-config/update/${id}`, payload)
+  return request.put(`/input-output/database-config/update/${id}`, payload, { showMessage: true });
 }
 
 export function deleteDatabaseConfig(id: string): Promise<ApiResponse<any>> {
-  return request.delete(`/input-output/database-config/delete/${id}`)
+  return request.delete(`/input-output/database-config/delete/${id}`, { showMessage: true });
 }
+/* -------------------------数据浏览-------------------------------- */
 
 // 数据浏览相关 API
-export interface DataBrowseParams {
-  deviceInstance?: string
-  dataColumns?: string[]
-  timeRangeType?: string
-  startDate?: string
-  endDate?: string
-  sortOrder?: 'asc' | 'desc' | 'none'
-  dataType?: string
-  samplingRate?: number
-  current?: number
-  pageSize?: number
-}
 
 export function getBrowseData(params: DataBrowseParams): Promise<ApiResponse<any>> {
-  return request.get('/input-output/browse-data', { params })
+  return request.post("/api/model_input_output/data_browsing/retrieve",   params  );
 }
 
 export function getDeviceInstances(): Promise<ApiResponse<any[]>> {
-  return request.get('/input-output/device-instances')
+  return request.get("/input-output/device-instances");
 }
 
-export function getDataColumns(deviceInstance?: string): Promise<ApiResponse<any[]>> {
-  return request.get('/input-output/data-columns', { params: { deviceInstance } })
+export function getDataColumns(device_instance?: string): Promise<ApiResponse<any[]>> {
+  return request.get("/input-output/data-columns", { params: { device_instance } });
 }
