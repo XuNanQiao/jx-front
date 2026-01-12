@@ -379,16 +379,7 @@ addLog("info", "系统启动，等待文件上传");
       align-items: center;
     }
 
-    .switch-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .switch-label {
-        color: #ffffff;
-        font-size: 14px;
-      }
-    }
+ 
   }
 
   .upload-content {

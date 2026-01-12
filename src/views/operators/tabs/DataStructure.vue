@@ -1,51 +1,7 @@
 <template>
-  <div class="basic-info page">
-    <!-- 全局操作 -->
-    <div class="global-actions">
-      <a-space>
-        <a-button type="default" size="small" v-if="!editMode" @click="toggleEdit">编辑</a-button>
-        <a-space v-else>
-          <a-button size="small" @click="cancelEdit">取消</a-button>
-          <a-button type="primary" size="small" @click="onSave">保存</a-button>
-        </a-space>
-      </a-space>
-    </div>
-
-    <div class="module" v-for="(item, index) in packageFields" :key="index">
-      <div class="module-header">
-        <span class="module-title">{{ item.title }}</span>
-      </div>
-      <div class="module-body">
-        <a-descriptions bordered :column="2">
-          <a-descriptions-item :span="1" v-for="(field, chilIndex) in item.fields" :key="chilIndex" :label="field.label">
-            <template v-if="editMode && field.type === 'switch'">
-              <a-switch v-model:checked="form[field.key]" />
-            </template>
-            <template v-else-if="editMode && field.type === 'select'">
-              <a-select v-model:value="form.retention" style="width: 100%" placeholder="请选择数据保留周期">
-                <a-select-option v-for="option in field.options" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </a-select-option>
-              </a-select>
-            </template>
-            <template v-else-if="field.type === 'number'">
-              <a-input-number v-model:value="form[field.key]" :min="0" style="width: 100%" placeholder="请输入数据周期" />
-            </template>
-            <template v-else-if="field.type === 'input'">
-              <a-input v-model:value="form[field.key]" />
-            </template>
-
-            <template v-else>
-              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
-            </template>
-          </a-descriptions-item>
-        </a-descriptions>
-      </div>
-    </div>
-
-    <!-- 数据库连接配置弹窗 -->
-    <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="detail.id" @saved="handleDatabaseConfigSaved" />
-  </div>
+  <DescriptionsCom :openHand="false" bordered v-model:edit-mode-show="editMode" :detail="detail" :list="packageFields" @save="onSave"> </DescriptionsCom>
+  <!-- 数据库连接配置弹窗 -->
+  <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="detail.id" @saved="handleDatabaseConfigSaved" />
 </template>
 
 <script setup lang="ts">
@@ -54,34 +10,22 @@ import { getDetail, updateItem } from "@/api/inputOutput";
 import { message } from "ant-design-vue";
 import { packageFields } from "../indexData";
 import DatabaseConfigModal from "./DatabaseConfigModal.vue";
+import DescriptionsCom from "@/components/descriptionsCom.vue";
 
 const props = defineProps<{ id: any | null }>();
 const editMode = ref(false);
 const loading = ref(false);
 const detail = ref<any>({});
-const form = reactive<any>({});
 
 // 数据库配置弹窗引用
 const databaseConfigModalRef = ref<any>(null);
-const toggleEdit = () => {
-  editMode.value = true;
-};
 
-const cancelEdit = () => {
-  editMode.value = false;
-  // revert changes
-  if (detail.value) {
-    Object.keys(form).forEach((k) => delete form[k]);
-    Object.assign(form, detail.value);
-  }
-};
-
-const onSave = async () => {
+const onSave = async (form: any) => {
   await save();
   editMode.value = false;
 };
 
-const save = async () => {
+const save = async (form: any) => {
   if (!form.id) {
     message.error("缺少 id，无法保存");
     return;

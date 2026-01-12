@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-12 16:13:39
+ * @LastEditTime: 2026-01-12 17:36:01
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -73,28 +73,7 @@
                 <a-button type="link" @click="goDetail(record)">{{ record.name }}</a-button>
               </template>
               <template v-else-if="column.key === 'action'">
-                <a-dropdown :trigger="['hover']">
-                  <a-button type="text" size="small">
-                    <MoreOutlined class="text-16px text-white" />
-                  </a-button>
-                  <template #overlay>
-                    <a-menu @click="(e) => handleMenuClick(e, record)">
-                      <a-menu-item key="view">
-                        <EyeOutlined />
-                        <span style="margin-left: 8px">查看详情</span>
-                      </a-menu-item>
-                      <a-menu-item key="edit">
-                        <EditOutlined />
-                        <span style="margin-left: 8px">编辑</span>
-                      </a-menu-item>
-                      <a-menu-divider />
-                      <a-menu-item key="delete" danger>
-                        <DeleteOutlined />
-                        <span style="margin-left: 8px">删除</span>
-                      </a-menu-item>
-                    </a-menu>
-                  </template>
-                </a-dropdown>
+                <a-button type="link" @click="goDetail(record)">编码</a-button>
               </template>
             </template>
           </a-table>
@@ -105,15 +84,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { getList } from "@/api/inputOutput";
-import { DownloadOutlined, ImportOutlined, SearchOutlined } from "@ant-design/icons-vue";
-
-import { versionOptions, tableColumns, treeData } from "./indexData";
 import { useTablePagination } from "@/utils/useTablePagination";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import { message, TreeProps } from "ant-design-vue";
 import { debounce } from "lodash-es";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { tableColumns, treeData, versionOptions } from "./indexData";
 const router = useRouter();
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);

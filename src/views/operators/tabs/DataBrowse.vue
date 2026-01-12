@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-12 16:37:44
+ * @LastEditTime: 2026-01-12 17:33:53
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\operators\tabs\DataBrowse.vue
@@ -17,6 +17,14 @@
         </template>
         批量删除 ({{ selectedRowKeys.length }})
       </a-button>
+      <div class="switch-item">
+        <span class="switch-label">包含定时</span>
+        <a-switch v-model:checked="filters.autoMonitor" @change="searchHandler" />
+      </div>
+      <div class="switch-item">
+        <span class="switch-label">包含组作业</span>
+        <a-switch v-model:checked="filters.haveFile" @change="searchHandler" />
+      </div>
       <div class="filter-inter">
         <span class="select-inter">状态：</span>
         <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择状态" style="width: 150px"> </a-select>
@@ -34,12 +42,9 @@
   </div>
 
   <!-- 表格 -->
-  <a-table :columns="detailColumns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+  <a-table :columns="browseColumns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
     <template #bodyCell="{ column, record, text }">
-      <template v-if="column.key === 'name'">
-        <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
-      </template>
-      <template v-else-if="column.key === 'action'">
+      <template v-if="column.key === 'action'">
         <a-dropdown :trigger="['hover']">
           <a-button type="text" size="small">
             <MoreOutlined class="text-16px text-white" />
@@ -73,12 +78,11 @@
 <script setup lang="ts">
 import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from "@/api/inputOutput";
 import type { ModelInputOutput } from "@/types/model";
-import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import type { TableProps } from "ant-design-vue";
+import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { detailColumns, selectOptions } from "../indexData";
+import { browseColumns, selectOptions } from "../indexData";
 import { debounce } from "lodash-es";
 import { useTablePagination } from "@/utils/useTablePagination";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
@@ -93,6 +97,8 @@ const loading = ref(false);
 const filters = reactive({
   name: "",
   category: undefined,
+  autoMonitor: false,
+  haveFile: false,
 });
 
 // 选中的行
@@ -123,9 +129,7 @@ const loadData = async () => {
   }
 };
 
-onMounted(() => {
-  console.log(route, "---------route");
-
+onMounted(() => { 
   loadData();
 });
 

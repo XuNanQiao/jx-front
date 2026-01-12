@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-12 16:36:09
+ * @LastEditTime: 2026-01-12 16:54:54
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\operators\operatorsList.vue
@@ -67,6 +67,10 @@
             </a-button>
             <template #overlay>
               <a-menu @click="(e) => handleMenuClick(e, record)">
+                <a-menu-item key="exploitation">
+                  <EditOutlined />
+                  <span style="margin-left: 8px">开发</span>
+                </a-menu-item>
                 <a-menu-item key="view">
                   <EyeOutlined />
                   <span style="margin-left: 8px">查看详情</span>
@@ -224,6 +228,10 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
+    case "exploitation":
+      console.log("跳转到开发页", record.id);
+      router.push({ name: "ModelOperatorsExploitation", params: { id: record.id } });
+      break;
     case "view":
       // 跳转到详情页
       router.push({ name: "ModelOperatorsDetail", params: { id: record.id } });

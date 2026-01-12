@@ -75,6 +75,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: "/model/operators/exploitation/:id",
+        name: "ModelOperatorsExploitation",
+        component: () => import("@/views/operators/exploitation.vue"),
+        meta: {
+          title: "算子开发",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "/model/deployment",
         name: "ModelDeployment",
         component: () => import("@/views/deployment/index.vue"),

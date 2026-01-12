@@ -1,11 +1,12 @@
 import { TreeProps } from "ant-design-vue";
+import dayjs from "dayjs";
 
 export const tableColumns = [
   { dataIndex: "name", title: "名称", key: "name" },
   { dataIndex: "un_env", title: "运行环境", align: "center" },
-  { dataIndex: "created_time", title: "创建时间", align: "center" },
+  { dataIndex: "created_time", title: "创建时间", align: "center", customRender: ({ text }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-") },
   { dataIndex: "created_user_id", title: "创建人", align: "center" },
-  { dataIndex: "action", title: "操作", sort: "action" },
+  { dataIndex: "action", title: "操作", key: "action", align: "center" },
 ];
 
 export const treeData = [
@@ -48,9 +49,9 @@ export const detailColumns = [
   { dataIndex: "data_type", title: "扩展信息", align: "center" },
   { dataIndex: "category", title: "类别", align: "center" },
   { dataIndex: "editor", title: "编辑器", align: "center" },
-  { dataIndex: "reated_time", title: "创建时间", align: "center" },
+  { dataIndex: "reated_time", title: "创建时间", align: "center", customRender: ({ text }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-") },
   { dataIndex: "reated_user_id", title: "创建人", align: "center" },
-  { dataIndex: "action", title: "操作", sort: "action" },
+  { dataIndex: "action", title: "操作", key: "action" },
 ];
 export const selectOptions: SelectOption[] = [
   { label: "其他", value: "0" },
@@ -69,14 +70,14 @@ export const basicFields = [
     title: "基础信息",
     key: "basicInfo",
     fields: [
-      { label: "名称", key: "name", sort: "default" },
-      { label: "显示名称", key: "name", sort: "default" },
-      { label: "版本号", key: "version", sort: "default" },
+      { label: "名称", key: "name", sort: "default", type: "input" },
+      { label: "显示名称", key: "name", sort: "default", type: "input" },
+      { label: "版本号", key: "version", sort: "default", type: "input" },
       { label: "类别", key: "category", sort: "default", type: "select", options: selectOptions },
-      { label: "语言", key: "language", sort: "default" },
-      { label: "编辑器", key: "editor", sort: "default" },
-      { label: "设备类型", key: "levice_type", sort: "default" },
-      { label: "扩展信息", key: "extended_info", sort: "default" },
+      { label: "语言", key: "language", sort: "default", type: "input" },
+      { label: "编辑器", key: "editor", sort: "default", type: "input" },
+      { label: "设备类型", key: "levice_type", sort: "default", type: "input" },
+      { label: "扩展信息", key: "extended_info", sort: "default", type: "input" },
     ],
   },
   {
@@ -105,4 +106,16 @@ export const packageFields = [
       { label: "版本号", key: "name" },
     ],
   },
+];
+export const browseColumns = [
+  { dataIndex: "name", title: "作业名称", key: "name" },
+  { dataIndex: "name", title: "模型/部署", key: "name" },
+  { dataIndex: "name", title: "输入", key: "name" },
+  { dataIndex: "name", title: "输出", key: "name" },
+  { dataIndex: "name", title: "数据时间（时长）", key: "name" },
+  { dataIndex: "data_rows_nums", title: "数据行", key: "name" },
+  { dataIndex: "status", title: "状态", key: "name" },
+  { dataIndex: "name", title: "作业时间（时长）", key: "name" },
+  { dataIndex: "created_user_id", title: "创建人", key: "name" },
+  { dataIndex: "action", title: "操作", key: "action" },
 ];
