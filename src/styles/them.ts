@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-09 18:00:27
- * @LastEditTime: 2026-01-12 09:33:27
+ * @LastEditTime: 2026-01-12 15:16:16
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\styles\them.ts
@@ -12,6 +12,9 @@ export const tokenThem = {
   colorBgContainer: "#2e3f60",
   colorTextSecondary: "#fff",
   colorTextTertiary: "#fff",
+  colorFill: "#fff",
+  colorFillSecondary: "#2e3f60",
+  colorFillTertiary: "#3a7cd2",
   colorFillQuaternary: "#285187",
   colorBgLayout: "#2e3f60",
   colorTextBase: "#ffffff",
@@ -21,10 +24,10 @@ export const tokenThem = {
   colorPrimary: "#1677ff",
   colorPrimaryText: "#ffffff",
   colorPrimaryTextActive: "#ffffff",
-  colorPrimaryTextHover:"#ffffff",
-  colorPrimaryActive:"#ffffff",
+  colorPrimaryTextHover: "#ffffff",
+  colorPrimaryActive: "#ffffff",
   colorTextQuaternary: "rgba(255, 255, 255 ,1)",
   colorBorderSecondary: "rgba(255, 255, 255, 0.5)",
   colorBorder: "#fff",
-  colorPrimaryBg: "#2e3f60", 
+  colorPrimaryBg: "#285187",
 };

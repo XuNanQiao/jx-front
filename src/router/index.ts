@@ -57,6 +57,24 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: "/model/operators/operatorsList/:id",
+        name: "ModelOperatorsList",
+        component: () => import("@/views/operators/operatorsList.vue"),
+        meta: {
+          title: "模型列表页",
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "/model/operators/operatorsDetail/:id",
+        name: "ModelOperatorsDetail",
+        component: () => import("@/views/operators/Detail.vue"),
+        meta: {
+          title: "算子详情",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "/model/deployment",
         name: "ModelDeployment",
         component: () => import("@/views/deployment/index.vue"),
@@ -91,7 +109,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
   console.log("-----------qq");
-  
+
   const isLoggedIn = userStore.isLoggedIn;
 
   // 设置页面标题

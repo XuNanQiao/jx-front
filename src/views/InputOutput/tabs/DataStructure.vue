@@ -17,7 +17,7 @@
         </template>
         新建
       </a-button>
-      <a-button ghost :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+      <a-button  :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
         <template #icon>
           <DeleteOutlined />
         </template>

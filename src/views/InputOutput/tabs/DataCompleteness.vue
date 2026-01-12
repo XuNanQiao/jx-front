@@ -18,9 +18,9 @@
     </div>
     <div class="query-right">
       <a-space>
-        <a-button ghost @click="onBack">返回上层</a-button>
-        <a-button ghost @click="onBrowse">浏览</a-button>
-        <a-button ghost @click="onDownload">下载</a-button>
+        <a-button  @click="onBack">返回上层</a-button>
+        <a-button  @click="onBrowse">浏览</a-button>
+        <a-button  @click="onDownload">下载</a-button>
       </a-space>
     </div>
   </div>

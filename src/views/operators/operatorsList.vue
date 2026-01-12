@@ -1,14 +1,22 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-12 14:20:11
+ * @LastEditTime: 2026-01-12 16:36:09
  * @LastEditors: ZHAO
  * @Description:
- * @FilePath: \jx\src\views\InputOutput\index.vue
+ * @FilePath: \jx\src\views\operators\operatorsList.vue
  *
 -->
 <template>
-  <a-card title="模型输入输出" :bordered="false" class="page">
+  <a-card :bordered="false" class="page">
+    <template #title>
+      <a-breadcrumb style="margin-bottom: 0">
+        <a-breadcrumb-item class="crumb-parent">
+          <router-link :to="{ name: 'ModelOperators' }">算子管理</router-link>
+        </a-breadcrumb-item>
+        <a-breadcrumb-item class="crumb-current">模型开发</a-breadcrumb-item>
+      </a-breadcrumb>
+    </template>
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
@@ -32,12 +40,12 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="attributeOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
+          <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
         <div class="filter-inter">
-          <a-input v-model:value="searchKeyword" @change="debouncedSearch" @pressEnter="debouncedSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
+          <a-input v-model:value="filters.name" @change="debouncedSearch" @pressEnter="debouncedSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
             <template #suffix>
               <SearchOutlined />
             </template>
@@ -47,28 +55,10 @@
     </div>
 
     <!-- 表格 -->
-    <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+    <a-table :columns="detailColumns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
-        </template>
-        <template v-else-if="column.key === 'integrity'">
-          <a-progress
-            :percent="record.integrity * 100"
-            :stroke-color="{
-              '0%': '#108ee9',
-              '100%': '#87d068',
-            }"
-            size="small">
-            <template #format="percent">
-              <span class="text-white">{{ percent }}</span>
-            </template></a-progress
-          >
-        </template>
-        <template v-else-if="column.key === 'dataInput'">
-          <div class="data-input-chart">
-            <ChartView :showAxis="false" :axisPointerShow="false" :width="'150px'" :height="'40px'" :grid="{ left: 0, bottom: 0, right: 0, top: 0 }" :mockData="true" />
-          </div>
         </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
@@ -97,7 +87,7 @@
       </template>
     </a-table>
     <!-- 新增/编辑弹窗组件 -->
-    <InputOutputFormModal ref="formModalRef" @saved="handleSaved" />
+    <detailFormModal ref="formModalRef" @saved="handleSaved" />
   </a-card>
 </template>
 
@@ -107,38 +97,28 @@ import type { ModelInputOutput } from "@/types/model";
 import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import type { TableProps } from "ant-design-vue";
 import { message, Modal } from "ant-design-vue";
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { columns, attributeOptions } from "./index";
-import InputOutputFormModal from "./InputOutputFormModal.vue";
-import ChartView from "@/components/chart/chartView.vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { detailColumns, selectOptions } from "./indexData";
+import detailFormModal from "./components/detailFormModal.vue";
 import { debounce } from "lodash-es";
-
+import { useTablePagination } from "@/utils/useTablePagination";
+const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
+const route = useRoute();
 const router = useRouter();
+// const id = computed(() => (route.params.id as string) || "");
 
 // 加载状态
 const loading = ref(false);
 
 // 筛选条件
-const filters = reactive<{
-  name: string;
-  category: string | undefined;
-}>({
+const filters = reactive({
   name: "",
   category: undefined,
 });
 
 // 选中的行
 const selectedRowKeys = ref<string[]>([]);
-
-// 分页配置
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`,
-});
 
 // data source will be loaded from API
 const dataSource = ref<ModelInputOutput[]>([]);
@@ -166,17 +146,14 @@ const loadData = async () => {
 };
 
 onMounted(() => {
+  console.log(route, "---------route");
+
   loadData();
 });
 
-// 搜索关键词（用于防抖）
-const searchKeyword = ref("");
-
 // 监听搜索关键词变化（带防抖）
 const debouncedSearch = debounce(() => {
-  filters.name = searchKeyword.value;
-  pagination.current = 1;
-  loadData();
+  searchHandler();
 }, 300);
 
 // 组件卸载时取消防抖
@@ -199,20 +176,10 @@ const rowSelection = computed(() => ({
   }),
 }));
 
-// Chart is rendered by ChartView component
-
-// 表格变化处理（排序、分页）
-const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
-  // 更新分页
-  if (paginationConfig.current) {
-    pagination.current = paginationConfig.current;
-  }
-  if (paginationConfig.pageSize) {
-    pagination.pageSize = paginationConfig.pageSize;
-  }
-
-  // 重新加载数据（服务端分页）
-  loadData();
+// 表格变化
+const handleTableChange = (pag: any) => {
+  onTableChange(pag);
+  getList();
 };
 
 // 新建
@@ -259,7 +226,7 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
     case "view":
       // 跳转到详情页
-      router.push({ name: "ModelInputOutputDetail", params: { id: record.id } });
+      router.push({ name: "ModelOperatorsDetail", params: { id: record.id } });
       break;
     case "edit":
       // 打开编辑弹窗并加载数据

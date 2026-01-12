@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-07 15:30:00
- * @LastEditTime: 2026-01-07 15:35:37
+ * @LastEditTime: 2026-01-12 14:21:05
  * @LastEditors: ZHAO
  * @Description: 数据上传页面
  * @FilePath: \jx\src\views\InputOutput\tabs\DataUpload.vue
@@ -12,7 +12,7 @@
     <!-- 顶部操作栏 --> 
     <div class="upload-header">
       <div class="header-left">
-        <a-button size="small" ghost @click="handleRefresh">
+        <a-button size="small"  @click="handleRefresh">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -24,13 +24,13 @@
         </div>
       </div>
       <div class="header-right">
-        <a-button size="small" ghost @click="handleConfig">
+        <a-button size="small"  @click="handleConfig">
           <template #icon>
             <SettingOutlined />
           </template>
           配置
         </a-button>
-        <a-button size="small" ghost @click="handleBatchUpload">
+        <a-button size="small"  @click="handleBatchUpload">
           <template #icon>
             <UploadOutlined />
           </template>
@@ -48,8 +48,8 @@
             <HomeOutlined class="home-icon" />
           </div>
           <div class="header-right">
-            <a-button size="small" danger ghost @click="handleDeleteAll">全部删除</a-button>
-            <a-button size="small" ghost @click="handleRetryAll">全部重试</a-button>
+            <a-button size="small" danger  @click="handleDeleteAll">全部删除</a-button>
+            <a-button size="small"  @click="handleRetryAll">全部重试</a-button>
           </div>
         </div>
 
@@ -142,13 +142,13 @@
               <span class="switch-label">自动执行</span>
               <a-switch v-model:checked="autoExecute" size="small" @change="handleAutoExecuteChange" />
             </div>
-            <a-button size="small" ghost @click="handleDownloadLog">
+            <a-button size="small"  @click="handleDownloadLog">
               <template #icon>
                 <DownloadOutlined />
               </template>
               下载日志
             </a-button>
-            <a-button size="small" danger ghost @click="handleClearLog">
+            <a-button size="small" danger  @click="handleClearLog">
               <template #icon>
                 <DeleteOutlined />
               </template>

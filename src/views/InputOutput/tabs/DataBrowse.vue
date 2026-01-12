@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-09 16:10:57
+ * @LastEditTime: 2026-01-12 11:44:17
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
@@ -158,7 +158,7 @@ import { getBrowseData, type DataBrowseParams } from "@/api/inputOutput";
 import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
 import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
 import { useTablePagination } from "@/utils/useTablePagination";
-import { useTimeRangeFilter } from "@/views/InputOutput/composables/useTimeRangeFilter";
+import { useTimeRangeFilter } from "@/utils/useTimeRangeFilter";
 import ChartView from "@/components/chart/chartView.vue";
 import ScatterChart from "@/components/chart/scatterChart.vue";
 

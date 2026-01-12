@@ -12,13 +12,13 @@
     <!-- 顶部操作栏 -->
     <div class="stats-header">
       <div class="header-left">
-        <a-button size="small" ghost @click="handleRefresh">
+        <a-button size="small"  @click="handleRefresh">
           <template #icon>
             <ReloadOutlined />
           </template>
           刷新
         </a-button>
-        <a-button size="small" ghost @click="handleViewDataSource">
+        <a-button size="small"  @click="handleViewDataSource">
           <template #icon>
             <DatabaseOutlined />
           </template>
