@@ -1,23 +1,6 @@
 import { ModelInputOutput, DataStructure } from "@/types/model";
 import type { TableColumnType } from "ant-design-vue";
 import dayjs from "dayjs";
-
-/**
- * ===================================
- * 类型定义
- * ===================================
- */
-export interface SelectOption {
-  label: string;
-  value: string;
-}
-
-export interface FieldConfig {
-  key: string;
-  label: string;
-  sort?: string;
-}
-
 /**
  * ===================================
  * 表格列配置

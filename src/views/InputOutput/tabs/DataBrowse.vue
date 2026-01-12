@@ -157,7 +157,7 @@ import { useRoute } from "vue-router";
 import { getBrowseData, type DataBrowseParams } from "@/api/inputOutput";
 import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
 import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
-import { useTablePagination } from "@/views/InputOutput/composables/useTablePagination";
+import { useTablePagination } from "@/utils/useTablePagination";
 import { useTimeRangeFilter } from "@/views/InputOutput/composables/useTimeRangeFilter";
 import ChartView from "@/components/chart/chartView.vue";
 import ScatterChart from "@/components/chart/scatterChart.vue";
