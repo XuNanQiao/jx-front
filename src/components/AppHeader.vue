@@ -151,7 +151,7 @@ const handleLogout = async () => {
 
 <style scoped>
 .app-header {
-  background: var(--nav-bg) !important;
+  background: var(--bg-primary) !important;
   box-shadow: var(--nav-shadow);
   padding: 0 var(--spacing-lg);
   height: 48px;

@@ -1,21 +1,21 @@
 <template>
   <div class="query-bar page">
-      <div class="query-left">
-        <a-space :size="12">
-          <a-select v-model:value="metric" :options="metricOptions" style="width: 160px" />
-          <a-select v-model:value="mode" :options="modeOptions" style="width: 120px" />
-          <template v-if="mode === 'year'">
-            <a-select v-model:value="selectedYear" :options="yearOptions" style="width: 120px" />
-          </template>
-          <template v-else-if="mode === 'month'">
-            <a-date-picker v-model:value="selectedMonth" picker="month" style="width:160px" />
-          </template>
-          <template v-else>
-            <a-date-picker v-model:value="selectedDay" style="width:160px" />
-          </template>
-          <a-button type="primary" @click="onQuery">查询</a-button>
-        </a-space>
-      </div>
+    <div class="query-left">
+      <a-space :size="12">
+        <a-select v-model:value="metric" :options="metricOptions" style="width: 160px" />
+        <a-select v-model:value="mode" :options="modeOptions" style="width: 120px" />
+        <template v-if="mode === 'year'">
+          <a-select v-model:value="selectedYear" :options="yearOptions" style="width: 120px" />
+        </template>
+        <template v-else-if="mode === 'month'">
+          <a-date-picker v-model:value="selectedMonth" picker="month" style="width: 160px" />
+        </template>
+        <template v-else>
+          <a-date-picker v-model:value="selectedDay" style="width: 160px" />
+        </template>
+        <a-button type="primary" @click="onQuery">查询</a-button>
+      </a-space>
+    </div>
     <div class="query-right">
       <a-space>
         <a-button ghost @click="onBack">返回上层</a-button>
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <a-table class="model-table" :columns="columns" :data-source="filteredData" row-key="key" :pagination="pagination" :loading="loading" />
+  <a-table class="model-table" :bordered="false" :columns="columns" :data-source="filteredData" row-key="key" :pagination="pagination" :loading="loading" />
 </template>
 
 <script setup lang="ts">

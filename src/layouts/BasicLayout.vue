@@ -1,3 +1,12 @@
+<!--
+ * @Author: ZHAO
+ * @Date: 2026-01-07 16:34:15
+ * @LastEditTime: 2026-01-09 17:12:56
+ * @LastEditors: ZHAO
+ * @Description: 
+ * @FilePath: \jx\src\layouts\BasicLayout.vue
+ * 
+-->
 <template>
   <a-layout class="basic-layout">
     <!-- 顶部导航栏 -->
@@ -6,18 +15,25 @@
     <!-- 主内容区 -->
     <a-layout-content class="main-content">
       <div class="content-wrapper">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+        <a-config-provider
+          :theme="{
+            token: tokenThem,
+          }"
+        >
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </a-config-provider>
       </div>
     </a-layout-content>
   </a-layout>
 </template>
 
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue'
+import AppHeader from "@/components/AppHeader.vue";
+import { tokenThem } from "@/styles/them";
 // 用户信息已在 main.ts 中初始化到全局状态
 </script>
 

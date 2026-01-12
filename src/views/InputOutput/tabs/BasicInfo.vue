@@ -18,7 +18,7 @@
         <span class="module-title">基础信息</span>
       </div>
       <div v-show="open.basic" class="module-body">
-        <a-descriptions :column="2" bordered>
+        <a-descriptions :column="2">
           <a-descriptions-item :span="1" v-for="field in basicFields" :key="field.key" :label="field.label">
             <template v-if="editMode">
               <template v-if="field.sort === 'defaultDevice'">
@@ -59,7 +59,7 @@
         <span class="module-title">数据保留</span>
       </div>
       <div v-show="open.retention" class="module-body">
-        <a-descriptions :column="2" bordered>
+        <a-descriptions :column="2">
           <a-descriptions-item v-for="field in retentionFields" :key="field.key" :label="field.label">
             <template v-if="editMode">
               <a-select v-model:value="form[field.key]" style="width: 100%" placeholder="请选择">
@@ -83,7 +83,7 @@
         <span class="module-title">其他信息</span>
       </div>
       <div v-show="open.other" class="module-body">
-        <a-descriptions :column="2" bordered>
+        <a-descriptions :column="2">
           <a-descriptions-item v-for="field in otherFields" :key="field.key" :label="field.label">
             <template v-if="field.sort == 'created'">
               <span class="desc-text">{{ detail["created_user_id"] ?? "-" }} / {{ detail["created_time"] ? dayjs(detail["created_time"]).format("YYYY-MM-DD HH:mm:ss") : "-" }}</span>
