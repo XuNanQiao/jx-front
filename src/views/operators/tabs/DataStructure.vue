@@ -1,6 +1,18 @@
 <template>
-  <DescriptionsCom :openHand="false" bordered v-model:edit-mode-show="editMode" :detail="detail" :list="packageFields" @save="onSave"> </DescriptionsCom>
+  <DescriptionsCom :openHand="false" bordered v-model:edit-mode-show="editMode" :detail="detail" :list="packageFields" @save="onSave">
+    <template #package>
+      <a-button type="primary" @click="openDatabaseConfigModal()">
+        <template #icon>
+          <PlusOutlined />
+        </template>
+        添加依赖
+      </a-button>
+    </template>
+  </DescriptionsCom>
+
   <!-- 数据库连接配置弹窗 -->
+  <a-alert message="如果模型依赖K2ASsets未预装的第三方python包，请在“依赖包”部分填写包名和版本，并通知营理员在后台安装此依赖包。" type="info" show-icon />
+
   <DatabaseConfigModal ref="databaseConfigModalRef" :model-input-output-id="detail.id" @saved="handleDatabaseConfigSaved" />
 </template>
 

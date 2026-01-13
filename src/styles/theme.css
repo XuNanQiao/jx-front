@@ -44,6 +44,9 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 }
+*{
+  box-sizing: border-box;
+}
 .ant-card {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);

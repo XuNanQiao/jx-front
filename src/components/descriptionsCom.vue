@@ -20,8 +20,8 @@
       <div v-show="open[item.key] ||!openHand" class="module-body">
         <a-descriptions :bordered="bordered" :column="2">
           <a-descriptions-item :span="1" v-for="(field, chilIndex) in item.fields" :key="chilIndex" :label="field.label">
-            <template v-if="editMode && field.editSort">
-              <sort :name="field.editSort" />
+            <template v-if="editMode && field.editSlot">
+              <slot :name="field.editSlot" />
             </template>
             <template v-else-if="editMode && field.type === 'switch'">
               <a-switch v-model:checked="form[field.key]" />
@@ -39,8 +39,8 @@
             <template v-else-if="editMode && field.type === 'input'">
               <a-input v-model:value="form[field.key]" />
             </template>
-            <template v-else-if="!editMode && field.sort">
-              <sort :name="field.sort" />
+            <template v-else-if="!editMode && field.slot">
+              <slot :name="field.slot" />
             </template>
             <template v-else>
               <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>

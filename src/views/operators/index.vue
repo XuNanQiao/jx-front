@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-12 17:36:01
+ * @LastEditTime: 2026-01-13 09:04:36
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -73,7 +73,7 @@
                 <a-button type="link" @click="goDetail(record)">{{ record.name }}</a-button>
               </template>
               <template v-else-if="column.key === 'action'">
-                <a-button type="link" @click="goDetail(record)">编码</a-button>
+                <a-button type="link" @click="goDetail(record)">源码</a-button>
               </template>
             </template>
           </a-table>
@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { getList } from "@/api/inputOutput";
 import { useTablePagination } from "@/utils/useTablePagination";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons-vue";
+import { DownloadOutlined, ImportOutlined, SearchOutlined } from "@ant-design/icons-vue";
 import { message, TreeProps } from "ant-design-vue";
 import { debounce } from "lodash-es";
 import { onMounted, onUnmounted, reactive, ref } from "vue";
@@ -166,25 +166,6 @@ const handleTableChange = (pag: any) => {
 const goDetail = (record: any) => {
   console.log("跳转到详情页", record.id);
   router.push({ name: "ModelOperatorsList", params: { id: record.id } });
-};
-// 菜单点击处理
-const handleMenuClick = (e: { key: string }, record: any) => {
-  switch (e.key) {
-    case "view":
-      // 跳转到详情页
-      router.push({ name: "ModelInputOutputDetail", params: { id: record.id } });
-      break;
-    case "edit":
-      // 打开编辑弹窗并加载数据
-      // handleCreate(record);
-      break;
-    case "copy":
-      message.info(`复制: ${record.name}`);
-      break;
-    case "delete":
-      // handleDelete(record.id);
-      break;
-  }
 };
 </script>
 

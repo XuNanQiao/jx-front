@@ -102,7 +102,7 @@ export const packageFields = [
   {
     title: "第三方",
     fields: [
-      { label: "依赖包", key: "name", type: "link" },
+      { label: "依赖包", key: "name", type: "link", editSlot: "package" },
       { label: "版本号", key: "name" },
     ],
   },
