@@ -1,14 +1,14 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-13 15:07:48
+ * @LastEditTime: 2026-01-13 16:22:08
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\operators\chat.vue
  * 
 -->
 <template>
-  <v-chart ref="chartRef" :option="chartOption" :autoresize="true" :style="chartStyle" @dragover.prevent @drop="onDrop" />
+  <v-chart ref="chartRef" :option="chartOption" :autoresize="true" :style="chartStyle" @dragover.prevent @drop="onDrop" @click="onChartClick" />
 </template>
 
 <script setup lang="ts">
@@ -38,8 +38,10 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: "add-node", payload: any): void;
+  (e: "node-click", payload: any): void;
 }>();
 const chartRef = ref<any>(null);
+const selectedId = ref<string | null>(null);
 
 const onDrop = (e: DragEvent) => {
   e.preventDefault();
@@ -57,6 +59,19 @@ const onDrop = (e: DragEvent) => {
   }
 };
 
+const onChartClick = (params: any) => {
+  // 如果点击空白或非节点区域，取消选中
+  if (!params || !params.data) {
+    selectedId.value = null;
+    return;
+  }
+  // 点击节点时，params.data 包含节点信息
+  if (params.data) {
+    selectedId.value = params.data.id ?? params.data.name ?? null;
+    emit("node-click", params.data);
+  }
+};
+
 // 注册 ECharts 组件
 use([CanvasRenderer, GraphChart, GridComponent, TooltipComponent, TitleComponent]);
 
@@ -70,7 +85,7 @@ const chartOption = computed<EChartsOption>(() => {
   const others = props.graphData.filter((n: any) => !n.attribute);
   const base = 300;
   const offset = 40;
-  let inputsList = inputs.map((item, index) => {
+  let inputsList = inputs.map((item: any, index) => {
     const multiplier = Math.ceil(index / 2);
     let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
     return {
@@ -81,7 +96,7 @@ const chartOption = computed<EChartsOption>(() => {
       id: item.title, // 使用标题作为 id，保证与 links 的 source/target 一致匹配
     };
   });
-  let outputsList = outputs.map((item, index) => {
+  let outputsList = outputs.map((item: any, index) => {
     const multiplier = Math.ceil(index / 2);
     let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
     return {
@@ -92,7 +107,7 @@ const chartOption = computed<EChartsOption>(() => {
       id: item.title,
     };
   });
-  let othersList = others.map((item) => {
+  let othersList = others.map((item: any) => {
     return {
       name: item.title,
       x: base,
@@ -101,7 +116,23 @@ const chartOption = computed<EChartsOption>(() => {
       id: item.title,
     };
   });
-  const data = [...inputsList, ...outputsList, ...othersList];
+  const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
+    // 若为选中节点，使用高亮样式
+    if (selectedId.value && (d.id === selectedId.value || d.name === selectedId.value)) {
+      return {
+        ...d,
+        itemStyle: {
+          /*  color: "#ffcc00",
+          borderColor: "#ff8800", */
+          color: "#18e2ad",
+          borderColor: "#18e2ad",
+          borderWidth: 4,
+        },
+        label: { show: true, color: "#000" },
+      };
+    }
+    return d;
+  });
 
   let links: Array<{ source: number | string; target: number | string; lineStyle?: any }> = [];
 
