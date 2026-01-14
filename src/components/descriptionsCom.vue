@@ -17,7 +17,7 @@
         <span class="triangle" v-if="openHand" :class="{ open: open[item.key] }" aria-hidden="true"></span>
         <span class="module-title">{{ item.title }}</span>
       </div>
-      <div v-show="open[item.key] ||!openHand" class="module-body">
+      <div v-show="open[item.key] || !openHand" class="module-body">
         <a-descriptions :bordered="bordered" :column="2">
           <a-descriptions-item :span="1" v-for="(field, chilIndex) in item.fields" :key="chilIndex" :label="field.label">
             <template v-if="editMode && field.editSlot">
@@ -27,7 +27,7 @@
               <a-switch v-model:checked="form[field.key]" />
             </template>
             <template v-else-if="editMode && field.type === 'select'">
-              <a-select v-model:value="form.retention" style="width: 100%" placeholder="请选择数据保留周期">
+              <a-select v-model:value="form[field.key]" style="width: 100%" placeholder="请选择数据保留周期">
                 <a-select-option v-for="option in field.options" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </a-select-option>
@@ -39,11 +39,15 @@
             <template v-else-if="editMode && field.type === 'input'">
               <a-input v-model:value="form[field.key]" />
             </template>
+            <!-- 非编辑态优先使用自定义渲染 -->
+            <template v-else-if="!editMode && field.customRender">
+              <VNodeRenderer :vnode="field.customRender({ text: detail[field.key], record: detail })" />
+            </template>
             <template v-else-if="!editMode && field.slot">
               <slot :name="field.slot" />
             </template>
             <template v-else>
-              <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
+              <span class="desc-text">{{ formatValue(detail[field.key]) }}</span>
             </template>
           </a-descriptions-item>
         </a-descriptions>
@@ -53,26 +57,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from "vue";
-const props = defineProps({
-  detail: {
-    type: Object,
-    default: () => ({}),
+import { ref, watch, reactive, defineComponent, h } from 'vue';
+// 用于直接挂载 VNode 或字符串到模板
+const VNodeRenderer = defineComponent({
+  name: 'VNodeRenderer',
+  props: {
+    vnode: { type: [Object, String, Number], required: true },
   },
-  list: {
-    type: Array,
-    default: () => [],
+  setup(props) {
+    return () => (typeof props.vnode === 'object' ? (props.vnode as any) : h('span', {}, String(props.vnode)));
   },
-  openAll: { type: Boolean, default: true },
-  bordered: { type: Boolean, default: false },
-  editModeShow: { type: Boolean, default: false },
-  openHand: { type: Boolean, default: true },
 });
-const emit = defineEmits(["save", "update:editModeShow"]);
+type SelectOption = { label: string; value: any };
+type CustomRenderCtx = { text: any; record: Record<string, any> };
+interface FieldItem {
+  label: string;
+  key: string;
+  sort?: string;
+  type?: 'input' | 'select' | 'switch' | 'number' | 'link';
+  options?: SelectOption[];
+  editSlot?: string;
+  slot?: string;
+  customRender?: (ctx: CustomRenderCtx) => any;
+}
+interface ModuleItem {
+  title: string;
+  key: string;
+  fields: FieldItem[];
+}
+
+const props = withDefaults(
+  defineProps<{
+    detail: Record<string, any>;
+    list: ModuleItem[];
+    openAll?: boolean;
+    bordered?: boolean;
+    editModeShow?: boolean;
+    openHand?: boolean;
+  }>(),
+  {
+    detail: () => ({}) as Record<string, any>,
+    list: () => [] as ModuleItem[],
+    openAll: true,
+    bordered: false,
+    editModeShow: false,
+    openHand: true,
+  },
+);
+const emit = defineEmits(['save', 'update:editModeShow']);
 
 const open = ref<Record<string, boolean>>({});
 const editMode = ref(false);
-const detail = ref<any>({});
 const form = reactive<any>({});
 watch(
   () => props.list,
@@ -83,7 +118,7 @@ watch(
       });
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 watch(
   () => props.detail,
@@ -93,14 +128,14 @@ watch(
       Object.assign(form, val);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 watch(
   () => props.editModeShow,
   (val) => {
     editMode.value = val;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const toggle = (key: string) => {
@@ -109,20 +144,27 @@ const toggle = (key: string) => {
 
 const toggleEdit = () => {
   editMode.value = true;
-  emit("update:editModeShow", true);
+  emit('update:editModeShow', true);
 };
 
 const cancelEdit = () => {
   editMode.value = false;
-  emit("update:editModeShow", false);
-  if (detail.value) {
+  emit('update:editModeShow', false);
+  if (props.detail) {
     Object.keys(form).forEach((k) => delete form[k]);
-    Object.assign(form, detail.value);
+    Object.assign(form, props.detail);
   }
 };
 
 const onSave = async () => {
-  emit("save", form);
+  emit('save', form);
+};
+
+const formatValue = (value: any) => {
+  if (value === undefined || value === null || value === '') return '-';
+  if (Array.isArray(value)) return value.length ? JSON.stringify(value) : '-';
+  if (typeof value === 'object') return Object.keys(value).length ? JSON.stringify(value) : '-';
+  return value;
 };
 </script>
 <style scoped lang="scss">
@@ -173,6 +215,7 @@ const onSave = async () => {
         }
         .ant-descriptions-item-content {
           width: 50%;
+          padding: 8px 0px;
         }
         .ant-descriptions-item-content,
         .desc-text {

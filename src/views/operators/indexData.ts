@@ -1,13 +1,20 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:05:28
- * @LastEditTime: 2026-01-14 09:28:02
+ * @LastEditTime: 2026-01-14 09:46:06
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\operators\indexData.ts
  *
  */
 import dayjs from 'dayjs';
+
+const categoryMap: Record<number, string> = {
+  0: '基础算子',
+  1: '文件读写',
+  2: '机器学习',
+  3: '信号处理',
+};
 
 export const tableColumns = [
   { dataIndex: 'name', title: '名称', key: 'name' },
@@ -26,10 +33,7 @@ export const treeData = [
         title: '基础算子',
         key: '0',
       },
-      {
-        title: '文本编码',
-        key: '1',
-      },
+      { title: '文件读写', key: '1' },
       {
         title: '机器学习',
         key: '2',

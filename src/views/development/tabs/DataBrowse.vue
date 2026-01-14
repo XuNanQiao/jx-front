@@ -1,10 +1,10 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-12 17:33:53
+ * @LastEditTime: 2026-01-14 10:25:17
  * @LastEditors: ZHAO
  * @Description:
- * @FilePath: \jx\src\views\operators\tabs\DataBrowse.vue
+ * @FilePath: \jx\src\views\development\tabs\DataBrowse.vue
  *
 -->
 <template>
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
+import { getModelDevList, deleteModelDev, batchDeleteModelDev, type ListQueryParams } from '@/api/development';
 import type { ModelInputOutput } from '@/types/model';
 import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
@@ -126,7 +126,7 @@ const loadData = async () => {
       name: filters.name || undefined,
       category: filters.category || undefined,
     };
-    const res = await getList(params);
+    const res = await getModelDevList(params);
     dataSource.value = res?.data?.items || [];
     pagination.total = res?.data?.total || 0;
   } catch (err) {
@@ -170,7 +170,7 @@ const rowSelection = computed(() => ({
 // 表格变化
 const handleTableChange = (pag: any) => {
   onTableChange(pag);
-  getList();
+  loadData();
 };
 
 // 新建
@@ -200,7 +200,7 @@ const handleBatchDelete = () => {
     cancelText: '取消',
     async onOk() {
       try {
-        const res = await batchDeleteItems(selectedRowKeys.value);
+        const res = await batchDeleteModelDev(selectedRowKeys.value);
         if (res.code === 200) {
           selectedRowKeys.value = [];
           await loadData();
@@ -241,7 +241,7 @@ const handleDelete = (id: string) => {
     cancelText: '取消',
     async onOk() {
       try {
-        const res = await deleteItem(id);
+        const res = await deleteModelDev(id);
         if (res.code === 200) {
           await loadData();
         }

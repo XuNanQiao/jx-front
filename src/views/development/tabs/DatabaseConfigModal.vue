@@ -27,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
-import { getDatabaseConfig, createDatabaseConfig, updateDatabaseConfig, updateItem } from '@/api/inputOutput';
+import { updateItem } from '@/api/development';
 import { message, type FormInstance } from 'ant-design-vue';
+import { computed, ref } from 'vue';
 
 // 数据库配置表单类型（使用下划线命名匹配后端）
 interface DatabaseConfigForm {

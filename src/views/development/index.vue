@@ -1,10 +1,10 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-13 17:55:29
+ * @LastEditTime: 2026-01-14 10:29:15
  * @LastEditors: ZHAO
  * @Description:
- * @FilePath: \jx\src\views\operators\operatorsList.vue
+ * @FilePath: \jx\src\views\development\index.vue
  *
 -->
 <template>
@@ -33,6 +33,10 @@
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
           <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
+        </div>
+        <div class="filter-inter">
+          <span class="select-inter">编辑器：</span>
+          <a-select :options="editorOptions" @change="searchHandler" v-model:value="filters.editor" allowClear placeholder="请选择编辑器" style="width: 150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -96,14 +100,14 @@
 </template>
 
 <script setup lang="ts">
-import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
+import { getModelDevList, deleteModelDev, batchDeleteModelDev, type ListQueryParams } from '@/api/development';
 import type { ModelInputOutput } from '@/types/model';
 import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import type { TableProps } from 'ant-design-vue';
 import { message, Modal } from 'ant-design-vue';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { detailColumns, selectOptions } from './indexData';
+import { detailColumns, selectOptions, editorOptions } from './indexData';
 import detailFormModal from './components/detailFormModal.vue';
 import { debounce } from 'lodash-es';
 import { useTablePagination } from '@/utils/useTablePagination';
@@ -119,6 +123,7 @@ const loading = ref(false);
 const filters = reactive({
   name: '',
   category: undefined,
+  editor: undefined,
 });
 
 // 选中的行
@@ -136,8 +141,9 @@ const loadData = async () => {
       page: pagination.current,
       name: filters.name || undefined,
       category: filters.category || undefined,
+      editor: filters.editor || undefined,
     };
-    const res = await getList(params);
+    const res = await getModelDevList(params);
     dataSource.value = res?.data?.items || [];
     pagination.total = res?.data?.total || 0;
   } catch (err) {
@@ -183,7 +189,7 @@ const rowSelection = computed(() => ({
 // 表格变化
 const handleTableChange = (pag: any) => {
   onTableChange(pag);
-  getList();
+  loadData();
 };
 
 // 新建
@@ -213,7 +219,7 @@ const handleBatchDelete = () => {
     cancelText: '取消',
     async onOk() {
       try {
-        const res = await batchDeleteItems(selectedRowKeys.value);
+        const res = await batchDeleteModelDev(selectedRowKeys.value);
         if (res.code === 200) {
           selectedRowKeys.value = [];
           await loadData();
@@ -258,7 +264,7 @@ const handleDelete = (id: string) => {
     cancelText: '取消',
     async onOk() {
       try {
-        const res = await deleteItem(id);
+        const res = await deleteModelDev(id);
         if (res.code === 200) {
           await loadData();
         }

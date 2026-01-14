@@ -5,7 +5,7 @@
  */
 interface SelectOption {
   label: string;
-  value: string;
+  value: string | number | boolean;
 }
 
 interface FieldConfig {

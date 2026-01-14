@@ -19,7 +19,7 @@ export interface ListQueryParams {
   [key: string]: any; // 其他筛选参数
 }
 
-// 列表查询接口
+// 模型输入输出列表
 export function getList(params?: ListQueryParams): Promise<ApiResponse<any>> {
   return request.post("/api/model_input_output/retrieve", params || {});
 }

@@ -1,5 +1,16 @@
-import { TreeProps } from 'ant-design-vue';
+/*
+ * @Author: ZHAO
+ * @Date: 2026-01-14 09:12:51
+ * @LastEditTime: 2026-01-14 11:25:04
+ * @LastEditors: ZHAO
+ * @Description:
+ * @FilePath: \jx\src\views\development\indexData.ts
+ *
+ */
+// import { TreeProps } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import { h } from 'vue';
+import { Tag } from 'ant-design-vue';
 
 export const treeData = [
   {
@@ -30,27 +41,64 @@ export const treeData = [
   },
 ];
 
+export const selectOptions: SelectOption[] = [
+  { label: '其他', value: 0 },
+  { label: '风机', value: 1 },
+  { label: '光伏', value: 2 },
+  { label: '电气', value: 3 },
+];
+export const editorOptions: SelectOption[] = [{ label: 'canvas', value: 0 }];
+export const extendedOptions: SelectOption[] = [
+  { label: '未配置', value: false },
+  { label: '已配置', value: true },
+];
+
+// 编程语言选项（默认 python32）
+export const languageOptions: SelectOption[] = [
+  { label: 'python32', value: 'python32' },
+  { label: 'python3', value: 'python3' },
+  { label: 'nodejs', value: 'nodejs' },
+  { label: 'java', value: 'java' },
+  { label: 'go', value: 'go' },
+];
+
+// 设备类型选项（需求：options: 0 - None）
+export const deviceTypeOptions: SelectOption[] = [{ label: 'None', value: 0 }];
+
 /* ----------------------detail------------------- */
 export const detailColumns = [
-  { dataIndex: 'name', title: '名称', key: 'name' },
-  { dataIndex: 'version', title: '版本', align: 'center' },
-  { dataIndex: 'data_type', title: '扩展信息', align: 'center' },
-  { dataIndex: 'category', title: '类别', align: 'center' },
-  { dataIndex: 'editor', title: '编辑器', align: 'center' },
-  { dataIndex: 'reated_time', title: '创建时间', align: 'center', customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
-  { dataIndex: 'reated_user_id', title: '创建人', align: 'center' },
+  { dataIndex: 'name', title: '模型名称', key: 'name' },
+  { dataIndex: 'version', title: '模型版本', key: 'version', align: 'center' },
+  {
+    dataIndex: 'extension_info',
+    title: '扩展信息',
+    key: 'extension_info',
+    align: 'center',
+    customRender: ({ record }: any) => {
+      const enabled = record?.extension_info === true;
+      const text = enabled ? '已配置' : '未配置';
+      const color = enabled ? 'success' : 'error';
+      return h(Tag, { color }, () => text);
+    },
+  },
+
+  {
+    dataIndex: 'category',
+    title: '分类',
+    key: 'category',
+    align: 'center',
+    customRender: ({ text }: any) => selectOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+  },
+  {
+    dataIndex: 'editor',
+    title: '编辑器',
+    key: 'editor',
+    align: 'center',
+    customRender: ({ text }: any) => editorOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+  },
+  { dataIndex: 'created_time', title: '创建时间', key: 'created_time', align: 'center', customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
+  { dataIndex: 'created_user_id', title: '创建人', key: 'created_user_id', align: 'center' },
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center', width: 80 },
-];
-export const selectOptions: SelectOption[] = [
-  { label: '其他', value: '0' },
-  { label: '风机', value: '1' },
-  { label: '光伏', value: '2' },
-  { label: '电气', value: '3' },
-];
-export const editorOptions: SelectOption[] = [{ label: 'canvas', value: '0' }];
-export const extendedOptions: SelectOption[] = [
-  { label: '未配置', value: '1' },
-  { label: '已配置', value: '2' },
 ];
 // OperatorPanel 下拉项
 export const repoOptions: SelectOption[] = [
@@ -81,19 +129,51 @@ export const granularityOptions: SelectOption[] = [
   { label: '年', value: 'year' },
 ];
 /* ----------------basicFields----------------- */
+
 export const basicFields = [
   {
     title: '基础信息',
     key: 'basicInfo',
     fields: [
-      { label: '名称', key: 'name', sort: 'default', type: 'input' },
+      { label: '模型名称', key: 'name', sort: 'default', type: 'input' },
       { label: '显示名称', key: 'name', sort: 'default', type: 'input' },
-      { label: '版本号', key: 'version', sort: 'default', type: 'input' },
-      { label: '类别', key: 'category', sort: 'default', type: 'select', options: selectOptions },
-      { label: '语言', key: 'language', sort: 'default', type: 'input' },
-      { label: '编辑器', key: 'editor', sort: 'default', type: 'input' },
-      { label: '设备类型', key: 'levice_type', sort: 'default', type: 'input' },
-      { label: '扩展信息', key: 'extended_info', sort: 'default', type: 'input' },
+      { label: '模型版本', key: 'version', sort: 'default', type: 'input' },
+      {
+        label: '类别',
+        key: 'category',
+        sort: 'default',
+        type: 'select',
+        options: selectOptions,
+        customRender: ({ text }: any) => selectOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+      },
+      {
+        label: '编辑器',
+        key: 'editor',
+        sort: 'default',
+        type: 'select',
+        options: editorOptions,
+        customRender: ({ text }: any) => editorOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+      },
+      { label: '编程语言', key: 'language', sort: 'default', type: 'select', options: languageOptions },
+      { label: '设备类型', key: 'levice_type', sort: 'default', type: 'select', options: deviceTypeOptions },
+      {
+        label: '扩展信息',
+        key: 'extended_info',
+        sort: 'default',
+        type: 'select',
+        options: extendedOptions,
+        customRender: ({ record }: any) => {
+          const enabled =
+            record?.extension_info === true ||
+            record?.extension_info === 'True' ||
+            record?.extension_info === 'true' ||
+            record?.extension_info === 1 ||
+            record?.extension_info === '1';
+          const text = enabled ? '已配置' : '未配置';
+          const color = enabled ? 'success' : 'error';
+          return h(Tag, { color }, () => text);
+        },
+      },
     ],
   },
   {
@@ -101,7 +181,7 @@ export const basicFields = [
     key: 'otherFields',
     fields: [
       { label: '创建人', key: 'created_user_id', sort: 'default' },
-      { label: '创建时间', key: 'created_time', sort: 'default' },
+      { label: '创建时间', key: 'created_time', sort: 'default', customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
       { label: '可用范围', key: 'version', sort: 'default' },
       { label: '备注', key: 'category', sort: 'default' },
     ],
@@ -123,6 +203,7 @@ export const packageFields = [
     ],
   },
 ];
+/* ----------------basicFields----------------- */
 export const browseColumns = [
   { dataIndex: 'name', title: '作业名称', key: 'name' },
   { dataIndex: 'name', title: '模型/部署', key: 'name' },

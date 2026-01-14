@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-14 09:22:12
+ * @LastEditTime: 2026-01-14 10:18:50
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -13,7 +13,16 @@
       <!-- 左侧筛选区 -->
       <div class="filter-panel">
         <div class="filter-section">
-          <a-tree :show-line="true" :show-icon="true" :defaultExpandAll="true" :tree-data="treeData" @select="onSelect"></a-tree>
+          <a-input-search v-model:value="searchValue" allow-clear placeholder="搜索节点" style="margin-bottom: 8px" />
+          <a-tree
+            :show-line="true"
+            :show-icon="true"
+            :tree-data="treeData"
+            :expandedKeys="treeExpandedKeys"
+            :autoExpandParent="autoExpandParent"
+            :filterTreeNode="filterTreeNode"
+            @expand="onExpand"
+            @select="onSelect"></a-tree>
         </div>
       </div>
 
@@ -40,7 +49,7 @@
             <a-space :size="16" wrap>
               <div class="filter-inter">
                 <span class="select-inter">类别：</span>
-                <a-select :options="versionOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
+                <a-select :options="versionOptions" @change="searchHandler" v-model:value="filters.version" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
               </div>
               <div class="filter-inter">
                 <a-input v-model:value="filters.searchKeyword" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
@@ -68,7 +77,7 @@
             row-key="id"
             class="model-table"
             :scroll="{ x: 'max-content' }">
-            <template #bodyCell="{ column, record, text }">
+            <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
                 <a-button type="link" @click="goDetail(record)">源码</a-button>
               </template>
@@ -94,24 +103,58 @@ import { useTablePagination } from '@/utils/useTablePagination';
 import { DownloadOutlined, ImportOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import { message, TreeProps } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { tableColumns, treeData, versionOptions } from './indexData';
-const router = useRouter();
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
 // 筛选条件
 const filters = reactive({
-  key: '' as string | undefined,
-  expandedKeys: '' as string | number,
-  category: '',
-  searchKeyword: '',
+  expandedKeys: null,
+  version: null,
+  searchKeyword: null,
 });
 
 // 状态管理
 const loading = ref(false);
 const tableData = ref<any[]>([]);
+
+// 树搜索与展开控制
+const searchValue = ref('');
+const autoExpandParent = ref(true);
+const treeExpandedKeys = ref<Array<string | number>>([]);
+
+// 生成扁平列表与父级查找
+type TreeNode = { key: string | number; title?: string; children?: TreeNode[] } & Record<string, any>;
+const dataList: Array<{ key: string | number; title: string }> = [];
+const generateList = (data: TreeNode[]) => {
+  (data || []).forEach((node) => {
+    dataList.push({ key: node.key, title: String(node.title ?? '') });
+    if (node.children) generateList(node.children);
+  });
+};
+const getParentKey = (key: string | number, tree: TreeNode[]): string | number | undefined => {
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (node.children) {
+      if (node.children.some((item: TreeNode) => item.key === key)) {
+        return node.key;
+      }
+      const parentKey = getParentKey(key, node.children);
+      if (parentKey) return parentKey;
+    }
+  }
+  return undefined;
+};
+
+// 匹配高亮函数
+const filterTreeNode: TreeProps['filterTreeNode'] = (node: any) => {
+  const val = searchValue.value?.trim().toLowerCase();
+  if (!val) return false;
+  return String(node.title ?? '')
+    .toLowerCase()
+    .includes(val);
+};
 
 // 源码弹窗状态
 const sourceModalOpen = ref(false);
@@ -125,8 +168,9 @@ const getListHand = async () => {
   try {
     // 构建查询参数
     const params = {
-      expandedKeys: filters.expandedKeys,
-      key: filters.key,
+      category: filters.expandedKeys,
+      version: filters.version,
+      name: filters.searchKeyword,
       page: pagination.current,
       size: pagination.pageSize,
     };
@@ -149,14 +193,23 @@ onUnmounted(() => {
 });
 // 初始化
 onMounted(async () => {
+  // 初始化树索引与默认展开全部
+  generateList(treeData as unknown as TreeNode[]);
+  treeExpandedKeys.value = dataList.map((d) => d.key);
+  autoExpandParent.value = false;
   getListHand(); // 再查询数据
 });
 // 树选择
-const onSelect: TreeProps['onSelect'] = (selectedKeys, { node }) => {
+const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
   console.log('selected', node);
   filters.expandedKeys = node.key;
   pagination.current = 1;
   getListHand();
+};
+// 树展开
+const onExpand: TreeProps['onExpand'] = (keys) => {
+  treeExpandedKeys.value = keys as Array<string | number>;
+  autoExpandParent.value = false;
 };
 // 导入
 const handleImport = () => {
@@ -169,6 +222,27 @@ const searchHandler = () => {
 const inputSearch = debounce(() => {
   searchHandler;
 }, 300);
+
+// 搜索联动展开父级
+watch(
+  () => searchValue.value,
+  (val) => {
+    const v = (val || '').trim().toLowerCase();
+    if (!v) {
+      // 清空搜索后保持原先全部展开的体验
+      treeExpandedKeys.value = dataList.map((d) => d.key);
+      autoExpandParent.value = false;
+      return;
+    }
+    const keys = dataList
+      .filter((item) => item.title.toLowerCase().includes(v))
+      .map((item) => getParentKey(item.key, treeData as unknown as TreeNode[]))
+      .filter((k): k is string | number => k !== undefined);
+    // 去重
+    treeExpandedKeys.value = Array.from(new Set(keys));
+    autoExpandParent.value = true;
+  },
+);
 // 表格变化
 const handleTableChange = (pag: any) => {
   onTableChange(pag);

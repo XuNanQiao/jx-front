@@ -36,15 +36,15 @@
             </template>
             <template v-else>
               <template v-if="field.sort === 'storageEngine'">
-                <span class="desc-text" @click="viewDatabaseConfig">{{ detail["database_category"] ?? "-" }}</span>
+                <span class="desc-text" @click="viewDatabaseConfig">{{ detail['database_category'] ?? '-' }}</span>
                 <a-button size="small" type="link" style="margin-left: 8px" @click="openDatabaseConfigModal(false)">查看配置</a-button>
               </template>
               <template v-else-if="field.sort === 'defaultDevice'">
-                <span class="desc-text">{{ detail.defaultDevice ? "是" : "否" }}</span>
+                <span class="desc-text">{{ detail.defaultDevice ? '是' : '否' }}</span>
               </template>
 
               <template v-else>
-                <span class="desc-text">{{ detail[field.key] ?? "-" }}</span>
+                <span class="desc-text">{{ detail[field.key] ?? '-' }}</span>
               </template>
             </template>
           </a-descriptions-item>
@@ -86,12 +86,14 @@
         <a-descriptions :column="2">
           <a-descriptions-item v-for="field in otherFields" :key="field.key" :label="field.label">
             <template v-if="field.sort == 'created'">
-              <span class="desc-text">{{ detail["created_user_id"] ?? "-" }} / {{ detail["created_time"] ? dayjs(detail["created_time"]).format("YYYY-MM-DD HH:mm:ss") : "-" }}</span>
+              <span class="desc-text">
+                {{ detail['created_user_id'] ?? '-' }} / {{ detail['created_time'] ? dayjs(detail['created_time']).format('YYYY-MM-DD HH:mm:ss') : '-' }}
+              </span>
             </template>
             <template v-else-if="field.sort === 'category'">
-              <span class="desc-text">{{ detail.category == "1" ? "系统" : "台账" }}</span>
+              <span class="desc-text">{{ detail.category == '1' ? '系统' : '台账' }}</span>
             </template>
-            <span v-else class="desc-text">{{ detail[field.key] ?? "-" }}</span>
+            <span v-else class="desc-text">{{ detail[field.key] ?? '-' }}</span>
           </a-descriptions-item>
         </a-descriptions>
       </div>
@@ -103,12 +105,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from "vue";
-import { getDetail, updateItem } from "@/api/inputOutput";
-import { message } from "ant-design-vue";
-import { basicFields, retentionFields, otherFields, retentionOptions } from "../index";
-import DatabaseConfigModal from "./DatabaseConfigModal.vue";
-import dayjs from "dayjs";
+import { ref, watch, reactive } from 'vue';
+import { getDetail, updateItem } from '@/api/inputOutput';
+import { message } from 'ant-design-vue';
+import { basicFields, retentionFields, otherFields, retentionOptions } from '../index';
+import DatabaseConfigModal from './DatabaseConfigModal.vue';
+import dayjs from 'dayjs';
 
 const props = defineProps<{ id: any | null }>();
 
@@ -123,7 +125,7 @@ const databaseConfigModalRef = ref<any>(null);
 
 // field definitions moved to ./index.ts
 
-const toggle = (key: "basic" | "retention" | "other") => {
+const toggle = (key: 'basic' | 'retention' | 'other') => {
   open.value[key] = !open.value[key];
 };
 
@@ -147,22 +149,22 @@ const onSave = async () => {
 
 const save = async () => {
   if (!form.id) {
-    message.error("缺少 id，无法保存");
+    message.error('缺少 id，无法保存');
     return;
   }
   try {
     await updateItem(form);
-    message.success("保存成功");
+    message.success('保存成功');
     await loadDetail(); // 保存后重新加载数据
   } catch (err) {
-    message.error("保存失败");
+    message.error('保存失败');
   }
 };
 
 // 打开数据库配置弹窗（编辑模式）
 const openDatabaseConfigModal = (isAddMode: boolean) => {
   if (!detail.value.id) {
-    message.warning("请先保存基础信息");
+    message.warning('请先保存基础信息');
     return;
   }
   databaseConfigModalRef.value?.openModal(detail.value, isAddMode);
@@ -171,7 +173,7 @@ const openDatabaseConfigModal = (isAddMode: boolean) => {
 // 查看数据库配置（查看模式）
 const viewDatabaseConfig = () => {
   if (!detail.value.id) {
-    message.warning("暂无配置信息");
+    message.warning('暂无配置信息');
     return;
   }
   databaseConfigModalRef.value?.viewModal(detail.value);
@@ -184,13 +186,13 @@ const handleDatabaseConfigSaved = (data: any) => {
   } else {
     loadDetail();
   }
-  message.success("数据库配置已保存");
+  message.success('数据库配置已保存');
 };
 
 // 获取数据保留显示标签
 const getRetentionLabel = (value: string | number | null | undefined): string => {
-  if (value === null || value === undefined || value === "") {
-    return "-";
+  if (value === null || value === undefined || value === '') {
+    return '-';
   }
   const strValue = String(value);
   const option = retentionOptions.find((opt) => opt.value === strValue);
@@ -199,7 +201,7 @@ const getRetentionLabel = (value: string | number | null | undefined): string =>
 // 加载详情数据
 const loadDetail = async () => {
   if (!props.id) {
-    message.error("缺少ID参数");
+    message.error('缺少ID参数');
     return;
   }
 
@@ -213,7 +215,7 @@ const loadDetail = async () => {
       Object.assign(form, res.data);
     }
   } catch (err: any) {
-    console.error("❌ 详情数据加载错误:", err);
+    console.error('❌ 详情数据加载错误:', err);
   } finally {
     loading.value = false;
   }
@@ -227,7 +229,7 @@ watch(
       loadDetail();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 <style scoped lang="scss">
@@ -277,6 +279,7 @@ watch(
           padding: 8px 16px;
         }
         .ant-descriptions-item-content {
+          padding: 8px 0px;
           width: 50%;
         }
         .ant-descriptions-item-content,
