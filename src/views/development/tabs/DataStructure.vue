@@ -1,14 +1,45 @@
 <template>
-  <DescriptionsCom :openHand="false" bordered v-model:edit-mode-show="editMode" :detail="detail" :list="packageFields" @save="onSave">
-    <template #package>
-      <a-button size="small" type="primary" @click="openDatabaseConfigModal()">
-        <template #icon>
-          <PlusOutlined />
-        </template>
-        添加依赖
-      </a-button>
-    </template>
-  </DescriptionsCom>
+  <div class="basic-info page">
+    <!-- 基础信息 模块 -->
+    <div class="module">
+      <div class="module-header">
+        <span class="module-title">算子库</span>
+      </div>
+      <div class="module-body">
+        <a-descriptions bordered :column="2">
+          <template v-for="(item, index) in detail.dependency_package" :key="index">
+            <a-descriptions-item :span="1" label="依赖包">
+              <span class="desc-text">{{ item.name }}</span>
+            </a-descriptions-item>
+            <a-descriptions-item :span="1" label="版本号">
+              <span class="desc-text">{{ item.version }}</span>
+            </a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </div>
+    </div>
+    <div class="module">
+      <div class="module-header flex-between">
+        <span class="module-title">第三方</span>
+        <a-button size="small" type="primary" @click="openDatabaseConfigModal()">
+          <template #icon>
+            <PlusOutlined />
+          </template>
+          添加依赖
+        </a-button>
+      </div>
+      <div class="module-body">
+        <a-descriptions bordered :column="2" v-for="(item, index) in detail.dependency_package" :key="index">
+          <a-descriptions-item :span="1" label="依赖包">
+            <span class="desc-text">{{ item.name }}</span>
+          </a-descriptions-item>
+          <a-descriptions-item :span="1" label="版本号">
+            <span class="desc-text">{{ item.version }}</span>
+          </a-descriptions-item>
+        </a-descriptions>
+      </div>
+    </div>
+  </div>
 
   <!-- 数据库连接配置弹窗 -->
   <a-alert message="如果模型依赖K2ASsets未预装的第三方python包，请在“依赖包”部分填写包名和版本，并通知营理员在后台安装此依赖包。" type="info" show-icon />
@@ -31,25 +62,6 @@ const detail = ref<any>({});
 
 // 数据库配置弹窗引用
 const databaseConfigModalRef = ref<any>(null);
-
-const onSave = async (form: any) => {
-  await save();
-  editMode.value = false;
-};
-
-const save = async (form: any) => {
-  if (!form.id) {
-    message.error('缺少 id，无法保存');
-    return;
-  }
-  try {
-    await updateModelDev(form);
-    message.success('保存成功');
-    await loadDetail(); // 保存后重新加载数据
-  } catch (err) {
-    message.error('保存失败');
-  }
-};
 
 // 打开数据库配置弹窗（编辑模式）
 const openDatabaseConfigModal = () => {
@@ -97,4 +109,69 @@ watch(
   { immediate: true },
 );
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.basic-info {
+  .module {
+    margin-bottom: 12px;
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 0;
+
+      .header-actions {
+        margin-left: auto;
+      }
+
+      .triangle {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid var(--theme-info);
+        display: inline-block;
+        transition: transform 0.2s ease;
+      }
+      .triangle.open {
+        transform: rotate(180deg);
+      }
+
+      .module-title {
+        margin-left: 8px;
+        font-weight: 700;
+        color: var(--theme-info);
+      }
+    }
+
+    .module-body {
+      padding: 0 0 0 8px;
+      :deep(.ant-descriptions) {
+        /* 强制两列各占 50% */
+
+        .ant-descriptions-item-label {
+          color: #ffffff;
+          width: max-content;
+          min-width: 100px !important;
+          padding: 8px 16px;
+        }
+        .ant-descriptions-item-content {
+          width: 50%;
+          padding: 8px 16px;
+        }
+        .ant-descriptions-item-content,
+        .desc-text {
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+</style>

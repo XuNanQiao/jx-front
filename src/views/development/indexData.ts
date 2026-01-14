@@ -12,35 +12,6 @@ import dayjs from 'dayjs';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
 
-export const treeData = [
-  {
-    title: '系统算子库',
-    key: '0-0',
-    children: [
-      {
-        title: '基础算子',
-        key: '0',
-      },
-      {
-        title: '文本编码',
-        key: '1',
-      },
-      {
-        title: '机器学习',
-        key: '2',
-      },
-      {
-        title: '信号处理',
-        key: '3',
-      },
-    ],
-  },
-  {
-    title: '用户算子库',
-    key: '0-1',
-  },
-];
-
 export const selectOptions: SelectOption[] = [
   { label: '其他', value: 0 },
   { label: '风机', value: 1 },

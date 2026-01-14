@@ -17,7 +17,7 @@
           <a-tree
             :show-line="true"
             :show-icon="true"
-            :tree-data="treeData"
+            :tree-data="treeData()"
             :expandedKeys="treeExpandedKeys"
             :autoExpandParent="autoExpandParent"
             :filterTreeNode="filterTreeNode"
@@ -194,15 +194,15 @@ onUnmounted(() => {
 // 初始化
 onMounted(async () => {
   // 初始化树索引与默认展开全部
-  generateList(treeData as unknown as TreeNode[]);
+  generateList(treeData() as unknown as TreeNode[]);
   treeExpandedKeys.value = dataList.map((d) => d.key);
   autoExpandParent.value = false;
   getListHand(); // 再查询数据
 });
 // 树选择
 const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
-  console.log('selected-2', node, _selectedKeys);
-  filters.expandedKeys = _selectedKeys.length ? node.key : null;
+  const isLeaf = !(node.children && node.children.length);
+  filters.expandedKeys = _selectedKeys.length && isLeaf ? node.key : null;
   pagination.current = 1;
   getListHand();
 };

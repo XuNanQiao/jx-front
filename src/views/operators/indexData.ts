@@ -24,7 +24,7 @@ export const tableColumns = [
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center' },
 ];
 
-export const treeData = [
+export const treeDataVal: any = [
   {
     title: '系统算子库',
     key: '0-0',
@@ -49,6 +49,9 @@ export const treeData = [
     key: '0-1',
   },
 ];
+export const treeData = () => {
+  return JSON.parse(JSON.stringify(treeDataVal));
+};
 // 属性选项
 export const versionOptions: SelectOption[] = [
   { label: '0.2.5', value: '1' },

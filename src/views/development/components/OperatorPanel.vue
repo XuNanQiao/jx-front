@@ -1,5 +1,5 @@
 <template>
-  <ToggleBox position="right" :openVal="open" v-if="selected.id">
+  <ToggleBox position="right" :openVal="open" v-if="selected.type">
     <template #content>
       <a-tabs v-model:activeKey="activeTab" type="card">
         <a-tab-pane key="info" tab="算子信息">
@@ -18,17 +18,17 @@
 
               <template v-if="selected.type === 'input' || selected.type === 'output'">
                 <a-form-item label="Repo">
-                  <a-select v-model:value="selected.form.repo" :options="repoOptions" placeholder="请选择 Repo"> </a-select>
+                  <a-select v-model:value="selected.form.repo" :options="repoOptions" placeholder="请选择 Repo"></a-select>
                 </a-form-item>
               </template>
 
               <template v-if="selected.type === 'input'">
                 <a-form-item label="列">
-                  <a-select v-model:value="selected.form.columns" :options="columnOptions" mode="multiple" placeholder="请选择列"> </a-select>
+                  <a-select v-model:value="selected.form.columns" :options="columnOptions" mode="multiple" placeholder="请选择列"></a-select>
                 </a-form-item>
               </template>
 
-              <template v-if="selected.type === 'other'">
+              <template v-if="selected.type === 'other' || selected.type == 'otherAdd'">
                 <a-form-item label="语言类型">
                   <a-input v-model:value="selected.form.language" />
                 </a-form-item>
@@ -42,8 +42,8 @@
                     </a-upload>
                     <a-button type="default" @click="createFile">创建文件</a-button>
                   </div>
-                  <div v-if="selected.files.length">
-                    <a-list :dataSource="selected.files" bordered>
+                  <div v-if="selected.form.files?.length">
+                    <a-list :dataSource="selected.form.files" bordered>
                       <template #renderItem="{ item, index }">
                         <a-list-item>
                           <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
@@ -67,29 +67,29 @@
           </div>
         </a-tab-pane>
 
-        <a-tab-pane key="params" tab="参数配置" v-if="showParamsTab">
+        <a-tab-pane key="params" tab="参数配置" v-if="selected.type !== 'output' && selected.type !== 'otherAdd'">
           <div class="OperatorPanel">
             <div class="title">聚合参数</div>
 
             <a-form layout="vertical">
               <a-form-item label="聚合函数">
-                <a-select v-model:value="selected.params.aggregate" :options="aggregateOptions" placeholder="请选择"> </a-select>
+                <a-select v-model:value="selected.params.aggregate" :options="aggregateOptions" placeholder="请选择"></a-select>
               </a-form-item>
               <a-form-item label="数据聚合粒度">
                 <a-input-number v-model:value="selected.params.granularity.value">
                   <template #addonAfter>
-                    <a-select class="!w-80px" v-model:value="selected.params.granularity.unit" :options="granularityOptions"> </a-select>
+                    <a-select class="!w-80px" v-model:value="selected.params.granularity.unit" :options="granularityOptions"></a-select>
                   </template>
                 </a-input-number>
-       
               </a-form-item>
               <a-form-item label="填充空值">
                 <a-switch v-model:checked="selected.params.fillNa" />
               </a-form-item>
             </a-form>
           </div>
-        </a-tab-pane> </a-tabs
-    ></template>
+        </a-tab-pane>
+      </a-tabs>
+    </template>
   </ToggleBox>
 
   <a-modal v-model:open="showCreateFile" title="创建/编辑脚本" @ok="onCreateFileOk" @cancel="onCreateFileCancel">
@@ -98,119 +98,128 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
-import ToggleBox from "./toggleBox.vue";
-import { repoOptions, columnOptions, aggregateOptions, granularityOptions } from "../indexData";
+import { computed, reactive, ref } from 'vue';
+import ToggleBox from './toggleBox.vue';
+import { repoOptions, columnOptions, aggregateOptions, granularityOptions } from '../indexData';
+const emit = defineEmits(['save']);
 
 const open = ref(false);
-const activeTab = ref("info");
+const activeTab = ref('info');
 const showCreateFile = ref(false);
-const editFile = reactive({ name: "", content: "", editIndex: -1 });
-
+const editFile = reactive({ name: '', content: '', editIndex: -1 });
+const formVal = {
+  displayName: '',
+  name: '',
+  operatorName: '',
+  repo: null,
+  columns: [] as string[],
+  language: '',
+  description: '',
+  files: [],
+};
 const selected = reactive<any>({
-  type: "other",
+  type: null,
   id: null,
   form: {
-    displayName: "",
-    name: "",
-    operatorName: "",
-    repo: null,
-    columns: [] as string[],
-    language: "",
-    description: "",
+    ...formVal,
   },
   params: {
     aggregate: null,
-    granularity: { value: 1, unit: "minute" },
+    granularity: { value: 1, unit: 'minute' },
     fillNa: false,
   },
-  files: [] as Array<{ name: string; content?: string; main?: boolean }>,
 });
 
-const showParamsTab = computed(() => selected.type !== "output");
-
 const beforeUpload = (file: any) => {
-  selected.files.push({ name: file.name, content: "", main: selected.files.length === 0 });
+  selected.form.files.push({ name: file.name, content: '', main: selected.form.files.length === 0 });
   return false;
 };
 
 const onCreateFileOk = () => {
   if (!editFile.name) return;
   if (editFile.editIndex >= 0) {
-    selected.files[editFile.editIndex].name = editFile.name;
-    selected.files[editFile.editIndex].content = editFile.content;
+    selected.form.files[editFile.editIndex].name = editFile.name;
+    selected.form.files[editFile.editIndex].content = editFile.content;
   } else {
-    selected.files.push({
+    selected.form.files.push({
       name: editFile.name,
       content: editFile.content,
-      main: selected.files.length === 0,
+      main: selected.form.files.length === 0,
     });
   }
-  editFile.name = "";
-  editFile.content = "";
+  editFile.name = '';
+  editFile.content = '';
   editFile.editIndex = -1;
   showCreateFile.value = false;
 };
 
 const onCreateFileCancel = () => {
-  editFile.name = "";
-  editFile.content = "";
+  editFile.name = '';
+  editFile.content = '';
   editFile.editIndex = -1;
   showCreateFile.value = false;
 };
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = "new_script.py";
-  editFile.content = "# new script";
+  editFile.name = 'new_script.py';
+  editFile.content = '# new script';
   showCreateFile.value = true;
 };
 
 const editScript = (index: number) => {
-  const f = selected.files[index];
+  const f = selected.form.files[index];
   editFile.editIndex = index;
   editFile.name = f.name;
-  editFile.content = f.content || "";
+  editFile.content = f.content || '';
   showCreateFile.value = true;
 };
 
 const setMainScript = (index: number) => {
-  selected.files.forEach((f, i) => (f.main = i === index));
+  selected.form.files.forEach((f, i) => (f.main = i === index));
 };
 
 const removeScript = (index: number) => {
-  selected.files.splice(index, 1);
+  selected.form.files.splice(index, 1);
 };
 
 // 对外暴露方法：用于父组件在点击节点时调用
 const openNode = (node: any) => {
-  selected.id = node.id ?? node.name ?? node.title;
-  if (node.attribute === "输入") {
-    selected.type = "input";
-  } else if (node.attribute === "输出") {
-    selected.type = "output";
+  console.log('openNode', node);
+  Object.assign(selected.form, formVal);
+  if (!node) {
+    selected.type = 'otherAdd';
   } else {
-    selected.type = "other";
-  }
-  selected.form.displayName = node.name ?? node.title ?? "";
-  selected.form.name = (node.name ?? node.title ?? "").replace(/\s+/g, "_");
-  selected.form.operatorName = node.title ?? node.name ?? "";
-  selected.form.repo = selected.form.repo || null;
-  selected.form.columns = selected.form.columns || [];
-  selected.form.language = selected.form.language || "python";
-  selected.form.description = selected.form.description || "";
-  selected.params = selected.params || {
-    aggregate: null,
-    granularity: { value: 1, unit: "minute" },
-    fillNa: false,
-  };
-  selected.files = selected.files || [];
-  // 请父组件展开面板（不要直接修改 props）
-  open.value = true;
-  activeTab.value = "info";
-};
+    selected.id = node.id ?? node.name ?? node.title;
+    if (node.attribute === '输入') {
+      selected.type = 'input';
+    } else if (node.attribute === '输出') {
+      selected.type = 'output';
+    } else {
+      selected.type = 'other';
+    }
+    Object.assign(selected.form, node);
 
-defineExpose({ openNode });
+    selected.params = selected.params || {
+      aggregate: null,
+      granularity: { value: 1, unit: 'minute' },
+      fillNa: false,
+    };
+  }
+
+  open.value = true;
+  activeTab.value = 'info';
+};
+const saveHand = () => {
+  switch (selected.type) {
+    case 'otherAdd':
+      break;
+
+    default:
+      break;
+  }
+};
+defineExpose({ openNode, saveHand });
 </script>
 
 <style scoped lang="scss">

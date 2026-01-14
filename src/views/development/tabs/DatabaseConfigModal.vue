@@ -75,6 +75,9 @@ const onOk = async () => {
   loadingLocal.value = true;
   try {
     let data = JSON.parse(JSON.stringify(detailVal.value));
+    if (!data.dependency_package) {
+      data.dependency_package = [];
+    }
     data.dependency_package.push(form.value);
     const res: any = await updateModelDev(data);
     if (res && res.code === 200) {
