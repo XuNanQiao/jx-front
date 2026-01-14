@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-14 10:18:50
+ * @LastEditTime: 2026-01-14 11:58:24
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -201,8 +201,8 @@ onMounted(async () => {
 });
 // 树选择
 const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
-  console.log('selected', node);
-  filters.expandedKeys = node.key;
+  console.log('selected-2', node, _selectedKeys);
+  filters.expandedKeys = _selectedKeys.length ? node.key : null;
   pagination.current = 1;
   getListHand();
 };

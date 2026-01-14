@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-14 10:29:15
+ * @LastEditTime: 2026-01-14 14:08:03
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\index.vue
@@ -33,10 +33,6 @@
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
           <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
-        </div>
-        <div class="filter-inter">
-          <span class="select-inter">编辑器：</span>
-          <a-select :options="editorOptions" @change="searchHandler" v-model:value="filters.editor" allowClear placeholder="请选择编辑器" style="width: 150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -139,9 +135,9 @@ const loadData = async () => {
     const params: ListQueryParams = {
       size: pagination.pageSize,
       page: pagination.current,
-      name: filters.name || undefined,
-      category: filters.category || undefined,
-      editor: filters.editor || undefined,
+      name: filters.name,
+      category: filters.category,
+      editor: filters.editor,
     };
     const res = await getModelDevList(params);
     dataSource.value = res?.data?.items || [];

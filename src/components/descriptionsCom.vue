@@ -209,13 +209,13 @@ const formatValue = (value: any) => {
 
         .ant-descriptions-item-label {
           color: #ffffff;
-          width: 150px;
-          min-width: 150px !important;
+          width: max-content;
+          min-width: 100px !important;
           padding: 8px 16px;
         }
         .ant-descriptions-item-content {
           width: 50%;
-          padding: 8px 0px;
+          padding: 8px 16px;
         }
         .ant-descriptions-item-content,
         .desc-text {

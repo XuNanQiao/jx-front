@@ -45,6 +45,3 @@ export function deleteModelDev(id: string | number): Promise<ApiResponse<any>> {
 export function batchDeleteModelDev(ids: (string | number)[]): Promise<ApiResponse<any>> {
   return request.delete('/api/model_dev/batch_delete', { data: { ids }, showMessage: true });
 }
-export function updateItem(params?: ListQueryParams): Promise<ApiResponse<any>> {
-  return request.post('/api/model_exploitation/retrieve', params || {});
-}

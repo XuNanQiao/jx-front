@@ -1,3 +1,12 @@
+<!--
+ * @Author: ZHAO
+ * @Date: 2026-01-14 09:12:50
+ * @LastEditTime: 2026-01-14 13:37:51
+ * @LastEditors: ZHAO
+ * @Description: 
+ * @FilePath: \jx\src\views\development\tabs\BasicInfo.vue
+ * 
+-->
 <template>
   <div class="basic-info page">
     <DescriptionsCom v-model:edit-mode-show="editMode" :detail="detail" :list="basicFields" @save="onSave" />
@@ -15,9 +24,6 @@ const loading = ref(false);
 const editMode = ref(false);
 const detail = ref<any>({});
 
-// 数据库配置弹窗引用
-const databaseConfigModalRef = ref<any>(null);
-
 const onSave = async (form: any) => {
   await save(form);
   editMode.value = false;
@@ -28,7 +34,9 @@ const save = async (form: any) => {
     return;
   }
   try {
-    await updateModelDev(form);
+    let data = JSON.parse(JSON.stringify(form));
+    delete data.dependency_package;
+    await updateModelDev(data);
     message.success('保存成功');
     await loadDetail(); // 保存后重新加载数据
   } catch (err) {

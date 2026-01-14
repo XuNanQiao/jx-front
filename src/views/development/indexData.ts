@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-14 11:25:04
+ * @LastEditTime: 2026-01-14 13:25:54
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\indexData.ts
@@ -46,6 +46,13 @@ export const selectOptions: SelectOption[] = [
   { label: '风机', value: 1 },
   { label: '光伏', value: 2 },
   { label: '电气', value: 3 },
+];
+// 作业状态选项
+export const statusOptions: SelectOption[] = [
+  { label: '待执行', value: 0 },
+  { label: '执行中', value: 1 },
+  { label: '执行成功', value: 2 },
+  { label: '执行失败', value: 3 },
 ];
 export const editorOptions: SelectOption[] = [{ label: 'canvas', value: 0 }];
 export const extendedOptions: SelectOption[] = [
@@ -155,20 +162,22 @@ export const basicFields = [
         customRender: ({ text }: any) => editorOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
       },
       { label: '编程语言', key: 'language', sort: 'default', type: 'select', options: languageOptions },
-      { label: '设备类型', key: 'levice_type', sort: 'default', type: 'select', options: deviceTypeOptions },
+      {
+        label: '设备类型',
+        key: 'device_type',
+        sort: 'default',
+        type: 'select',
+        options: deviceTypeOptions,
+        customRender: ({ text }: any) => deviceTypeOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+      },
       {
         label: '扩展信息',
-        key: 'extended_info',
+        key: 'extension_info',
         sort: 'default',
         type: 'select',
         options: extendedOptions,
         customRender: ({ record }: any) => {
-          const enabled =
-            record?.extension_info === true ||
-            record?.extension_info === 'True' ||
-            record?.extension_info === 'true' ||
-            record?.extension_info === 1 ||
-            record?.extension_info === '1';
+          const enabled = record?.extension_info === true;
           const text = enabled ? '已配置' : '未配置';
           const color = enabled ? 'success' : 'error';
           return h(Tag, { color }, () => text);
@@ -207,12 +216,13 @@ export const packageFields = [
 export const browseColumns = [
   { dataIndex: 'name', title: '作业名称', key: 'name' },
   { dataIndex: 'name', title: '模型/部署', key: 'name' },
-  { dataIndex: 'name', title: '输入', key: 'name' },
-  { dataIndex: 'name', title: '输出', key: 'name' },
-  { dataIndex: 'name', title: '数据时间（时长）', key: 'name' },
+  { dataIndex: 'name', title: '输入Repo', key: 'name' },
+  { dataIndex: 'name', title: '输出Repo', key: 'name' },
+  { dataIndex: 'data_start_time', title: '数据时间（时长）', key: 'name' },
   { dataIndex: 'data_rows_nums', title: '数据行', key: 'name' },
-  { dataIndex: 'status', title: '状态', key: 'name' },
-  { dataIndex: 'name', title: '作业时间（时长）', key: 'name' },
+  { dataIndex: 'exec_log', title: '查看日志', key: 'name' },
+  // { dataIndex: 'status', title: '状态', key: 'name' },
+  { dataIndex: 'exec_start_time', title: '作业时间（时长）', key: 'name' },
   { dataIndex: 'created_user_id', title: '创建人', key: 'name' },
   { dataIndex: 'action', title: '操作', key: 'action' },
 ];

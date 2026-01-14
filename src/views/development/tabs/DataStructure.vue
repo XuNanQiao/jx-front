@@ -1,7 +1,7 @@
 <template>
   <DescriptionsCom :openHand="false" bordered v-model:edit-mode-show="editMode" :detail="detail" :list="packageFields" @save="onSave">
     <template #package>
-      <a-button type="primary" @click="openDatabaseConfigModal()">
+      <a-button size="small" type="primary" @click="openDatabaseConfigModal()">
         <template #icon>
           <PlusOutlined />
         </template>
@@ -52,21 +52,12 @@ const save = async (form: any) => {
 };
 
 // 打开数据库配置弹窗（编辑模式）
-const openDatabaseConfigModal = (isAddMode: boolean) => {
+const openDatabaseConfigModal = () => {
   if (!detail.value.id) {
     message.warning('请先保存基础信息');
     return;
   }
-  databaseConfigModalRef.value?.openModal(detail.value, isAddMode);
-};
-
-// 查看数据库配置（查看模式）
-const viewDatabaseConfig = () => {
-  if (!detail.value.id) {
-    message.warning('暂无配置信息');
-    return;
-  }
-  databaseConfigModalRef.value?.viewModal(detail.value);
+  databaseConfigModalRef.value?.openModal(detail.value);
 };
 
 // 数据库配置保存成功回调
