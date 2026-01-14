@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-14 11:47:30
+ * @LastEditTime: 2026-01-14 17:24:00
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\tabs\DataBrowse.vue
@@ -52,8 +52,15 @@
     row-key="id"
     class="model-table">
     <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'exec_log'">
-        <a-button type="link" size="small" @click="openLogModal(record)">查看</a-button>
+      <template v-if="column.key === 'exec_log'">
+        <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">
+          {{ statusMap[record.status]?.text || '-' }}
+        </a-tag>
+        <a-button type="link" size="small" @click="openLogModal(record)">
+          <template #icon>
+            <FileOutlined />
+          </template>
+        </a-button>
       </template>
       <template v-if="column.key === 'action'">
         <a-dropdown :trigger="['hover']">
@@ -86,40 +93,41 @@
     </template>
   </a-table>
 
-  <a-modal v-model:open="logModal.visible" :title="null" width="70%" :footer="null" destroy-on-close @cancel="closeLogModal">
+  <a-modal v-model:open="logModal.visible" width="70%" :footer="null" destroy-on-close @cancel="closeLogModal">
     <template #title>
       <div class="log-modal__header">
         <span>{{ logModal.title || '日志详情' }}</span>
         <div class="log-modal__actions">
-          <span class="label">自动换行</span>
+          <span class="label text-white">自动换行</span>
           <a-switch size="small" v-model:checked="logModal.autoWrap" />
-          <span class="label ml-12">自动刷新</span>
+          <span class="label text-white ml-12">自动刷新</span>
           <a-switch size="small" v-model:checked="logModal.autoRefresh" />
         </div>
       </div>
     </template>
-
-    <a-tabs v-model:activeKey="logModal.activeTab" type="card">
-      <a-tab-pane key="log" tab="日志">
-        <div :class="['log-content', { wrap: logModal.autoWrap }]">
-          <pre>{{ logModal.logContent || '暂无日志' }}</pre>
-        </div>
-      </a-tab-pane>
-      <a-tab-pane key="extension" tab="扩展">
-        <div class="log-extension">{{ logModal.extensionContent || '暂无扩展信息' }}</div>
-      </a-tab-pane>
-    </a-tabs>
+    <div class="black-tabs pt-12px">
+      <a-tabs v-model:activeKey="logModal.activeTab" type="card">
+        <a-tab-pane key="log" tab="日志">
+          <div :class="['log-content', { wrap: logModal.autoWrap }]">
+            <pre>{{ logModal.logContent || '暂无日志' }}</pre>
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="extension" tab="扩展">
+          <div class="log-extension">{{ logModal.extensionContent || '暂无扩展信息' }}</div>
+        </a-tab-pane>
+      </a-tabs>
+    </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { getModelJobList, deleteModelJob, batchDeleteModelJob, type JobListQueryParams } from '@/api/modelJob';
 import type { ModelInputOutput } from '@/types/model';
-import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined, FileOutlined } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { browseColumns, statusOptions } from '../indexData';
+import { browseColumns, statusMap, statusOptions } from '../indexData';
 import { debounce } from 'lodash-es';
 import { useTablePagination } from '@/utils/useTablePagination';
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
@@ -311,7 +319,7 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
     case 'view':
       // 跳转到详情页
-      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id } });
+      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id }, query: { name: record.name } });
       break;
     case 'edit':
       // 打开编辑弹窗并加载数据
@@ -355,7 +363,7 @@ const handleDelete = (id?: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 90%;
 }
 
 .log-modal__actions {
@@ -364,7 +372,6 @@ const handleDelete = (id?: string) => {
   gap: 8px;
 
   .label {
-    color: #999;
     font-size: 12px;
   }
 }
@@ -402,5 +409,13 @@ const handleDelete = (id?: string) => {
 
 .ml-12 {
   margin-left: 12px;
+}
+:deep(.ant-tabs) {
+  .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+  .ant-tabs-content {
+    background: #2e3f60;
+  }
 }
 </style>

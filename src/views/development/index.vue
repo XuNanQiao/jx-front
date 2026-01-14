@@ -232,11 +232,11 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
     case 'exploitation':
       console.log('跳转到开发页', record.id);
-      router.push({ name: 'ModelDevelopmentExploitation', params: { id: record.id } });
+      router.push({ name: 'ModelDevelopmentExploitation', params: { id: record.id }, query: { name: record.name } });
       break;
     case 'view':
       // 跳转到详情页
-      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id } });
+      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id }, query: { name: record.name } });
       break;
     case 'edit':
       // 打开编辑弹窗并加载数据

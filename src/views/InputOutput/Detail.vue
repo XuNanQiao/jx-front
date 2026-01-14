@@ -15,7 +15,7 @@
           <a-breadcrumb-item class="crumb-parent">
             <router-link :to="{ name: 'ModelInputOutput' }">模型输入输出</router-link>
           </a-breadcrumb-item>
-          <a-breadcrumb-item class="crumb-current">{{ name || "详情" }}</a-breadcrumb-item>
+          <a-breadcrumb-item class="crumb-current">{{ name || '详情' }}</a-breadcrumb-item>
         </a-breadcrumb>
       </template>
       <div class="detail-content">
@@ -46,20 +46,20 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { computed, ref } from "vue";
-import BasicInfo from "./tabs/BasicInfo.vue";
-import DataStructure from "./tabs/DataStructure.vue";
-import DataBrowse from "./tabs/DataBrowse.vue";
-import DataCompleteness from "./tabs/DataCompleteness.vue";
-import AccessStats from "./tabs/AccessStats.vue";
-import DataUpload from "./tabs/DataUpload.vue";
+import { useRoute } from 'vue-router';
+import { computed, ref } from 'vue';
+import BasicInfo from './tabs/BasicInfo.vue';
+import DataStructure from './tabs/DataStructure.vue';
+import DataBrowse from './tabs/DataBrowse.vue';
+import DataCompleteness from './tabs/DataCompleteness.vue';
+import AccessStats from './tabs/AccessStats.vue';
+import DataUpload from './tabs/DataUpload.vue';
 
 const route = useRoute();
 
-const id = computed(() => (route.params.id as string) || "");
-const name = computed(() => (route.params.name as string) || "");
-const activeKey = ref("basic");
+const id = computed(() => (route.params.id as string) || '');
+const name = computed(() => (route.query.name as string) || (route.params.name as string) || '');
+const activeKey = ref('basic');
 </script>
 
 <style scoped lang="scss">

@@ -15,7 +15,7 @@
           <a-breadcrumb-item class="crumb-parent">
             <router-link :to="{ name: 'ModelDevelopment' }">模型开发</router-link>
           </a-breadcrumb-item>
-          <a-breadcrumb-item class="crumb-current">{{ '详情' }}</a-breadcrumb-item>
+          <a-breadcrumb-item class="crumb-current">{{ detailName }}</a-breadcrumb-item>
         </a-breadcrumb>
       </template>
       <div class="detail-content">
@@ -45,6 +45,7 @@ import DataBrowse from './tabs/DataBrowse.vue';
 
 const route = useRoute();
 const id = computed(() => route.params.id);
+const detailName = computed(() => (route.query.name as string) || '详情');
 const activeKey = ref('basic');
 </script>
 

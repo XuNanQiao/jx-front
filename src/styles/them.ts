@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-12 15:15:11
- * @LastEditTime: 2026-01-13 08:57:14
+ * @LastEditTime: 2026-01-14 16:51:06
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\styles\them.ts
@@ -39,7 +39,7 @@ export const tokenThem = {
 
   // 主色体系
   colorPrimary: '#1677ff', // 保持原有主色
-  colorPrimaryBg: '#285187', // 主色背景
+  colorPrimaryBg: '#3a7cd2', // 主色背景
   // 主色文本（正常态）
   colorPrimaryText: '#ffffff',
   // 主色文本（hover态）- 轻微提亮

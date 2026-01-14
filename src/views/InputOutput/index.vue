@@ -32,7 +32,7 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="attributeOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
+          <a-select :options="attributeOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -47,7 +47,15 @@
     </div>
 
     <!-- 表格 -->
-    <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+    <a-table
+      :columns="columns"
+      :data-source="dataSource"
+      :loading="loading"
+      :pagination="pagination"
+      :row-selection="rowSelection"
+      @change="handleTableChange"
+      row-key="id"
+      class="model-table">
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
@@ -62,8 +70,8 @@
             size="small">
             <template #format="percent">
               <span class="text-white">{{ percent }}</span>
-            </template></a-progress
-          >
+            </template>
+          </a-progress>
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">
@@ -102,17 +110,17 @@
 </template>
 
 <script setup lang="ts">
-import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from "@/api/inputOutput";
-import type { ModelInputOutput } from "@/types/model";
-import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import type { TableProps } from "ant-design-vue";
-import { message, Modal } from "ant-design-vue";
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { columns, attributeOptions } from "./index";
-import InputOutputFormModal from "./InputOutputFormModal.vue";
-import ChartView from "@/components/chart/chartView.vue";
-import { debounce } from "lodash-es";
+import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
+import type { ModelInputOutput } from '@/types/model';
+import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import type { TableProps } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { columns, attributeOptions } from './index';
+import InputOutputFormModal from './InputOutputFormModal.vue';
+import ChartView from '@/components/chart/chartView.vue';
+import { debounce } from 'lodash-es';
 
 const router = useRouter();
 
@@ -124,7 +132,7 @@ const filters = reactive<{
   name: string;
   category: string | undefined;
 }>({
-  name: "",
+  name: '',
   category: undefined,
 });
 
@@ -170,7 +178,7 @@ onMounted(() => {
 });
 
 // 搜索关键词（用于防抖）
-const searchKeyword = ref("");
+const searchKeyword = ref('');
 
 // 监听搜索关键词变化（带防抖）
 const debouncedSearch = debounce(() => {
@@ -202,7 +210,7 @@ const rowSelection = computed(() => ({
 // Chart is rendered by ChartView component
 
 // 表格变化处理（排序、分页）
-const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
+const handleTableChange: TableProps['onChange'] = (paginationConfig, filters, sorter: any) => {
   // 更新分页
   if (paginationConfig.current) {
     pagination.current = paginationConfig.current;
@@ -225,21 +233,21 @@ const handleCreate = (record?: any) => {
 
 // 导入
 const handleImport = () => {
-  message.info("打开导入对话框");
+  message.info('打开导入对话框');
 };
 
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning("请先选择要删除的数据");
+    message.warning('请先选择要删除的数据');
     return;
   }
 
   Modal.confirm({
-    title: "确认删除",
+    title: '确认删除',
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: "确定",
-    cancelText: "取消",
+    okText: '确定',
+    cancelText: '取消',
     async onOk() {
       try {
         const res = await batchDeleteItems(selectedRowKeys.value);
@@ -248,7 +256,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error("批量删除失败:", error);
+        console.error('批量删除失败:', error);
       }
     },
   });
@@ -257,18 +265,18 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case "view":
+    case 'view':
       // 跳转到详情页
-      router.push({ name: "ModelInputOutputDetail", params: { id: record.id } });
+      router.push({ name: 'ModelInputOutputDetail', params: { id: record.id }, query: { name: record.name } });
       break;
-    case "edit":
+    case 'edit':
       // 打开编辑弹窗并加载数据
       handleCreate(record);
       break;
-    case "copy":
+    case 'copy':
       message.info(`复制: ${record.name}`);
       break;
-    case "delete":
+    case 'delete':
       handleDelete(record.id);
       break;
   }
@@ -277,10 +285,10 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 // 删除操作
 const handleDelete = (id: string) => {
   Modal.confirm({
-    title: "确认删除",
-    content: "确定要删除这条数据吗？删除后无法恢复。",
-    okText: "确定",
-    cancelText: "取消",
+    title: '确认删除',
+    content: '确定要删除这条数据吗？删除后无法恢复。',
+    okText: '确定',
+    cancelText: '取消',
     async onOk() {
       try {
         const res = await deleteItem(id);
@@ -288,7 +296,7 @@ const handleDelete = (id: string) => {
           await loadData();
         }
       } catch (error: any) {
-        console.error("删除失败:", error);
+        console.error('删除失败:', error);
       }
     },
   });

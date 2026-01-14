@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-14 11:58:24
+ * @LastEditTime: 2026-01-14 17:18:44
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -83,14 +83,7 @@
               </template>
             </template>
           </a-table>
-          <!-- 源码弹窗 -->
-          <a-modal v-model:open="sourceModalOpen" :title="sourceTitle || '算子源码'" :footer="null" width="800px" @cancel="onSourceCancel">
-            <a-spin :spinning="sourceLoading">
-              <div class="source-view">
-                <pre class="code-block">{{ sourceCode }}</pre>
-              </div>
-            </a-spin>
-          </a-modal>
+          <SourceModal v-model:open="sourceModalOpen" v-model:selectedPath="selectedFilePath" :loading="sourceLoading" :files="files" :title="sourceTitle" />
         </div>
       </div>
     </div>
@@ -105,6 +98,7 @@ import { message, TreeProps } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { tableColumns, treeData, versionOptions } from './indexData';
+import SourceModal from './components/SourceModal.vue';
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
@@ -159,8 +153,9 @@ const filterTreeNode: TreeProps['filterTreeNode'] = (node: any) => {
 // 源码弹窗状态
 const sourceModalOpen = ref(false);
 const sourceLoading = ref(false);
-const sourceCode = ref('');
 const sourceTitle = ref<string>('');
+const files = ref<Array<{ path: string; content: string }>>([]);
+const selectedFilePath = ref('');
 
 // 查询
 const getListHand = async () => {
@@ -253,14 +248,15 @@ const handleTableChange = (pag: any) => {
 const goDetail = async (record: any) => {
   sourceModalOpen.value = true;
   sourceLoading.value = true;
-  sourceCode.value = '';
+  files.value = [];
+  selectedFilePath.value = '';
   sourceTitle.value = record?.name || '算子源码';
   try {
     const res = await getSourceCode(record.id);
     if (res.code === 200) {
-      // 后端可能返回字符串或对象中的字段，这里做兼容
-      const data: any = res.data;
-      sourceCode.value = typeof data === 'string' ? data : data?.source || data?.code || JSON.stringify(data, null, 2);
+      const parsed = parseFiles(res.data, sourceTitle.value);
+      files.value = parsed;
+      selectedFilePath.value = parsed[0]?.path || '';
     }
   } catch (error: any) {
     message.error(error?.message || '获取源码失败');
@@ -269,8 +265,40 @@ const goDetail = async (record: any) => {
   }
 };
 
-const onSourceCancel = () => {
-  sourceModalOpen.value = false;
+const parseFiles = (data: any, fallbackName: string) => {
+  // 1) 已是文件数组
+  if (Array.isArray(data)) {
+    return data.map((item: any, idx: number) => ({
+      path: item?.path || item?.name || `file-${idx + 1}`,
+      content: item?.content || item?.code || item?.source || JSON.stringify(item, null, 2),
+    }));
+  }
+  // 2) 对象中包含 files 数组
+  if (data?.files && Array.isArray(data.files)) {
+    return data.files.map((item: any, idx: number) => ({
+      path: item?.path || item?.name || `file-${idx + 1}`,
+      content: item?.content || item?.code || item?.source || JSON.stringify(item, null, 2),
+    }));
+  }
+  // 3) 单文件对象
+  if (typeof data === 'object' && data) {
+    return [
+      {
+        path: data.path || data.name || fallbackName || 'source',
+        content: data.content || data.code || data.source || JSON.stringify(data, null, 2),
+      },
+    ];
+  }
+  // 4) 文本
+  if (typeof data === 'string') {
+    return [
+      {
+        path: fallbackName || 'source.txt',
+        content: data,
+      },
+    ];
+  }
+  return [];
 };
 </script>
 
@@ -381,23 +409,6 @@ const onSourceCancel = () => {
       display: flex;
       justify-content: flex-end;
     }
-  }
-}
-
-:deep(.ant-tabs) {
-  margin-top: -12px;
-  .ant-tabs-tab {
-    padding: 8px 0 0 !important;
-  }
-  .ant-tabs-nav {
-    margin-bottom: 0;
-  }
-  .ant-tabs-nav-wrap {
-    border-bottom: none !important;
-    border-color: transparent !important;
-  }
-  .ant-tabs-ink-bar {
-    top: 0px;
   }
 }
 </style>

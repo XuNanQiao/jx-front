@@ -21,7 +21,44 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/model/input-output',
+        path: '/model/operators',
+        name: 'ModelOperators',
+        component: () => import('@/views/operators/index.vue'),
+        meta: {
+          title: '算子管理',
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/model/deployment',
+        name: 'ModelDeployment',
+        component: () => import('@/views/deployment/index.vue'),
+        meta: {
+          title: '模型部署',
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/model/jobs',
+        name: 'ModelJobs',
+        component: () => import('@/views/jobs/index.vue'),
+        meta: {
+          title: '模型作业',
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
+  {
+    path: '/model/input-output',
+    component: BasicLayout,
+    redirect: '/model/input-output/list',
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '/model/input-output/list',
         name: 'ModelInputOutput',
         component: () => import('@/views/InputOutput/index.vue'),
         meta: {
@@ -38,8 +75,18 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+    ],
+  },
+  {
+    path: '/model/development',
+    component: BasicLayout,
+    redirect: '/model/development/list',
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
       {
-        path: '/model/development',
+        path: '/model/development/list',
         name: 'ModelDevelopment',
         component: () => import('@/views/development/index.vue'),
         meta: {
@@ -52,7 +99,7 @@ const routes: RouteRecordRaw[] = [
         name: 'ModelDevelopmentDetail',
         component: () => import('@/views/development/Detail.vue'),
         meta: {
-          title: '算子详情',
+          title: '模型开发详情',
           requiresAuth: true,
         },
       },
@@ -62,34 +109,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/development/exploitation.vue'),
         meta: {
           title: '算子开发',
-          requiresAuth: true,
-        },
-      },
-      {
-        path: '/model/operators',
-        name: 'ModelOperators',
-        component: () => import('@/views/operators/index.vue'),
-        meta: {
-          title: '算子管理',
-          requiresAuth: true,
-        },
-      },
-
-      {
-        path: '/model/deployment',
-        name: 'ModelDeployment',
-        component: () => import('@/views/deployment/index.vue'),
-        meta: {
-          title: '模型部署',
-          requiresAuth: true,
-        },
-      },
-      {
-        path: '/model/jobs',
-        name: 'ModelJobs',
-        component: () => import('@/views/jobs/index.vue'),
-        meta: {
-          title: '模型作业',
           requiresAuth: true,
         },
       },

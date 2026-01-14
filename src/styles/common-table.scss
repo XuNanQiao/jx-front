@@ -86,6 +86,11 @@
     font-size: 14px;
   }
 }
-.ant-alert-message{
+.ant-alert-message {
   color: var(--theme-info);
+}
+.black-tabs {
+  .ant-tabs {
+    margin-top: -12px;
+  }
 }
