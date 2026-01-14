@@ -27,7 +27,7 @@
       </div>
       <div class="filter-inter">
         <span class="select-inter">状态：</span>
-        <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择状态" style="width: 150px"> </a-select>
+        <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择状态" style="width: 150px"></a-select>
       </div>
     </a-space>
     <a-space :size="16" wrap>
@@ -42,7 +42,15 @@
   </div>
 
   <!-- 表格 -->
-  <a-table :columns="browseColumns" :data-source="dataSource" :loading="loading" :pagination="pagination" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+  <a-table
+    :columns="browseColumns"
+    :data-source="dataSource"
+    :loading="loading"
+    :pagination="pagination"
+    :row-selection="rowSelection"
+    @change="handleTableChange"
+    row-key="id"
+    class="model-table">
     <template #bodyCell="{ column, record, text }">
       <template v-if="column.key === 'action'">
         <a-dropdown :trigger="['hover']">
@@ -53,8 +61,9 @@
             <a-menu @click="(e) => handleMenuClick(e, record)">
               <a-menu-item key="view">
                 <EyeOutlined />
-                <span style="margin-left: 8px">调整优先级</span> </a-menu-item
-              ><a-menu-item key="view">
+                <span style="margin-left: 8px">调整优先级</span>
+              </a-menu-item>
+              <a-menu-item key="view">
                 <EyeOutlined />
                 <span style="margin-left: 8px">再次运行</span>
               </a-menu-item>
@@ -76,15 +85,15 @@
 </template>
 
 <script setup lang="ts">
-import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from "@/api/inputOutput";
-import type { ModelInputOutput } from "@/types/model";
-import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import { message, Modal } from "ant-design-vue";
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { browseColumns, selectOptions } from "../indexData";
-import { debounce } from "lodash-es";
-import { useTablePagination } from "@/utils/useTablePagination";
+import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
+import type { ModelInputOutput } from '@/types/model';
+import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { message, Modal } from 'ant-design-vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { browseColumns, selectOptions } from '../indexData';
+import { debounce } from 'lodash-es';
+import { useTablePagination } from '@/utils/useTablePagination';
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const route = useRoute();
 const router = useRouter();
@@ -95,7 +104,7 @@ const loading = ref(false);
 
 // 筛选条件
 const filters = reactive({
-  name: "",
+  name: '',
   category: undefined,
   autoMonitor: false,
   haveFile: false,
@@ -129,7 +138,7 @@ const loadData = async () => {
   }
 };
 
-onMounted(() => { 
+onMounted(() => {
   loadData();
 });
 
@@ -174,21 +183,21 @@ const handleCreate = (record?: any) => {
 
 // 导入
 const handleImport = () => {
-  message.info("打开导入对话框");
+  message.info('打开导入对话框');
 };
 
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning("请先选择要删除的数据");
+    message.warning('请先选择要删除的数据');
     return;
   }
 
   Modal.confirm({
-    title: "确认删除",
+    title: '确认删除',
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: "确定",
-    cancelText: "取消",
+    okText: '确定',
+    cancelText: '取消',
     async onOk() {
       try {
         const res = await batchDeleteItems(selectedRowKeys.value);
@@ -197,7 +206,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error("批量删除失败:", error);
+        console.error('批量删除失败:', error);
       }
     },
   });
@@ -206,18 +215,18 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case "view":
+    case 'view':
       // 跳转到详情页
-      router.push({ name: "ModelOperatorsDetail", params: { id: record.id } });
+      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id } });
       break;
-    case "edit":
+    case 'edit':
       // 打开编辑弹窗并加载数据
       handleCreate(record);
       break;
-    case "copy":
+    case 'copy':
       message.info(`复制: ${record.name}`);
       break;
-    case "delete":
+    case 'delete':
       handleDelete(record.id);
       break;
   }
@@ -226,10 +235,10 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 // 删除操作
 const handleDelete = (id: string) => {
   Modal.confirm({
-    title: "确认删除",
-    content: "确定要删除这条数据吗？删除后无法恢复。",
-    okText: "确定",
-    cancelText: "取消",
+    title: '确认删除',
+    content: '确定要删除这条数据吗？删除后无法恢复。',
+    okText: '确定',
+    cancelText: '取消',
     async onOk() {
       try {
         const res = await deleteItem(id);
@@ -237,7 +246,7 @@ const handleDelete = (id: string) => {
           await loadData();
         }
       } catch (error: any) {
-        console.error("删除失败:", error);
+        console.error('删除失败:', error);
       }
     },
   });

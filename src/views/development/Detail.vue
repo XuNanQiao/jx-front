@@ -13,12 +13,9 @@
       <template #title>
         <a-breadcrumb style="margin-bottom: 0">
           <a-breadcrumb-item class="crumb-parent">
-            <router-link :to="{ name: 'ModelOperators' }">算子管理</router-link>
+            <router-link :to="{ name: 'ModelDevelopment' }">模型开发</router-link>
           </a-breadcrumb-item>
-          <a-breadcrumb-item class="crumb-parent">
-            <router-link :to="{ name: 'ModelOperatorsList' }">模型开发</router-link>
-          </a-breadcrumb-item>
-          <a-breadcrumb-item class="crumb-current">{{ "详情" }}</a-breadcrumb-item>
+          <a-breadcrumb-item class="crumb-current">{{ '详情' }}</a-breadcrumb-item>
         </a-breadcrumb>
       </template>
       <div class="detail-content">
@@ -40,15 +37,15 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { computed, ref } from "vue";
-import BasicInfo from "./tabs/BasicInfo.vue";
-import DataStructure from "./tabs/DataStructure.vue";
-import DataBrowse from "./tabs/DataBrowse.vue";
+import { useRoute } from 'vue-router';
+import { computed, ref } from 'vue';
+import BasicInfo from './tabs/BasicInfo.vue';
+import DataStructure from './tabs/DataStructure.vue';
+import DataBrowse from './tabs/DataBrowse.vue';
 
 const route = useRoute();
 const id = computed(() => route.params.id);
-const activeKey = ref("basic");
+const activeKey = ref('basic');
 </script>
 
 <style scoped lang="scss">

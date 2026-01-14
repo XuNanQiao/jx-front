@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
 import { RightCircleOutlined } from "@ant-design/icons-vue";
+import { onMounted, ref, watch } from "vue";
 const props = defineProps<{
   position: "left" | "right";
   openVal?: boolean;
@@ -51,18 +51,24 @@ onMounted(() => {
     position: absolute;
     line-height: 30px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #334870;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    .anticon {
+      transition: transform 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
   .filter-panel {
     height: calc(100vh - 90px);
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: #334870;
     border-radius: 4px;
     overflow-y: auto;
     padding: 16px;
     overflow-x: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     transition: transform 0.5s;
     transform: scaleX(0);
   }
@@ -72,10 +78,18 @@ onMounted(() => {
   left: 0;
   &.open {
     width: 280px !important;
+    .icon {
+      .anticon {
+        transform: rotate(-180deg);
+      }
+    }
   }
   .icon {
     right: -30px;
     border-radius: 0 5px 5px 0;
+    .anticon {
+      transform: rotate(0deg);
+    }
   }
   .filter-panel {
     transform-origin: left;
@@ -87,13 +101,22 @@ onMounted(() => {
   transform-origin: right;
   &.open {
     width: 280px !important;
+    .icon {
+      .anticon {
+        transform: rotate(0deg);
+      }
+    }
   }
   .icon {
     left: -30px;
     border-radius: 5px 0 0 5px;
+    .anticon {
+      /* 当右侧面板展开时，向另一个方向旋转以示区分 */
+      transform: rotate(-180deg);
+    }
   }
   .filter-panel {
-    padding-top: 0;
+    padding: 0;
     transform-origin: right;
   }
 }

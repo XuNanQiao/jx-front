@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-13 16:22:08
+ * @LastEditTime: 2026-01-13 17:10:37
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\operators\chat.vue
@@ -79,12 +79,14 @@ const chartStyle = computed(() => `height:${props.height}; width:${props.width}`
 
 const chartOption = computed<EChartsOption>(() => {
   const hasGraphData = props.graphData && props.graphData.length;
+  console.log(props.graphData ,"---------props.graphData ");
+  
   if (!hasGraphData) return;
   const inputs = props.graphData.filter((n: any) => n.attribute === "输入");
   const outputs = props.graphData.filter((n: any) => n.attribute === "输出");
   const others = props.graphData.filter((n: any) => !n.attribute);
   const base = 300;
-  const offset = 40;
+  const offset = 20;
   let inputsList = inputs.map((item: any, index) => {
     const multiplier = Math.ceil(index / 2);
     let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
@@ -93,7 +95,7 @@ const chartOption = computed<EChartsOption>(() => {
       x,
       y: 50,
       attribute: item.attribute,
-      id: item.title, // 使用标题作为 id，保证与 links 的 source/target 一致匹配
+      id: item.title + (item.key ?? ""),
     };
   });
   let outputsList = outputs.map((item: any, index) => {
@@ -102,18 +104,18 @@ const chartOption = computed<EChartsOption>(() => {
     return {
       name: item.title,
       x: x,
-      y: 150,
+      y: 90,
       attribute: item.attribute,
-      id: item.title,
+      id: item.title + (item.key ?? ""),
     };
   });
   let othersList = others.map((item: any) => {
     return {
       name: item.title,
       x: base,
-      y: 100,
+      y: 70,
       attribute: item.attribute,
-      id: item.title,
+      id: item.title + (item.key ?? ""),
     };
   });
   const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
@@ -122,13 +124,10 @@ const chartOption = computed<EChartsOption>(() => {
       return {
         ...d,
         itemStyle: {
-          /*  color: "#ffcc00",
-          borderColor: "#ff8800", */
           color: "#18e2ad",
           borderColor: "#18e2ad",
           borderWidth: 4,
         },
-        label: { show: true, color: "#000" },
       };
     }
     return d;
@@ -141,32 +140,22 @@ const chartOption = computed<EChartsOption>(() => {
     others.forEach((node: any) => {
       inputs.forEach((inp: any) => {
         attrLinks.push({
-          source: inp.title ?? inp.name,
-          target: node.title ?? node.name,
-          lineStyle: { color: "#64acd1", width: 2, opacity: 1 },
+          source: inp.title + (inp.key ?? ""),
+          target: node.title + (node.key ?? ""),
         });
       });
       outputs.forEach((out: any) => {
         attrLinks.push({
-          source: node.title ?? node.name,
-          target: out.title ?? out.name,
-          lineStyle: { color: "#64acd1", width: 2, opacity: 1 },
+          source: node.title + (node.key ?? ""),
+          target: out.title + (out.key ?? ""),
         });
       });
     });
   }
 
-  links =
-    attrLinks.length > 0
-      ? attrLinks
-      : data.length > 1
-      ? data.slice(1).map((node: any, idx: number) => ({
-          source: data[idx].name,
-          target: node.name,
-        }))
-      : [];
+  links = attrLinks.length > 0 ? attrLinks : [];
 
-  return {
+  return ({
     title: {
       text: "可拖动的方形关系图",
       left: "center",
@@ -179,10 +168,10 @@ const chartOption = computed<EChartsOption>(() => {
       {
         type: "graph",
         layout: "none",
-        symbolSize: 50,
         roam: true,
         draggable: true,
-        symbol: "roundRect",
+        symbol: "rect",
+        symbolSize: [100, 30],
         itemStyle: {
           color: "#35658b", // 节点填充色
           borderColor: "#18e2ad", // 节点边框色
@@ -193,7 +182,7 @@ const chartOption = computed<EChartsOption>(() => {
           position: "inside",
         },
         edgeSymbol: ["circle", "arrow"],
-        edgeSymbolSize: [6, 12],
+        // edgeSymbolSize: [6, 12],
         data,
         links,
         lineStyle: {
@@ -208,7 +197,7 @@ const chartOption = computed<EChartsOption>(() => {
         },
       },
     ],
-  } as unknown as EChartsOption;
+  } as unknown) as EChartsOption;
 });
 </script>
 

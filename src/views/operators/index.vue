@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-13 09:04:36
+ * @LastEditTime: 2026-01-14 09:22:12
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -13,7 +13,7 @@
       <!-- 左侧筛选区 -->
       <div class="filter-panel">
         <div class="filter-section">
-          <a-tree :show-line="true" :show-icon="true" :defaultExpandAll="true" :tree-data="treeData" @select="onSelect"> </a-tree>
+          <a-tree :show-line="true" :show-icon="true" :defaultExpandAll="true" :tree-data="treeData" @select="onSelect"></a-tree>
         </div>
       </div>
 
@@ -40,7 +40,7 @@
             <a-space :size="16" wrap>
               <div class="filter-inter">
                 <span class="select-inter">类别：</span>
-                <a-select :options="versionOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"> </a-select>
+                <a-select :options="versionOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
               </div>
               <div class="filter-inter">
                 <a-input v-model:value="filters.searchKeyword" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
@@ -57,26 +57,31 @@
             :data-source="tableData"
             :loading="loading"
             :pagination="{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total: number) => `共 ${total} 条`,
-              }"
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total: number) => `共 ${total} 条`,
+            }"
             @change="handleTableChange"
             row-key="id"
             class="model-table"
             :scroll="{ x: 'max-content' }">
             <template #bodyCell="{ column, record, text }">
-              <template v-if="column.key === 'name'">
-                <a-button type="link" @click="goDetail(record)">{{ record.name }}</a-button>
-              </template>
-              <template v-else-if="column.key === 'action'">
+              <template v-if="column.key === 'action'">
                 <a-button type="link" @click="goDetail(record)">源码</a-button>
               </template>
             </template>
           </a-table>
+          <!-- 源码弹窗 -->
+          <a-modal v-model:open="sourceModalOpen" :title="sourceTitle || '算子源码'" :footer="null" width="800px" @cancel="onSourceCancel">
+            <a-spin :spinning="sourceLoading">
+              <div class="source-view">
+                <pre class="code-block">{{ sourceCode }}</pre>
+              </div>
+            </a-spin>
+          </a-modal>
         </div>
       </div>
     </div>
@@ -84,29 +89,35 @@
 </template>
 
 <script setup lang="ts">
-import { getList } from "@/api/inputOutput";
-import { useTablePagination } from "@/utils/useTablePagination";
-import { DownloadOutlined, ImportOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import { message, TreeProps } from "ant-design-vue";
-import { debounce } from "lodash-es";
-import { onMounted, onUnmounted, reactive, ref } from "vue";
-import { useRouter } from "vue-router";
-import { tableColumns, treeData, versionOptions } from "./indexData";
+import { getList, getSourceCode } from '@/api/operators';
+import { useTablePagination } from '@/utils/useTablePagination';
+import { DownloadOutlined, ImportOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { message, TreeProps } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { tableColumns, treeData, versionOptions } from './indexData';
 const router = useRouter();
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
 // 筛选条件
 const filters = reactive({
-  key: "" as string | undefined,
-  expandedKeys: "" as string | number,
-  category: "",
-  searchKeyword: "",
+  key: '' as string | undefined,
+  expandedKeys: '' as string | number,
+  category: '',
+  searchKeyword: '',
 });
 
 // 状态管理
 const loading = ref(false);
 const tableData = ref<any[]>([]);
+
+// 源码弹窗状态
+const sourceModalOpen = ref(false);
+const sourceLoading = ref(false);
+const sourceCode = ref('');
+const sourceTitle = ref<string>('');
 
 // 查询
 const getListHand = async () => {
@@ -126,7 +137,7 @@ const getListHand = async () => {
       pagination.total = res.data.total || 0;
     }
   } catch (error: any) {
-    console.error("查询数据失败:", error);
+    console.error('查询数据失败:', error);
   } finally {
     loading.value = false;
   }
@@ -141,15 +152,15 @@ onMounted(async () => {
   getListHand(); // 再查询数据
 });
 // 树选择
-const onSelect: TreeProps["onSelect"] = (selectedKeys, { node }) => {
-  console.log("selected", node);
+const onSelect: TreeProps['onSelect'] = (selectedKeys, { node }) => {
+  console.log('selected', node);
   filters.expandedKeys = node.key;
   pagination.current = 1;
   getListHand();
 };
 // 导入
 const handleImport = () => {
-  message.info("打开导入对话框");
+  message.info('打开导入对话框');
 };
 const searchHandler = () => {
   pagination.current = 1;
@@ -163,9 +174,29 @@ const handleTableChange = (pag: any) => {
   onTableChange(pag);
   getListHand();
 };
-const goDetail = (record: any) => {
-  console.log("跳转到详情页", record.id);
-  router.push({ name: "ModelOperatorsList", params: { id: record.id } });
+
+// 打开源码弹窗并查询
+const goDetail = async (record: any) => {
+  sourceModalOpen.value = true;
+  sourceLoading.value = true;
+  sourceCode.value = '';
+  sourceTitle.value = record?.name || '算子源码';
+  try {
+    const res = await getSourceCode(record.id);
+    if (res.code === 200) {
+      // 后端可能返回字符串或对象中的字段，这里做兼容
+      const data: any = res.data;
+      sourceCode.value = typeof data === 'string' ? data : data?.source || data?.code || JSON.stringify(data, null, 2);
+    }
+  } catch (error: any) {
+    message.error(error?.message || '获取源码失败');
+  } finally {
+    sourceLoading.value = false;
+  }
+};
+
+const onSourceCancel = () => {
+  sourceModalOpen.value = false;
 };
 </script>
 
@@ -255,6 +286,19 @@ const goDetail = (record: any) => {
         border-radius: 4px;
         padding: 16px;
         border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .source-view {
+        max-height: 60vh;
+        overflow: auto;
+      }
+
+      .code-block {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        line-height: 1.5;
       }
     }
 

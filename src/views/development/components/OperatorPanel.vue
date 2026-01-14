@@ -1,9 +1,10 @@
 <template>
   <ToggleBox position="right" :openVal="open" v-if="selected.id">
     <template #content>
-      <a-tabs v-model:activeKey="activeTab">
+      <a-tabs v-model:activeKey="activeTab" type="card">
         <a-tab-pane key="info" tab="算子信息">
-          <div>
+          <div class="OperatorPanel">
+            <div class="title">基础信息</div>
             <a-form layout="vertical">
               <a-form-item label="节点显示名称">
                 <a-input v-model:value="selected.form.displayName" />
@@ -17,20 +18,13 @@
 
               <template v-if="selected.type === 'input' || selected.type === 'output'">
                 <a-form-item label="Repo">
-                  <a-select v-model:value="selected.form.repo" placeholder="请选择 Repo">
-                    <a-select-option value="repo-a">repo-a</a-select-option>
-                    <a-select-option value="repo-b">repo-b</a-select-option>
-                  </a-select>
+                  <a-select v-model:value="selected.form.repo" :options="repoOptions" placeholder="请选择 Repo"> </a-select>
                 </a-form-item>
               </template>
 
               <template v-if="selected.type === 'input'">
                 <a-form-item label="列">
-                  <a-select v-model:value="selected.form.columns" mode="multiple" placeholder="请选择列">
-                    <a-select-option value="col1">col1</a-select-option>
-                    <a-select-option value="col2">col2</a-select-option>
-                    <a-select-option value="col3">col3</a-select-option>
-                  </a-select>
+                  <a-select v-model:value="selected.form.columns" :options="columnOptions" mode="multiple" placeholder="请选择列"> </a-select>
                 </a-form-item>
               </template>
 
@@ -74,29 +68,20 @@
         </a-tab-pane>
 
         <a-tab-pane key="params" tab="参数配置" v-if="showParamsTab">
-          <div>
+          <div class="OperatorPanel">
+            <div class="title">聚合参数</div>
+
             <a-form layout="vertical">
               <a-form-item label="聚合函数">
-                <a-select v-model:value="selected.params.aggregate" placeholder="请选择">
-                  <a-select-option value="sum">求和</a-select-option>
-                  <a-select-option value="avg">平均</a-select-option>
-                  <a-select-option value="max">最大</a-select-option>
-                  <a-select-option value="min">最小</a-select-option>
-                </a-select>
+                <a-select v-model:value="selected.params.aggregate" :options="aggregateOptions" placeholder="请选择"> </a-select>
               </a-form-item>
               <a-form-item label="数据聚合粒度">
-                <div style="display: flex; gap: 8px; align-items: center">
-                  <a-input-number v-model:value="selected.params.granularity.value" :min="1" />
-                  <a-select v-model:value="selected.params.granularity.unit">
-                    <a-select-option value="minute">分钟</a-select-option>
-                    <a-select-option value="hour">小时</a-select-option>
-                    <a-select-option value="day">天</a-select-option>
-                    <a-select-option value="week">周</a-select-option>
-                    <a-select-option value="month">月</a-select-option>
-                    <a-select-option value="quarter">季度</a-select-option>
-                    <a-select-option value="year">年</a-select-option>
-                  </a-select>
-                </div>
+                <a-input-number v-model:value="selected.params.granularity.value">
+                  <template #addonAfter>
+                    <a-select class="!w-80px" v-model:value="selected.params.granularity.unit" :options="granularityOptions"> </a-select>
+                  </template>
+                </a-input-number>
+       
               </a-form-item>
               <a-form-item label="填充空值">
                 <a-switch v-model:checked="selected.params.fillNa" />
@@ -108,20 +93,14 @@
   </ToggleBox>
 
   <a-modal v-model:open="showCreateFile" title="创建/编辑脚本" @ok="onCreateFileOk" @cancel="onCreateFileCancel">
-    <a-form layout="vertical">
-      <a-form-item label="文件名称">
-        <a-input v-model:value="editFile.name" />
-      </a-form-item>
-      <a-form-item label="文件内容">
-        <a-input-textarea v-model:value="editFile.content" rows="10" />
-      </a-form-item>
-    </a-form>
+    <a-textarea v-model:value="editFile.content" placeholder="Basic usage" :rows="16" />
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import ToggleBox from "./toggleBox.vue";
+import { repoOptions, columnOptions, aggregateOptions, granularityOptions } from "../indexData";
 
 const open = ref(false);
 const activeTab = ref("info");
@@ -161,7 +140,11 @@ const onCreateFileOk = () => {
     selected.files[editFile.editIndex].name = editFile.name;
     selected.files[editFile.editIndex].content = editFile.content;
   } else {
-    selected.files.push({ name: editFile.name, content: editFile.content, main: selected.files.length === 0 });
+    selected.files.push({
+      name: editFile.name,
+      content: editFile.content,
+      main: selected.files.length === 0,
+    });
   }
   editFile.name = "";
   editFile.content = "";
@@ -216,7 +199,11 @@ const openNode = (node: any) => {
   selected.form.columns = selected.form.columns || [];
   selected.form.language = selected.form.language || "python";
   selected.form.description = selected.form.description || "";
-  selected.params = selected.params || { aggregate: null, granularity: { value: 1, unit: "minute" }, fillNa: false };
+  selected.params = selected.params || {
+    aggregate: null,
+    granularity: { value: 1, unit: "minute" },
+    fillNa: false,
+  };
   selected.files = selected.files || [];
   // 请父组件展开面板（不要直接修改 props）
   open.value = true;
@@ -227,71 +214,19 @@ defineExpose({ openNode });
 </script>
 
 <style scoped lang="scss">
-.box {
-  width: 0px;
-  transition: width 0.5s;
-  height: calc(100vh - 90px);
-  position: fixed;
-  flex-shrink: 0;
-
-  .icon {
-    width: 30px;
-    position: absolute;
-    line-height: 30px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .filter-panel {
-    height: calc(100vh - 90px);
-    width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    overflow-y: auto;
-    padding: 16px;
-    overflow-x: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.5s;
-    transform: scaleX(0);
+:deep(.ant-tabs) {
+  .ant-tabs-nav {
+    margin-bottom: 0;
   }
 }
-.leftBox {
-  top: 88px;
-  left: 0;
-  &.open {
-    width: 280px;
+.OperatorPanel {
+  padding: 16px;
+  background: #2e3f60;
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #bbb;
+    margin-bottom: 16px;
   }
-  .icon {
-    right: -30px;
-    border-radius: 0 5px 5px 0;
-  }
-  .filter-panel {
-    transform-origin: left;
-  }
-}
-.rightBox {
-  right: 0;
-  top: 88px;
-  transform-origin: right;
-  &.open {
-    width: 280px;
-  }
-  .icon {
-    left: -30px;
-    border-radius: 5px 0 0 5px;
-  }
-  .filter-panel {
-    padding-top: 0;
-    transform-origin: right;
-  }
-}
-.open {
-  .filter-panel {
-    transform: scaleX(1);
-  }
-}
-.data-panel {
-  width: 100%;
-  height: calc(100vh - 90px);
 }
 </style>

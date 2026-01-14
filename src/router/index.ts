@@ -1,111 +1,103 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
-import { useUserStore } from "@/stores/user";
-import BasicLayout from "@/layouts/BasicLayout.vue";
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import BasicLayout from '@/layouts/BasicLayout.vue';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: "/login",
-    name: "Login",
-    component: () => import("@/views/Login.vue"),
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
     meta: {
-      title: "登录",
+      title: '登录',
       requiresAuth: false,
     },
   },
   {
-    path: "/",
+    path: '/',
     component: BasicLayout,
-    redirect: "/model/input-output",
+    redirect: '/model/input-output',
     meta: {
       requiresAuth: true,
     },
     children: [
       {
-        path: "/model/input-output",
-        name: "ModelInputOutput",
-        component: () => import("@/views/InputOutput/index.vue"),
+        path: '/model/input-output',
+        name: 'ModelInputOutput',
+        component: () => import('@/views/InputOutput/index.vue'),
         meta: {
-          title: "模型输入输出",
+          title: '模型输入输出',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/input-output/:id",
-        name: "ModelInputOutputDetail",
-        component: () => import("@/views/InputOutput/Detail.vue"),
+        path: '/model/input-output/:id',
+        name: 'ModelInputOutputDetail',
+        component: () => import('@/views/InputOutput/Detail.vue'),
         meta: {
-          title: "模型输入输出详情",
+          title: '模型输入输出详情',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/development",
-        name: "ModelDevelopment",
-        component: () => import("@/views/development/index.vue"),
+        path: '/model/development',
+        name: 'ModelDevelopment',
+        component: () => import('@/views/development/index.vue'),
         meta: {
-          title: "模型开发",
+          title: '模型开发',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/operators",
-        name: "ModelOperators",
-        component: () => import("@/views/operators/index.vue"),
+        path: '/model/development/operatorsDetail/:id',
+        name: 'ModelDevelopmentDetail',
+        component: () => import('@/views/development/Detail.vue'),
         meta: {
-          title: "算子管理",
+          title: '算子详情',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/operators/operatorsList/:id",
-        name: "ModelOperatorsList",
-        component: () => import("@/views/operators/operatorsList.vue"),
+        path: '/model/development/exploitation/:id',
+        name: 'ModelDevelopmentExploitation',
+        component: () => import('@/views/development/exploitation.vue'),
         meta: {
-          title: "模型列表页",
+          title: '算子开发',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/operators/operatorsDetail/:id",
-        name: "ModelOperatorsDetail",
-        component: () => import("@/views/operators/Detail.vue"),
+        path: '/model/operators',
+        name: 'ModelOperators',
+        component: () => import('@/views/operators/index.vue'),
         meta: {
-          title: "算子详情",
+          title: '算子管理',
+          requiresAuth: true,
+        },
+      },
+
+      {
+        path: '/model/deployment',
+        name: 'ModelDeployment',
+        component: () => import('@/views/deployment/index.vue'),
+        meta: {
+          title: '模型部署',
           requiresAuth: true,
         },
       },
       {
-        path: "/model/operators/exploitation/:id",
-        name: "ModelOperatorsExploitation",
-        component: () => import("@/views/operators/exploitation.vue"),
+        path: '/model/jobs',
+        name: 'ModelJobs',
+        component: () => import('@/views/jobs/index.vue'),
         meta: {
-          title: "算子开发",
-          requiresAuth: true,
-        },
-      },
-      {
-        path: "/model/deployment",
-        name: "ModelDeployment",
-        component: () => import("@/views/deployment/index.vue"),
-        meta: {
-          title: "模型部署",
-          requiresAuth: true,
-        },
-      },
-      {
-        path: "/model/jobs",
-        name: "ModelJobs",
-        component: () => import("@/views/jobs/index.vue"),
-        meta: {
-          title: "模型作业",
+          title: '模型作业',
           requiresAuth: true,
         },
       },
     ],
   },
   {
-    path: "/:pathMatch(.*)*",
-    redirect: "/home",
+    path: '/:pathMatch(.*)*',
+    redirect: '/home',
   },
 ];
 
@@ -117,7 +109,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
-  console.log("-----------qq");
+  console.log('-----------qq');
 
   const isLoggedIn = userStore.isLoggedIn;
 
@@ -129,13 +121,13 @@ router.beforeEach((to, from, next) => {
   // 如果需要登录但未登录，跳转到登录页
   if (to.meta.requiresAuth && !isLoggedIn) {
     next({
-      path: "/login",
+      path: '/login',
       query: { redirect: to.fullPath },
     });
   }
   // 如果已登录访问登录页，跳转到首页
-  else if (to.path === "/login" && isLoggedIn) {
-    next("/");
+  else if (to.path === '/login' && isLoggedIn) {
+    next('/');
   }
   // 其他情况正常跳转
   else {
