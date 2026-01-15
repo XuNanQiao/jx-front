@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-15 11:38:22
+ * @LastEditTime: 2026-01-15 15:31:36
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -87,9 +87,9 @@ const chartStyle = computed(() => `height:${props.height}; width:${props.width}`
 const chartOption = computed<EChartsOption>(() => {
   const hasGraphData = props.graphData && props.graphData.length;
   if (!hasGraphData) return {};
-  const inputs = props.graphData.filter((n: any) => n.attribute === '输入');
-  const outputs = props.graphData.filter((n: any) => n.attribute === '输出');
-  const others = props.graphData.filter((n: any) => !n.attribute);
+  const inputs = props.graphData.filter((n: any) => n.type === 'input');
+  const outputs = props.graphData.filter((n: any) => n.type === 'output');
+  const others = props.graphData.filter((n: any) => n.type === 'operator');
   const base = 300;
   const offset = 20;
   let inputsList = inputs.map((item: any, index) => {
@@ -99,8 +99,8 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x,
       y: 50,
-      attribute: item.attribute,
-      id: item.title + (item.key ?? ''),
+      id: item.title + (item.idVal ?? ''),
+      ...item,
     };
   });
   let outputsList = outputs.map((item: any, index) => {
@@ -110,8 +110,8 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x: x,
       y: 90,
-      attribute: item.attribute,
-      id: item.title + (item.key ?? ''),
+      id: item.title + (item.idVal ?? ''),
+      ...item,
     };
   });
   let othersList = others.map((item: any) => {
@@ -119,8 +119,8 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x: base,
       y: 70,
-      attribute: item.attribute,
-      id: item.title + (item.key ?? ''),
+      id: item.title + (item.idVal ?? ''),
+      ...item,
     };
   });
   const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
@@ -145,14 +145,14 @@ const chartOption = computed<EChartsOption>(() => {
     others.forEach((node: any) => {
       inputs.forEach((inp: any) => {
         attrLinks.push({
-          source: inp.title + (inp.key ?? ''),
-          target: node.title + (node.key ?? ''),
+          source: inp.title + (inp.idVal ?? ''),
+          target: node.title + (node.idVal ?? ''),
         });
       });
       outputs.forEach((out: any) => {
         attrLinks.push({
-          source: node.title + (node.key ?? ''),
-          target: out.title + (out.key ?? ''),
+          source: node.title + (node.idVal ?? ''),
+          target: out.title + (out.idVal ?? ''),
         });
       });
     });

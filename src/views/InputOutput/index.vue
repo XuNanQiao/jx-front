@@ -18,12 +18,10 @@
           </template>
           新建
         </a-button>
-        <a-button @click="handleImport">
-          <template #icon>
-            <ImportOutlined />
-          </template>
-          导入
-        </a-button>
+        <ImportDownloadActions
+          :show-download="false"
+          import-url="/api/model_input_output/import"
+          :import-params="() => ({ category: filters.category })" />
         <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
           <template #icon>
             <DeleteOutlined />
@@ -32,12 +30,24 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="attributeOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
+          <a-select
+            :options="attributeOptions"
+            @change="searchHandler"
+            v-model:value="filters.category"
+            allowClear
+            placeholder="请选择类别"
+            style="width: 150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
         <div class="filter-inter">
-          <a-input v-model:value="searchKeyword" @change="debouncedSearch" @pressEnter="debouncedSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
+          <a-input
+            v-model:value="searchKeyword"
+            @change="debouncedSearch"
+            @pressEnter="debouncedSearch"
+            placeholder="搜索关键词"
+            style="width: 220px"
+            allow-clear>
             <template #suffix>
               <SearchOutlined />
             </template>
@@ -75,7 +85,13 @@
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">
-            <ChartView :showAxis="false" :axisPointerShow="false" :width="'150px'" :height="'40px'" :grid="{ left: 0, bottom: 0, right: 0, top: 0 }" :mockData="true" />
+            <ChartView
+              :showAxis="false"
+              :axisPointerShow="false"
+              :width="'150px'"
+              :height="'40px'"
+              :grid="{ left: 0, bottom: 0, right: 0, top: 0 }"
+              :mockData="true" />
           </div>
         </template>
         <template v-else-if="column.key === 'action'">
@@ -112,12 +128,20 @@
 <script setup lang="ts">
 import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
 import type { ModelInputOutput } from '@/types/model';
-import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons-vue';
 import type { TableProps } from 'ant-design-vue';
 import { message, Modal } from 'ant-design-vue';
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { columns, attributeOptions } from './index';
+import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
 import InputOutputFormModal from './InputOutputFormModal.vue';
 import ChartView from '@/components/chart/chartView.vue';
 import { debounce } from 'lodash-es';
@@ -229,11 +253,6 @@ const handleCreate = (record?: any) => {
   if (formModalRef.value) {
     formModalRef.value.openModal(record);
   }
-};
-
-// 导入
-const handleImport = () => {
-  message.info('打开导入对话框');
 };
 
 // 批量删除

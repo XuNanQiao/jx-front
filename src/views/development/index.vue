@@ -18,12 +18,10 @@
           </template>
           新建
         </a-button>
-        <a-button @click="handleImport">
-          <template #icon>
-            <ImportOutlined />
-          </template>
-          导入
-        </a-button>
+        <ImportDownloadActions
+          :show-download="false"
+          import-url="/api/model_dev/import"
+          :import-params="() => ({ category: filters.category, editor: filters.editor })" />
         <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
           <template #icon>
             <DeleteOutlined />
@@ -32,12 +30,24 @@
         </a-button>
         <div class="filter-inter">
           <span class="select-inter">类别：</span>
-          <a-select :options="selectOptions" @change="searchHandler" v-model:value="filters.category" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
+          <a-select
+            :options="selectOptions"
+            @change="searchHandler"
+            v-model:value="filters.category"
+            allowClear
+            placeholder="请选择类别"
+            style="width: 150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
         <div class="filter-inter">
-          <a-input v-model:value="filters.name" @change="debouncedSearch" @pressEnter="debouncedSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
+          <a-input
+            v-model:value="filters.name"
+            @change="debouncedSearch"
+            @pressEnter="debouncedSearch"
+            placeholder="搜索关键词"
+            style="width: 220px"
+            allow-clear>
             <template #suffix>
               <SearchOutlined />
             </template>
@@ -98,13 +108,21 @@
 <script setup lang="ts">
 import { getModelDevList, deleteModelDev, batchDeleteModelDev, type ListQueryParams } from '@/api/development';
 import type { ModelInputOutput } from '@/types/model';
-import { DeleteOutlined, EditOutlined, EyeOutlined, ImportOutlined, MoreOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons-vue';
 import type { TableProps } from 'ant-design-vue';
 import { message, Modal } from 'ant-design-vue';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { detailColumns, selectOptions, editorOptions } from './indexData';
 import detailFormModal from './components/detailFormModal.vue';
+import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
 import { debounce } from 'lodash-es';
 import { useTablePagination } from '@/utils/useTablePagination';
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
@@ -194,11 +212,6 @@ const handleCreate = (record?: any) => {
   if (formModalRef.value) {
     formModalRef.value.openModal(record);
   }
-};
-
-// 导入
-const handleImport = () => {
-  message.info('打开导入对话框');
 };
 
 // 批量删除

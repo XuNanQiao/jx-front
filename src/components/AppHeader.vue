@@ -54,7 +54,7 @@
       </div>
 
       <!-- 右侧用户信息 -->
-      <div class="user-section">
+      <div class="user-section me-20px">
         <a-dropdown>
           <div class="user-info">
             <a-avatar :size="36" :src="userStore.userInfo?.avatar">
@@ -107,7 +107,16 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user';
-import { CloudServerOutlined, ClusterOutlined, CodeOutlined, DownOutlined, FunctionOutlined, ImportOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue';
+import {
+  CloudServerOutlined,
+  ClusterOutlined,
+  CodeOutlined,
+  DownOutlined,
+  FunctionOutlined,
+  ImportOutlined,
+  LogoutOutlined,
+  UserOutlined,
+} from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -157,14 +166,23 @@ const handleLogout = async () => {
 
 <style scoped>
 .app-header {
+  /*   background: linear-gradient(
+    112deg,
+    rgba(52, 84, 134, 0.96) 0%,
+    rgba(37, 53, 82, 0.92) 50%,
+    rgba(28, 42, 68, 0.9) 100%
+  ) !important; */
   background: var(--bg-primary) !important;
   box-shadow: var(--nav-shadow);
+  box-shadow: 0 12px 24px rgba(8, 13, 26, 0.45);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0 var(--spacing-lg);
   height: 48px;
   line-height: 48px;
   position: sticky;
   top: 0;
   z-index: 999;
+  backdrop-filter: blur(22px);
 }
 
 .header-content {
@@ -189,7 +207,14 @@ const handleLogout = async () => {
   gap: var(--spacing-sm);
   cursor: pointer;
   padding-right: 20px;
-  border-right: 1px solid var(--border-light);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logo-section:hover {
+  transform: translateY(-1px);
 }
 
 .logo-icon {
@@ -200,8 +225,9 @@ const handleLogout = async () => {
 .logo-text {
   font-size: 20px;
   font-weight: 600;
-  color: var(--theme-primary);
+  color: var(--text-primary);
   white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
 /* 横向菜单 */
@@ -212,8 +238,25 @@ const handleLogout = async () => {
 }
 
 .header-menu :deep(.ant-menu-item),
-.header-menu :deep(.ant-menu-submenu) {
+.header-menu :deep(.ant-menu-submenu-title) {
   top: 0;
+  color: var(--text-secondary) !important;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+  border-radius: var(--radius-md);
+}
+
+.header-menu :deep(.ant-menu-item:hover),
+.header-menu :deep(.ant-menu-submenu-title:hover) {
+  color: var(--text-white) !important;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.header-menu :deep(.ant-menu-item-selected) {
+  color: var(--text-white) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 /* 用户信息区域 */
@@ -229,12 +272,17 @@ const handleLogout = async () => {
   gap: 12px;
   cursor: pointer;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  transition: background-color 0.3s;
+  border-radius: var(--radius-md);
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .user-info:hover {
-  background-color: var(--bg-gray);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(9, 16, 32, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .user-text {
@@ -246,8 +294,8 @@ const handleLogout = async () => {
 
 .username {
   font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 500;
+  color: var(--text-white);
+  font-weight: 600;
 }
 
 .user-role {
@@ -272,9 +320,10 @@ const handleLogout = async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--bg-light);
+  background: linear-gradient(138deg, rgba(49, 69, 103, 0.95) 0%, rgba(41, 60, 92, 0.88) 100%);
   margin: 4px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .user-detail-text {
@@ -286,7 +335,7 @@ const handleLogout = async () => {
 .detail-nickname {
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-white);
 }
 
 .detail-username {

@@ -9,28 +9,28 @@
 
   /* 背景色 */
   --bg-primary: #2e3f60;
-  --bg-secondary: #364d79;
+  --bg-secondary: #314567;
   --bg-white: #ffffff;
-  --bg-gray: #f0f2f5;
+  --bg-gray: #eff3fa;
 
   /* 导航栏 */
   --nav-bg: #ffffff;
   --nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   /* 文字颜色 */
-  --text-primary: #262626;
-  --text-secondary: #595959;
-  --text-disabled: #bfbfbf;
+  --text-primary: #f5f8ff;
+  --text-secondary: #c7d3ec;
+  --text-disabled: rgba(255, 255, 255, 0.45);
   --text-white: #ffffff;
 
   /* 边框颜色 */
-  --border-color: #d9d9d9;
-  --border-light: #f0f0f0;
+  --border-color: rgba(255, 255, 255, 0.18);
+  --border-light: rgba(255, 255, 255, 0.08);
 
   /* 阴影 */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 6px 12px rgba(12, 19, 38, 0.18);
+  --shadow-md: 0 12px 28px rgba(12, 19, 38, 0.22);
+  --shadow-lg: 0 18px 40px rgba(12, 19, 38, 0.26);
 
   /* 圆角 */
   --radius-sm: 4px;
@@ -44,9 +44,63 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 }
-*{
+* {
   box-sizing: border-box;
 }
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(58, 124, 210, 0.28) 0%,
+    rgba(37, 53, 82, 0.94) 55%,
+    #1a2439 100%
+  );
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--theme-info);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #74b6ff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ant-layout {
+  background: transparent;
+}
+
+.ant-menu-dark,
+.ant-menu-dark .ant-menu-sub,
+.ant-dropdown-menu {
+  background-color: rgba(37, 53, 82, 0.96);
+  color: var(--text-primary);
+}
+
+.ant-dropdown-menu {
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
 .ant-card {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);

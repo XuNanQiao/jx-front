@@ -32,23 +32,22 @@
         <div class="data-content">
           <!-- 筛选区域 -->
           <div class="filter-section flex-between">
-            <a-space :size="16" wrap>
-              <a-button @click="handleImport">
-                <template #icon>
-                  <DownloadOutlined />
-                </template>
-                下载算子包编码工程
-              </a-button>
-              <a-button @click="handleImport">
-                <template #icon>
-                  <ImportOutlined />
-                </template>
-                导入
-              </a-button>
-            </a-space>
+            <ImportDownloadActions
+              import-url="/api/model_operator/import"
+              download-url="/api/model_operator/package/download"
+              download-label="下载算子包编码工程"
+              download-file-name="operator-package.zip"
+              :import-params="() => ({ category: filters.expandedKeys })"
+              :download-params="() => ({ version: filters.version, name: filters.name })" />
             <a-space :size="16" wrap>
               <div class="filter-inter">
-                <a-input v-model:value="filters.version" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索版本号" style="width: 220px" allow-clear>
+                <a-input
+                  v-model:value="filters.version"
+                  @change="inputSearch"
+                  @pressEnter="inputSearch"
+                  placeholder="搜索版本号"
+                  style="width: 220px"
+                  allow-clear>
                   <template #suffix>
                     <SearchOutlined />
                   </template>
@@ -58,7 +57,13 @@
              -->
               </div>
               <div class="filter-inter">
-                <a-input v-model:value="filters.name" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
+                <a-input
+                  v-model:value="filters.name"
+                  @change="inputSearch"
+                  @pressEnter="inputSearch"
+                  placeholder="搜索关键词"
+                  style="width: 220px"
+                  allow-clear>
                   <template #suffix>
                     <SearchOutlined />
                   </template>
@@ -89,7 +94,12 @@
               </template>
             </template>
           </a-table>
-          <SourceModal v-model:open="sourceModalOpen" v-model:selectedPath="selectedFilePath" :loading="sourceLoading" :files="files" :title="sourceTitle" />
+          <SourceModal
+            v-model:open="sourceModalOpen"
+            v-model:selectedPath="selectedFilePath"
+            :loading="sourceLoading"
+            :files="files"
+            :title="sourceTitle" />
         </div>
       </div>
     </div>
@@ -99,12 +109,13 @@
 <script setup lang="ts">
 import { getList, getSourceCode } from '@/api/operators';
 import { useTablePagination } from '@/utils/useTablePagination';
-import { DownloadOutlined, ImportOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { message, TreeProps } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { tableColumns, treeData, versionOptions } from './indexData';
 import SourceModal from './components/SourceModal.vue';
+import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
@@ -211,10 +222,6 @@ const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
 const onExpand: TreeProps['onExpand'] = (keys) => {
   treeExpandedKeys.value = keys as Array<string | number>;
   autoExpandParent.value = false;
-};
-// 导入
-const handleImport = () => {
-  message.info('打开导入对话框');
 };
 const searchHandler = () => {
   pagination.current = 1;

@@ -7,30 +7,37 @@
             <div class="title">基础信息</div>
             <a-form layout="vertical">
               <a-form-item label="节点显示名称">
-                <a-input v-model:value="selected.form.displayName" />
+                <a-input v-model:value="selected.form.node_name_en" />
               </a-form-item>
               <a-form-item label="节点名称">
                 <a-input v-model:value="selected.form.name" />
               </a-form-item>
               <a-form-item label="算子名称">
-                <a-input v-model:value="selected.form.operatorName" />
+                <a-input :disabled="true" v-model:value="selected.form.operatorName" />
               </a-form-item>
 
               <template v-if="selected.type === 'input' || selected.type === 'output'">
                 <a-form-item label="Repo">
-                  <a-select v-model:value="selected.form.repo" :options="repoOptions" placeholder="请选择 Repo"></a-select>
+                  <a-select
+                    v-model:value="selected.form.repo"
+                    :options="repoOptions"
+                    placeholder="请选择 Repo"></a-select>
                 </a-form-item>
               </template>
 
               <template v-if="selected.type === 'input'">
                 <a-form-item label="列">
-                  <a-select v-model:value="selected.form.columns" :options="columnOptions" mode="multiple" placeholder="请选择列"></a-select>
+                  <a-select
+                    v-model:value="selected.form.columns"
+                    :options="columnOptions"
+                    mode="multiple"
+                    placeholder="请选择列"></a-select>
                 </a-form-item>
               </template>
 
               <template v-if="selected.type === 'other' || selected.type == 'otherAdd'">
                 <a-form-item label="语言类型">
-                  <a-input v-model:value="selected.form.language" />
+                  <a-input :disabled="true" v-model:value="selected.form.language" />
                 </a-form-item>
                 <a-form-item label="算子描述">
                   <a-input v-model:value="selected.form.description" />
@@ -53,7 +60,9 @@
                             </div>
                             <div style="display: flex; gap: 8px">
                               <a-button size="small" @click="setMainScript(index)">设为主脚本</a-button>
-                              <a-button size="small" @click="editScript(index)" v-if="item.name.endsWith('.py')">编辑</a-button>
+                              <a-button size="small" @click="editScript(index)" v-if="item.name.endsWith('.py')">
+                                编辑
+                              </a-button>
                               <a-button size="small" danger @click="removeScript(index)">删除</a-button>
                             </div>
                           </div>
@@ -73,12 +82,18 @@
 
             <a-form layout="vertical">
               <a-form-item label="聚合函数">
-                <a-select v-model:value="selected.params.aggregate" :options="aggregateOptions" placeholder="请选择"></a-select>
+                <a-select
+                  v-model:value="selected.params.aggregate"
+                  :options="aggregateOptions"
+                  placeholder="请选择"></a-select>
               </a-form-item>
               <a-form-item label="数据聚合粒度">
                 <a-input-number v-model:value="selected.params.granularity.value">
                   <template #addonAfter>
-                    <a-select class="!w-80px" v-model:value="selected.params.granularity.unit" :options="granularityOptions"></a-select>
+                    <a-select
+                      class="!w-80px"
+                      v-model:value="selected.params.granularity.unit"
+                      :options="granularityOptions"></a-select>
                   </template>
                 </a-input-number>
               </a-form-item>
@@ -108,7 +123,7 @@ const activeTab = ref('info');
 const showCreateFile = ref(false);
 const editFile = reactive({ name: '', content: '', editIndex: -1 });
 const formVal = {
-  displayName: '',
+  node_name_en: '',
   name: '',
   operatorName: '',
   repo: null,
@@ -192,10 +207,13 @@ const openNode = (node: any) => {
   } else {
     selected.id = node.id ?? node.name ?? node.title;
     if (node.attribute === '输入') {
+      node.operatorName = 'Repo输入';
       selected.type = 'input';
     } else if (node.attribute === '输出') {
+      node.operatorName = 'Repo输出';
       selected.type = 'output';
     } else {
+      node.operatorName = 'python3自定义算子';
       selected.type = 'other';
     }
     Object.assign(selected.form, node);

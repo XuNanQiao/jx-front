@@ -97,7 +97,7 @@ export const allColumnsOptions: SelectOption[] = [
 // 基础信息字段
 export const basicFields: FieldConfig[] = [
   { key: 'name', label: '名称' },
-  { key: 'display_name', label: '显示名称' },
+  { key: 'node_name_en', label: '显示名称' },
   { key: 'data_type', label: '数据类型', sort: 'dataType' },
   { key: 'default_device', label: '使用默认设备', sort: 'defaultDevice' },
   { key: 'database_category', label: '存储引擎', sort: 'storageEngine' },

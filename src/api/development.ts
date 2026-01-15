@@ -55,3 +55,8 @@ export function fetchModelJobLog(job_id: string | number): Promise<ApiResponse<a
 export function executeJob(params: { job_id: string; run_type: 'debug' | 'formal' }): Promise<ApiResponse<any>> {
   return request.post('/api/model_dev/execute', params, { showMessage: true, messageData: ['data', 'message'] });
 }
+
+// 获取算子库树
+export function getModelLibraryTree(payload?: Record<string, any>): Promise<ApiResponse<any>> {
+  return request.post('/api/model_dev/library_tree', payload || {});
+}

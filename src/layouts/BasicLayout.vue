@@ -18,8 +18,7 @@
         <a-config-provider
           :theme="{
             token: tokenThem,
-          }"
-        >
+          }">
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />
@@ -32,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from "@/components/AppHeader.vue";
-import { tokenThem } from "@/styles/them";
+import AppHeader from '@/components/AppHeader.vue';
+import { tokenThem } from '@/styles/them';
 // 用户信息已在 main.ts 中初始化到全局状态
 </script>
 
@@ -45,6 +44,10 @@ import { tokenThem } from "@/styles/them";
 
 .main-content {
   /* padding: var(--spacing-lg); */
+  height: calc(100vh - 48px);
+  width: 100%;
+  overflow-y: auto; /* 仅在需要时显示滚动条，避免布局抖动 */
+  overflow-x: hidden;
   min-height: calc(100vh - 64px);
   background: var(--bg-primary);
 }
