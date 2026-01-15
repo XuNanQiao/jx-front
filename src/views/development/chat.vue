@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-15 09:06:02
+ * @LastEditTime: 2026-01-15 11:38:22
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import type { EChartsOption } from 'echarts';
 import { GraphChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, TitleComponent } from 'echarts/components';
+import { DataZoomComponent, GridComponent, TitleComponent, TooltipComponent } from 'echarts/components';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { computed, ref } from 'vue';
@@ -80,7 +80,7 @@ const onChartClick = (params: any) => {
 };
 
 // 注册 ECharts 组件
-use([CanvasRenderer, GraphChart, GridComponent, TooltipComponent, TitleComponent]);
+use([CanvasRenderer, GraphChart, GridComponent, TooltipComponent, TitleComponent, DataZoomComponent]);
 
 const chartStyle = computed(() => `height:${props.height}; width:${props.width}`);
 

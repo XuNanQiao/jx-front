@@ -45,3 +45,13 @@ export function deleteModelDev(id: string | number): Promise<ApiResponse<any>> {
 export function batchDeleteModelDev(ids: (string | number)[]): Promise<ApiResponse<any>> {
   return request.delete('/api/model_dev/batch_delete', { data: { ids }, showMessage: true });
 }
+
+// 查询模型任务日志
+export function fetchModelJobLog(job_id: string | number): Promise<ApiResponse<any>> {
+  return request.post('/api/model_job/log', { job_id });
+}
+
+// 执行任务接口
+export function executeJob(params: { job_id: string; run_type: 'debug' | 'formal' }): Promise<ApiResponse<any>> {
+  return request.post('/api/model_dev/execute', params, { showMessage: true, messageData: ['data', 'message'] });
+}
