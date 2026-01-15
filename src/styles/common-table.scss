@@ -6,6 +6,7 @@
     color: #fff;
     font-weight: 600;
     box-shadow: inset 0px 1px 8px 10px #305c99;
+    padding: 8px !important;
   }
 
   .ant-table-tbody > tr > td {
@@ -49,7 +50,9 @@
     background: transparent !important;
   }
 }
-
+.ant-btn {
+  box-shadow: none !important;
+}
 .ant-btn-default,
 .ant-radio-button-wrapper,
 .ant-input,
@@ -93,4 +96,28 @@
   .ant-tabs {
     margin-top: -12px;
   }
+}
+/* Global scrollbar styling */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: #4a6fb4 rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #4a6fb4;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.04);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #5f89d3;
 }

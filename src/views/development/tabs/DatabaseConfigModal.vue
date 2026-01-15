@@ -78,7 +78,10 @@ const onOk = async () => {
     if (!data.dependency_package) {
       data.dependency_package = [];
     }
-    data.dependency_package.push(form.value);
+    data.dependency_package.push({
+      name: form.value.name + '.txt',
+      version: form.value.version,
+    });
     const res: any = await updateModelDev(data);
     if (res && res.code === 200) {
       emit('saved', data);

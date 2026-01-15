@@ -7,7 +7,7 @@
       </div>
       <div class="module-body">
         <a-descriptions bordered :column="2">
-          <template v-for="(item, index) in detail.dependency_package" :key="index">
+          <template v-for="(item, index) in operatorPackages" :key="index">
             <a-descriptions-item :span="1" label="依赖包">
               <span class="desc-text">{{ item.name }}</span>
             </a-descriptions-item>
@@ -29,7 +29,7 @@
         </a-button>
       </div>
       <div class="module-body">
-        <a-descriptions bordered :column="2" v-for="(item, index) in detail.dependency_package" :key="index">
+        <a-descriptions bordered :column="2" v-for="(item, index) in thirdPartyPackages" :key="index">
           <a-descriptions-item :span="1" label="依赖包">
             <span class="desc-text">{{ item.name }}</span>
           </a-descriptions-item>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue';
+import { ref, watch, reactive, computed } from 'vue';
 import { getModelDevDetail, updateModelDev } from '@/api/development';
 import { message } from 'ant-design-vue';
 import { packageFields } from '../indexData';
@@ -59,6 +59,12 @@ const props = defineProps<{ id: any | null }>();
 const editMode = ref(false);
 const loading = ref(false);
 const detail = ref<any>({});
+
+const ensureAtLeastOne = (list: any[]) => (list && list.length ? list : [{ name: '', version: '' }]);
+
+const operatorPackages = computed(() => ensureAtLeastOne((detail.value?.dependency_package || []).filter((item: any) => !String(item?.name || '').endsWith('.txt'))));
+
+const thirdPartyPackages = computed(() => ensureAtLeastOne((detail.value?.dependency_package || []).filter((item: any) => String(item?.name || '').endsWith('.txt'))));
 
 // 数据库配置弹窗引用
 const databaseConfigModalRef = ref<any>(null);

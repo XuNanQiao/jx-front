@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:05:28
- * @LastEditTime: 2026-01-14 09:46:06
+ * @LastEditTime: 2026-01-14 17:53:54
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\operators\indexData.ts
@@ -19,6 +19,7 @@ const categoryMap: Record<number, string> = {
 export const tableColumns = [
   { dataIndex: 'name', title: '名称', key: 'name' },
   { dataIndex: 'run_env', title: '运行环境', align: 'center' },
+  { dataIndex: 'version', title: '版本号', align: 'center' },
   { dataIndex: 'created_time', title: '创建时间', align: 'center', customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
   { dataIndex: 'created_user_id', title: '创建人', align: 'center' },
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center' },

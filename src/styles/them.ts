@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-12 15:15:11
- * @LastEditTime: 2026-01-14 16:51:06
+ * @LastEditTime: 2026-01-15 09:16:14
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\styles\them.ts
@@ -29,7 +29,7 @@ export const tokenThem = {
   colorBgBase: '#1e2b48',
 
   // 填充色（基础）
-  colorFill: '#3a7cd220', // 主色透明渐变，更柔和
+  colorFill: '#3a7cd2', // 主色透明渐变，更柔和
   // 次要填充
   colorFillSecondary: '#334870',
   // 第三级填充（强调）
@@ -39,7 +39,7 @@ export const tokenThem = {
 
   // 主色体系
   colorPrimary: '#1677ff', // 保持原有主色
-  colorPrimaryBg: '#3a7cd2', // 主色背景
+  colorPrimaryBg: '#3ac5d2', // 主色背景
   // 主色文本（正常态）
   colorPrimaryText: '#ffffff',
   // 主色文本（hover态）- 轻微提亮

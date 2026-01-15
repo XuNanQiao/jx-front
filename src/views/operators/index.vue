@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-14 17:18:44
+ * @LastEditTime: 2026-01-14 17:50:19
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -48,11 +48,17 @@
             </a-space>
             <a-space :size="16" wrap>
               <div class="filter-inter">
-                <span class="select-inter">类别：</span>
+                <a-input v-model:value="filters.version" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索版本号" style="width: 220px" allow-clear>
+                  <template #suffix>
+                    <SearchOutlined />
+                  </template>
+                </a-input>
+                <!--   <span class="select-inter">类别：</span>
                 <a-select :options="versionOptions" @change="searchHandler" v-model:value="filters.version" allowClear placeholder="请选择类别" style="width: 150px"></a-select>
+             -->
               </div>
               <div class="filter-inter">
-                <a-input v-model:value="filters.searchKeyword" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
+                <a-input v-model:value="filters.name" @change="inputSearch" @pressEnter="inputSearch" placeholder="搜索关键词" style="width: 220px" allow-clear>
                   <template #suffix>
                     <SearchOutlined />
                   </template>
@@ -106,7 +112,7 @@ const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const filters = reactive({
   expandedKeys: null,
   version: null,
-  searchKeyword: null,
+  name: null,
 });
 
 // 状态管理
@@ -165,7 +171,7 @@ const getListHand = async () => {
     const params = {
       category: filters.expandedKeys,
       version: filters.version,
-      name: filters.searchKeyword,
+      name: filters.name,
       page: pagination.current,
       size: pagination.pageSize,
     };

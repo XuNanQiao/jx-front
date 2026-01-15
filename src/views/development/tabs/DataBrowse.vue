@@ -69,16 +69,16 @@
           </a-button>
           <template #overlay>
             <a-menu @click="handleMenuClick($event, record)">
-              <a-menu-item key="view">
-                <EyeOutlined />
+              <a-menu-item key="priority">
+                <ArrowUpOutlined />
                 <span style="margin-left: 8px">调整优先级</span>
               </a-menu-item>
-              <a-menu-item key="view">
-                <EyeOutlined />
+              <a-menu-item key="rerun">
+                <ReloadOutlined />
                 <span style="margin-left: 8px">再次运行</span>
               </a-menu-item>
-              <a-menu-item key="edit">
-                <EditOutlined />
+              <a-menu-item key="retry">
+                <RetweetOutlined />
                 <span style="margin-left: 8px">重试</span>
               </a-menu-item>
               <a-menu-divider />
@@ -123,7 +123,7 @@
 <script setup lang="ts">
 import { getModelJobList, deleteModelJob, batchDeleteModelJob, type JobListQueryParams } from '@/api/modelJob';
 import type { ModelInputOutput } from '@/types/model';
-import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined, FileOutlined } from '@ant-design/icons-vue';
+import { DeleteOutlined, MoreOutlined, SearchOutlined, FileOutlined, ReloadOutlined, RetweetOutlined, ArrowUpOutlined } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -317,21 +317,30 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case 'view':
-      // 跳转到详情页
+    case 'priority':
+      // 跳转到详情页，后续可在详情页中调整优先级
       router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id }, query: { name: record.name } });
       break;
-    case 'edit':
-      // 打开编辑弹窗并加载数据
-      handleCreate(record);
+    case 'rerun':
+      handleRerun(record);
       break;
-    case 'copy':
-      message.info(`复制: ${record.name}`);
+    case 'retry':
+      handleRetry(record);
       break;
     case 'delete':
       handleDelete(record.id);
       break;
   }
+};
+
+const handleRerun = (record: ModelInputOutput) => {
+  message.info(`再次运行: ${record.name || record.id}`);
+  // TODO: 接入再次运行接口
+};
+
+const handleRetry = (record: ModelInputOutput) => {
+  message.info(`重试: ${record.name || record.id}`);
+  // TODO: 接入重试接口
 };
 
 // 删除操作

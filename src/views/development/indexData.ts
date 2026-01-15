@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-14 17:02:14
+ * @LastEditTime: 2026-01-14 17:46:12
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\indexData.ts
@@ -11,6 +11,36 @@
 import dayjs from 'dayjs';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
+
+const formatDateTime = (value: dayjs.ConfigType) => (value && dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-');
+
+const formatDurationWithStart = (start: dayjs.ConfigType, end: dayjs.ConfigType) => {
+  const startTime = start ? dayjs(start) : null;
+  const endTime = end ? dayjs(end) : null;
+
+  if (!startTime || !startTime.isValid()) return '-';
+
+  const base = formatDateTime(startTime);
+  if (!endTime || !endTime.isValid()) return base;
+
+  let diffSeconds = endTime.diff(startTime, 'second');
+  if (diffSeconds < 0) diffSeconds = 0;
+
+  const days = Math.floor(diffSeconds / 86400);
+  const hours = Math.floor((diffSeconds % 86400) / 3600);
+  const minutes = Math.floor((diffSeconds % 3600) / 60);
+  const seconds = diffSeconds % 60;
+
+  const parts: string[] = [];
+  if (days) parts.push(`${days}天`);
+  if (hours) parts.push(`${hours}小时`);
+  if (parts.length < 2 && minutes) parts.push(`${minutes}分`);
+  if (parts.length < 2 && seconds) parts.push(`${seconds}秒`);
+
+  if (!parts.length) parts.push('0秒');
+
+  return `${base}（${parts.join('')}）`;
+};
 
 export const selectOptions: SelectOption[] = [
   { label: '其他', value: 0 },
@@ -195,7 +225,12 @@ export const browseColumns = [
   { dataIndex: 'name', title: '模型/部署', key: 'name', align: 'center' },
   { dataIndex: 'name', title: '输入Repo', key: 'name', align: 'center' },
   { dataIndex: 'name', title: '输出Repo', key: 'name', align: 'center' },
-  { dataIndex: 'data_start_time', title: '数据时间（时长）', key: 'name' },
+  {
+    dataIndex: 'data_start_time',
+    title: '数据时间（时长）',
+    key: 'data_start_time',
+    customRender: ({ record }: any) => formatDurationWithStart(record?.data_start_time, record?.data_end_time),
+  },
   { dataIndex: 'data_rows_nums', title: '数据行', key: 'name', align: 'center' },
   {
     dataIndex: 'exec_log',
@@ -204,7 +239,12 @@ export const browseColumns = [
     align: 'center',
   },
   // { dataIndex: 'status', title: '状态', key: 'name' },
-  { dataIndex: 'exec_start_time', title: '作业时间（时长）', key: 'name' },
+  {
+    dataIndex: 'exec_start_time',
+    title: '作业时间（时长）',
+    key: 'name',
+    customRender: ({ record }: any) => formatDurationWithStart(record?.exec_start_time, record?.exec_end_time),
+  },
   { dataIndex: 'created_user_id', title: '创建人', key: 'name', align: 'center' },
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center' },
 ];
