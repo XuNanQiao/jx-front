@@ -14,6 +14,7 @@
         :columns="columns"
         :data-source="dataSource"
         :pagination="pagination"
+        :scroll="{ x: 'max-content', y: 'calc(100vh - 280px)' }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">

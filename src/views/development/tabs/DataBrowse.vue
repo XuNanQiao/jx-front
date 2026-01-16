@@ -62,7 +62,8 @@
     :row-selection="rowSelection"
     @change="handleTableChange"
     row-key="id"
-    class="model-table">
+    class="model-table"
+    :scroll="{ x: 'max-content', y: 'calc(100vh - 350px)' }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'exec_log'">
         <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">

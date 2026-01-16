@@ -36,7 +36,7 @@
   </div>
 
   <!-- 表格 -->
-  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="paginationConfig" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table">
+  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="paginationConfig" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table" :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
         <a-button type="text" class="text-white" size="small" @click="handleEdit(record)"> 编辑 </a-button>

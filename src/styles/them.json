@@ -35,6 +35,9 @@
             "activeShadow": "0 0 0 2px rgba(30, 212, 231, 0.2)",
             "colorTextPlaceholder": "rgba(255, 255, 255, 0.35)"
         },
+        "List": {
+            "colorBorder": "#2e5e83"
+        },
         "InputNumber": {
             "colorBgContainer": "transparent",
             "colorBorder": "#2e5e83",
@@ -164,6 +167,11 @@
         "Layout": {
             "colorBgHeader": "#2e3f60",
             "colorBgTrigger": "#1e2b48"
+        },
+        "Tree": {
+            "colorBgContainer": "transparent",
+            "colorBorder": "#fff",
+            "nodeSelectedBg": "#1677ff"
         }
     }
 }

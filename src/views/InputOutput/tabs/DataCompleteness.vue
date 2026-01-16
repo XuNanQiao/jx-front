@@ -43,7 +43,8 @@
     :data-source="filteredData"
     row-key="key"
     :pagination="pagination"
-    :loading="loading" />
+    :loading="loading"
+    :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }" />
 </template>
 
 <script setup lang="ts">

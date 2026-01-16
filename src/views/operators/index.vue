@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-14 17:50:19
+ * @LastEditTime: 2026-01-16 16:00:55
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -32,13 +32,28 @@
         <div class="data-content">
           <!-- 筛选区域 -->
           <div class="filter-section flex-between">
-            <ImportDownloadActions
-              import-url="/api/model_operator/import"
-              download-url="/api/model_operator/package/download"
-              download-label="下载算子包编码工程"
-              download-file-name="operator-package.zip"
-              :import-params="() => ({ category: filters.expandedKeys })"
-              :download-params="() => ({ version: filters.version, name: filters.name })" />
+            <a-space :size="8" wrap>
+              <DownloadAction
+                download-label="下载算子包编码工程"
+                download-url="/api/model_operator/download"
+                download-file-name="operator-package"
+                :download-disabled="selectedRowKeys.length === 0"
+                :download-params="() => ({ id: selectedRowKeys })" />
+              <ImportAction
+                import-label="上传算子包"
+                accept=".zip,.rar,.7z,.tar,.gz,.tar.gz"
+                :importParams="{ run_env: 'python3', category: filters.expandedKeys }"
+                :paramsResolver="fileNameResolver"
+                importUrl="/api/model_operator/import"
+                @import-success="inputSearch" />
+              <ImportAction
+                import-label="导入"
+                accept=".zip,.rar,.7z,.tar,.gz,.tar.gz"
+                :importParams="{ run_env: 'python3', category: filters.expandedKeys }"
+                :paramsResolver="[{ key: 'name', values: ['name'] }]"
+                importUrl="/api/model_operator/import"
+                @import-success="inputSearch" />
+            </a-space>
             <a-space :size="16" wrap>
               <div class="filter-inter">
                 <a-input
@@ -76,6 +91,10 @@
             :columns="tableColumns"
             :data-source="tableData"
             :loading="loading"
+            :row-selection="{
+              selectedRowKeys: selectedRowKeys,
+              onChange: onSelectChange,
+            }"
             :pagination="{
               current: pagination.current,
               pageSize: pagination.pageSize,
@@ -87,7 +106,7 @@
             @change="handleTableChange"
             row-key="id"
             class="model-table"
-            :scroll="{ x: 'max-content' }">
+            :scroll="{ x: 'max-content', y: 'calc(100vh - 350px)' }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
                 <a-button type="link" @click="goDetail(record)">源码</a-button>
@@ -115,13 +134,14 @@ import { debounce } from 'lodash-es';
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { tableColumns, treeData, versionOptions } from './indexData';
 import SourceModal from './components/SourceModal.vue';
-import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
+import ImportAction from '@/components/common/ImportAction.vue';
+import DownloadAction from '@/components/common/DownloadAction.vue';
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
 // 筛选条件
 const filters = reactive({
-  expandedKeys: null,
+  expandedKeys: 0,
   version: null,
   name: null,
 });
@@ -129,6 +149,12 @@ const filters = reactive({
 // 状态管理
 const loading = ref(false);
 const tableData = ref<any[]>([]);
+
+// 表格行选择
+const selectedRowKeys = ref<Array<string | number>>([]);
+const onSelectChange = (keys: Array<string | number>) => {
+  selectedRowKeys.value = keys;
+};
 
 // 树搜索与展开控制
 const searchValue = ref('');
@@ -213,8 +239,7 @@ onMounted(async () => {
 });
 // 树选择
 const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
-  const isLeaf = !(node.children && node.children.length);
-  filters.expandedKeys = _selectedKeys.length && isLeaf ? node.key : null;
+  filters.expandedKeys = node.key;
   pagination.current = 1;
   getListHand();
 };
@@ -228,8 +253,22 @@ const searchHandler = () => {
   getListHand();
 };
 const inputSearch = debounce(() => {
-  searchHandler;
+  pagination.current = 1;
+  searchHandler();
 }, 300);
+
+// 文件名解析器：从文件名中提取 name，去掉后缀
+const fileNameResolver = [
+  {
+    key: 'name',
+    values: ['name'],
+    transform: (fileName: string | undefined): string => {
+      if (!fileName) return '';
+      // 去掉文件后缀，支持多个后缀如 .tar.gz
+      return fileName.replace(/\.(zip|rar|7z|tar\.gz|tar|gz)$/i, '');
+    },
+  },
+];
 
 // 搜索联动展开父级
 watch(
@@ -335,8 +374,6 @@ const parseFiles = (data: any, fallbackName: string) => {
 
     .filter-section {
       .filter-item {
-        margin-bottom: 16px;
-
         .filter-label {
           display: block;
           margin-bottom: 8px;

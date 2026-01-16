@@ -100,6 +100,33 @@ export function uploadScriptFile(
     showErrorMessage: false,
   });
 }
+
+// 创建脚本文件
+export interface CreateScriptFileParams {
+  file_path: string; // 文件路径
+  content: string; // 文件内容
+  is_run?: boolean; // 是否是主函数
+}
+
+export function createScriptFile(params: CreateScriptFileParams): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/script_file/create', params, { showMessage: true });
+}
+//读取文件内容
+export function readScriptFile(file_path: string): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/script_file/read', { file_path });
+}
+
+// 更新脚本文件
+export interface UpdateScriptFileParams {
+  file_path: string; // 文件路径
+  content: string; // 文件内容
+  is_run?: boolean; // 是否是主函数
+}
+
+export function updateScriptFile(params: UpdateScriptFileParams): Promise<ApiResponse<any>> {
+  return request.put('/api/workflow/script_file/update', params, { showMessage: true });
+}
+
 // 加载工作流
 export function loadWorkflow(model_id: string | number): Promise<ApiResponse<any>> {
   return request.post('/api/workflow/load', { model_id });

@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-15 15:31:36
+ * @LastEditTime: 2026-01-16 16:37:17
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -123,6 +123,8 @@ const chartOption = computed<EChartsOption>(() => {
       ...item,
     };
   });
+  console.log(inputsList, outputsList, othersList, '------chat');
+
   const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
     // 若为选中节点，使用高亮样式
     if (selectedId.value && (d.id === selectedId.value || d.name === selectedId.value)) {

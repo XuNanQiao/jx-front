@@ -42,7 +42,7 @@ const props = withDefaults(
     downloadLoading: false,
     downloadUrl: '',
     downloadParams: undefined,
-    downloadMethod: 'get',
+    downloadMethod: 'post',
     downloadFileName: '',
     downloadRequest: undefined,
   },

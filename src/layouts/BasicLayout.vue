@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-07 16:34:15
- * @LastEditTime: 2026-01-16 13:38:23
+ * @LastEditTime: 2026-01-16 15:42:57
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\layouts\BasicLayout.vue
@@ -41,7 +41,6 @@ import theme from '@/styles/them.json';
 }
 
 .main-content {
-  padding: 12px;
   height: calc(100vh - 48px);
   width: 100vw;
   overflow-y: auto; /* 仅在需要时显示滚动条，避免布局抖动 */

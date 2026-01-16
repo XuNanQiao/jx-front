@@ -46,9 +46,18 @@
                   <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
                     <ImportAction
                       import-label="上传文件"
-                      :auto-upload="false"
-                      :multiple="true"
                       accept=".py"
+                      :paramsResolver="[
+                        {
+                          key: 'file_path',
+                          values: ['name'],
+                          transform: (fileName: string | undefined): string => {
+                            if (!fileName) return '';
+                            // 去掉文件后缀，支持多个后缀如 .tar.gz
+                            return 'operators/';
+                          },
+                        },
+                      ]"
                       importUrl="/api/workflow/script_file/upload"
                       @import-success="handleScriptUploadSuccess" />
                     <a-button type="default" @click="createFile">创建文件</a-button>
@@ -58,16 +67,27 @@
                       <template #renderItem="{ item, index }">
                         <a-list-item>
                           <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
-                            <div>
-                              <a-tag v-if="item.main" color="processing">主</a-tag>
-                              <span style="margin-left: 8px">{{ item.name }}</span>
-                            </div>
-                            <div style="display: flex; gap: 8px">
-                              <a-button size="small" @click="setMainScript(index)">设为主脚本</a-button>
-                              <a-button size="small" @click="editScript(index)" v-if="item.name.endsWith('.py')">
-                                编辑
-                              </a-button>
-                              <a-button size="small" danger @click="removeScript(index)">删除</a-button>
+                            <span style="margin-left: 8px">{{ item.name }}</span>
+                            <div style="display: flex; gap: 8px; align-items: center">
+                              <a-tooltip title="设为主脚本">
+                                <StarOutlined
+                                  :style="{
+                                    fontSize: '16px',
+                                    cursor: 'pointer',
+                                    color: item.main ? '#1890ff' : '#999',
+                                  }"
+                                  @click="setMainScript(index)" />
+                              </a-tooltip>
+                              <a-tooltip title="编辑" v-if="item.name.endsWith('.pyc')">
+                                <EditOutlined
+                                  :style="{ fontSize: '16px', cursor: 'pointer', color: '#1890ff' }"
+                                  @click="editScript(index)" />
+                              </a-tooltip>
+                              <a-tooltip title="删除">
+                                <DeleteOutlined
+                                  :style="{ fontSize: '16px', cursor: 'pointer', color: '#ff4d4f' }"
+                                  @click="removeScript(index)" />
+                              </a-tooltip>
                             </div>
                           </div>
                         </a-list-item>
@@ -112,18 +132,28 @@
   </ToggleBox>
 
   <a-modal v-model:open="showCreateFile" title="创建/编辑脚本" @ok="onCreateFileOk" @cancel="onCreateFileCancel">
-    <a-textarea v-model:value="editFile.content" placeholder="Basic usage" :rows="16" />
+    <a-form layout="vertical">
+      <a-form-item label="文件名称">
+        <a-input v-model:value="editFile.name" placeholder="请输入文件名称，如：script" />
+      </a-form-item>
+      <a-form-item label="文件内容">
+        <a-textarea v-model:value="editFile.content" placeholder="请输入文件内容" :rows="16" />
+      </a-form-item>
+    </a-form>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
 import ToggleBox from './toggleBox.vue';
 import { aggregateOptions, granularityOptions } from '../indexData';
 import { getDataStructureList } from '@/api/inputOutput';
 import ImportAction from '@/components/common/ImportAction.vue';
-import { createCustomOperator } from '@/api/development';
-const emit = defineEmits(['save']);
+import { createCustomOperator, createScriptFile, updateScriptFile } from '@/api/development';
+import { values } from 'lodash-es';
+import { message } from 'ant-design-vue';
+import { StarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+const emit = defineEmits(['save', 'update']);
 const props = defineProps<{
   modelId: string | number;
 }>();
@@ -156,47 +186,89 @@ const selected = reactive<any>({
   },
 });
 
-const handleScriptUploadSuccess = (payload: unknown) => {
-  const uploadedFiles = Array.isArray(payload) ? payload : [];
-  if (!uploadedFiles.length) return;
+const handleScriptUploadSuccess = (payload: any) => {
+  if (!payload) return;
 
-  const hasMain = uploadedFiles.some((item: any) => item.main);
-  if (hasMain) {
-    selected.form.files.forEach((file: any) => {
-      file.main = false;
-      if (Object.prototype.hasOwnProperty.call(file, 'is_run')) {
-        file.is_run = false;
-      }
-    });
-  }
-
-  uploadedFiles.forEach((file: any) => {
-    selected.form.files.push({
-      ...file,
-      source_type: file?.source_type || 'upload',
-    });
+  const isPyFile = String(payload.name || '')
+    .toLowerCase()
+    .endsWith('.py');
+  selected.form.files.push({
+    path: payload.response.data.file_path,
+    is_run: isPyFile,
+    source_type: 'create',
+    name: payload.name,
+    content: null,
   });
-
-  if (!selected.form.files.some((item: any) => item.main) && selected.form.files.length > 0) {
-    const firstFile = selected.form.files[0];
-    firstFile.main = true;
-    const isNamedMain = String(firstFile.name || '').toLowerCase() === 'main.py';
-    firstFile.is_run = isNamedMain;
-  }
 };
 
-const onCreateFileOk = () => {
-  if (!editFile.name) return;
-  if (editFile.editIndex >= 0) {
-    selected.form.files[editFile.editIndex].name = editFile.name;
-    selected.form.files[editFile.editIndex].content = editFile.content;
-  } else {
-    selected.form.files.push({
-      name: editFile.name,
-      content: editFile.content,
-      main: selected.form.files.length === 0,
-    });
+const onCreateFileOk = async () => {
+  if (!editFile.name) {
+    message.warning('请输入文件名称');
+    return;
   }
+  if (!editFile.content) {
+    message.warning('请输入文件内容');
+    return;
+  }
+
+  // 编辑已有文件
+  if (editFile.editIndex >= 0) {
+    const file = selected.form.files[editFile.editIndex];
+
+    // 如果文件是通过接口创建的，调用接口更新
+    if (file.source_type === 'create' || file.path) {
+      try {
+        const response = await updateScriptFile({
+          file_path: 'operators/' /* file.path || editFile.name + '.pyc' */,
+          content: editFile.content,
+          is_run: file.is_run || false,
+        });
+
+        if (response?.code === 200) {
+          selected.form.files[editFile.editIndex] = {
+            ...file,
+            name: editFile.name + '.pyc',
+            content: editFile.content,
+            path: file.path || editFile.name + '.pyc',
+          };
+          message.success('文件更新成功');
+        }
+      } catch (error) {
+        console.error('更新脚本文件失败:', error);
+        message.error('更新脚本文件失败');
+        return;
+      }
+    } else {
+      // 本地编辑，不调用接口
+      selected.form.files[editFile.editIndex].name = editFile.name + '.pyc';
+      selected.form.files[editFile.editIndex].content = editFile.content;
+    }
+  } else {
+    // 创建新文件
+    try {
+      const response = await createScriptFile({
+        file_path: editFile.name + '.pyc',
+        content: editFile.content,
+        is_run: false,
+      });
+
+      if (response?.code === 200 && response?.data) {
+        selected.form.files.push({
+          path: response.data.file_path || editFile.name + '.pyc',
+          is_run: false,
+          source_type: 'create',
+          name: editFile.name + '.pyc',
+          content: editFile.content,
+        });
+        message.success('文件创建成功');
+      }
+    } catch (error) {
+      console.error('创建脚本文件失败:', error);
+      message.error('创建脚本文件失败');
+      return;
+    }
+  }
+
   editFile.name = '';
   editFile.content = '';
   editFile.editIndex = -1;
@@ -212,7 +284,7 @@ const onCreateFileCancel = () => {
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = 'new_script.py';
+  editFile.name = 'new_script.pyc';
   editFile.content = '# new script';
   showCreateFile.value = true;
 };
@@ -260,7 +332,7 @@ const openNode = (node: any) => {
       data.repo = node.idVal;
       repoOptions.value = [{ label: node.title, value: node.idVal }];
     } else if (node.type === 'output') {
-      getColumnsForRepo(node.idVal);
+      // getColumnsForRepo(node.idVal);
       data.operatorName = node.operator_name || 'Repo输出';
       data.repo = node.idVal;
       repoOptions.value = [{ label: node.title, value: node.idVal }];
@@ -278,6 +350,7 @@ const openNode = (node: any) => {
       fillNa: false,
     };
   }
+  open.value = true;
   activeTab.value = 'info';
 };
 const getColumnsForRepo = async (repoId: string) => {
@@ -305,16 +378,7 @@ const saveHand = () => {
     operator_name: selected.form.operatorName,
     language: selected.form.language,
     description: selected.form.description,
-    // files: JSON.stringify(selected.form.files),
-    script_files: [
-      {
-        path: 'custom/my_op/main.py',
-        is_main: true,
-        source_type: 'create',
-        name: 'main.py',
-        content: 'def run(context):\n    return {...}\n',
-      },
-    ],
+    script_files: selected.form.files,
   };
   createCustomOperator(data).then((response) => {
     if (response?.code == 200 && response?.data) {
@@ -322,7 +386,38 @@ const saveHand = () => {
     }
   });
 };
-defineExpose({ openNode, saveHand });
+
+// 获取当前编辑的数据
+const getCurrentData = () => {
+  if (!selected.id) return null;
+  return {
+    id: selected.id,
+    type: selected.type,
+    form: { ...selected.form },
+    params: { ...selected.params },
+  };
+};
+
+// 关闭抽屉弹窗
+const closePanel = () => {
+  open.value = false;
+  selected.type = null;
+  selected.id = null;
+};
+
+// 监听 selected.form 的变化，实时同步到父组件
+watch(
+  () => selected.form,
+  () => {
+    if (selected.id) {
+      const currentData = getCurrentData();
+      emit('update', currentData);
+    }
+  },
+  { deep: true },
+);
+
+defineExpose({ openNode, saveHand, getCurrentData, closePanel });
 </script>
 
 <style scoped lang="scss">
