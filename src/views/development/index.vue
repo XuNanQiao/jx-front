@@ -1,14 +1,14 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-14 14:08:03
+ * @LastEditTime: 2026-01-16 13:45:51
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\index.vue
  *
 -->
 <template>
-  <a-card :bordered="false" title="模型开发" class="page">
+  <a-card title="模型开发" class="page">
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
@@ -18,8 +18,7 @@
           </template>
           新建
         </a-button>
-        <ImportDownloadActions
-          :show-download="false"
+        <ImportAction
           import-url="/api/model_dev/import"
           :import-params="() => ({ category: filters.category, editor: filters.editor })" />
         <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
@@ -122,7 +121,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { detailColumns, selectOptions, editorOptions } from './indexData';
 import detailFormModal from './components/detailFormModal.vue';
-import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
+import ImportAction from '@/components/common/ImportAction.vue';
 import { debounce } from 'lodash-es';
 import { useTablePagination } from '@/utils/useTablePagination';
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);

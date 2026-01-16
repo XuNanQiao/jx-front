@@ -1,0 +1,169 @@
+{
+    "token": {
+        "colorText": "#ffffff",
+        "colorTextSecondary": "#e0e6ff",
+        "colorTextTertiary": "#a0b1d6",
+        "colorTextQuaternary": "rgba(255, 255, 255, 0.6)",
+        "colorBgContainer": "#2e3f60",
+        "colorBgLayout": "#253552",
+        "colorBgSpotlight": "#334870",
+        "colorBgElevated": "#285187",
+        "colorBgBase": "#1e2b48",
+        "colorFill": "#3a7cd2",
+        "colorFillSecondary": "#334870",
+        "colorFillTertiary": "#3a7cd2",
+        "colorFillQuaternary": "#285187",
+        "colorPrimary": "#1677ff",
+        "colorPrimaryBg": "#2e3f60",
+        "colorPrimaryText": "#ffffff",
+        "colorPrimaryTextHover": "#f0f7ff",
+        "colorPrimaryTextActive": "#e0e6ff",
+        "colorPrimaryActive": "#0e62d0",
+        "controlItemBgActive": "#2e3f60"
+    },
+    "components": {
+        "Form": {
+            "verticalLabelPadding": "0 0 4px",
+            "itemMarginBottom": 20,
+            "labelColor": "rgba(255, 255, 255, 0.88)"
+        },
+        "Input": {
+            "colorBgContainer": "transparent",
+            "colorBorder": "#2e5e83",
+            "hoverBorderColor": "#1890ff",
+            "activeBorderColor": "#1ed4e7",
+            "activeShadow": "0 0 0 2px rgba(30, 212, 231, 0.2)",
+            "colorTextPlaceholder": "rgba(255, 255, 255, 0.35)"
+        },
+        "InputNumber": {
+            "colorBgContainer": "transparent",
+            "colorBorder": "#2e5e83",
+            "hoverBorderColor": "#1890ff",
+            "activeBorderColor": "#1ed4e7"
+        },
+        "Select": {
+            "colorBgContainer": "transparent",
+            "colorBorder": "#2e5e83",
+            "colorPrimary": "#1ed4e7",
+            "colorPrimaryHover": "#1890ff",
+            "colorBgElevated": "#0b3f78",
+            "optionSelectedBg": "#1890ff",
+            "optionSelectedColor": "#fff",
+            "controlItemBgHover": "rgba(18, 124, 160, 0.15)"
+        },
+        "DatePicker": {
+            "colorBgElevated": "#0b3f78",
+            "colorBorder": "#2e5e83",
+            "hoverBorderColor": "#1890ff",
+            "activeBorderColor": "#1ed4e7",
+            "controlItemBgActive": "#1ed4e7",
+            "colorSplit": "rgb(46, 94, 131)"
+        },
+        "Button": {
+            "colorPrimary": "#1890ff",
+            "colorPrimaryActive": "#1ed4e7cc",
+            "colorBorder": "#2e5e83",
+            "defaultBg": "transparent",
+            "defaultBorderColor": "rgb(19, 124, 159)",
+            "defaultColor": "#1ed4e7",
+            "defaultHoverBg": "rgba(18, 124, 160, 0.35)"
+        },
+        "Switch": {
+            "colorPrimary": "#1ed4e76e",
+            "colorPrimaryHover": "#1ed4e7a6",
+            "handleBg": "#1ed4e7",
+            "colorTextQuaternary": "rgba(255, 255, 255, 0.15)"
+        },
+        "Menu": {
+            "itemBg": "transparent",
+            "darkPopupBg": "#0b3f78",
+            "popupBg": "#0b3f78",
+            "itemSelectedBg": "#1890ff",
+            "itemSelectedColor": "#fff",
+            "itemActiveBg": "#1890ff",
+            "horizontalItemSelectedColor": "#fff"
+        },
+        "Card": {
+            "colorBgContainer": "transparent",
+            "colorBorderSecondary": "rgb(46, 94, 131)",
+            "colorSplit": "rgb(46, 94, 131, 0.5)",
+            "actionsBg": "rgba(255, 255, 255, 0)",
+            "padding": 16,
+            "paddingLG": 20,
+            "headerHeight": 52,
+            "titleColor": "#ffffff",
+            "extraColor": "rgba(255, 255, 255, 0.65)"
+        },
+        "Table": {
+            "colorBgContainer": "transparent",
+            "headerBg": "rgb(12, 83, 135)",
+            "headerSortActiveBg": "rgb(18, 124, 160)",
+            "rowHoverBg": "rgba(18, 124, 160, 0.18)",
+            "rowSelectedBg": "rgba(18, 124, 160, 0.25)",
+            "colorSplit": "transparent",
+            "colorText": "rgba(255, 255, 255, 0.88)"
+        },
+        "Collapse": {
+            "contentBg": "rgba(11, 63, 120, 0.35)",
+            "headerBg": "rgba(11, 63, 120, 0.6)",
+            "headerHoverBg": "rgba(18, 124, 160, 0.25)",
+            "headerActiveBg": "rgba(18, 124, 160, 0.35)",
+            "colorBorder": "rgb(46, 94, 131)",
+            "colorIcon": "#1ed4e7"
+        },
+        "Drawer": {
+            "colorBgElevated": "rgb(11, 63, 120)",
+            "headerBg": "rgba(11, 63, 120, 0.85)",
+            "colorText": "rgba(255, 255, 255, 0.92)",
+            "colorIcon": "#1ed4e7",
+            "colorBorder": "rgb(46, 94, 131)",
+            "colorBgMask": "rgba(3, 35, 101, 0.68)"
+        },
+        "Modal": {
+            "contentBg": "rgb(3, 35, 101)",
+            "headerBg": "transparent",
+            "titleColor": "#fff",
+            "colorBgMask": "rgba(3, 35, 101, 0.72)"
+        },
+        "Tabs": {
+            "inkBarColor": "#1ed4e7",
+            "itemSelectedColor": "#1ed4e7",
+            "colorBorderSecondary": "#2e5e83"
+        },
+        "Tag": {
+            "defaultBg": "rgba(18, 124, 160, 0.3)",
+            "defaultColor": "#1ed4e7",
+            "colorBorder": "rgb(46, 94, 131)"
+        },
+        "Badge": {
+            "colorHighlight": "#1ed4e7",
+            "statusDefaultBg": "rgb(46, 94, 131)"
+        },
+        "Alert": {
+            "colorInfoBg": "rgba(30, 212, 231, 0.12)",
+            "colorInfoBorder": "rgba(30, 212, 231, 0.4)",
+            "messageColor": "#fff"
+        },
+        "Progress": {
+            "colorInfo": "#1ed4e7",
+            "remainingColor": "rgba(18, 124, 160, 0.4)"
+        },
+        "Tooltip": {
+            "colorBgSpotlight": "rgba(11, 63, 120, 0.94)",
+            "colorText": "#ffffff"
+        },
+        "Empty": {
+            "colorTextDescription": "rgba(255, 255, 255, 0.45)"
+        },
+        "Pagination": {
+            "itemActiveBg": "rgb(19, 124, 161)",
+            "colorPrimary": "#1ed4e7",
+            "colorBgContainer": "transparent",
+            "colorText": "#fff"
+        },
+        "Layout": {
+            "colorBgHeader": "#2e3f60",
+            "colorBgTrigger": "#1e2b48"
+        }
+    }
+}

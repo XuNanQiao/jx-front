@@ -64,6 +64,42 @@ export function getModelLibraryTree(payload?: Record<string, any>): Promise<ApiR
 export function createCustomOperator(params: any): Promise<ApiResponse<any>> {
   return request.post('/api/workflow/custom_operator/create', params, { showMessage: true });
 }
+
+export interface ScriptFileUploadResponse {
+  file_id?: string | number;
+  path?: string;
+  name?: string;
+  url?: string;
+  [key: string]: any;
+}
+
+export interface ScriptFileUploadExtraParams {
+  is_run?: boolean;
+  [key: string]: any;
+}
+
+export function uploadScriptFile(
+  file: File,
+  extraParams?: ScriptFileUploadExtraParams,
+): Promise<ApiResponse<ScriptFileUploadResponse>> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  Object.entries(extraParams ?? {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    if (value instanceof Blob) {
+      formData.append(key, value);
+      return;
+    }
+    formData.append(key, String(value));
+  });
+
+  return request.post('/api/workflow/script_file/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    showSuccessMessage: false,
+    showErrorMessage: false,
+  });
+}
 // 加载工作流
 export function loadWorkflow(model_id: string | number): Promise<ApiResponse<any>> {
   return request.post('/api/workflow/load', { model_id });

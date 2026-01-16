@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-15 09:49:09
- * @LastEditTime: 2026-01-15 11:12:03
+ * @LastEditTime: 2026-01-16 10:56:06
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\development\components\LogModal.vue
@@ -26,8 +26,8 @@
         </div>
       </div>
     </template>
-    <div class="black-tabs pt-12px">
-      <a-tabs v-model:activeKey="state.activeTab" type="card">
+    <div class="pt-12px">
+      <a-tabs class="mt-(-12px)" v-model:activeKey="state.activeTab" type="card">
         <a-tab-pane key="log" tab="日志">
           <div :class="['log-content', { wrap: state.autoWrap }]">
             <div v-if="displayLog?.exec_log">

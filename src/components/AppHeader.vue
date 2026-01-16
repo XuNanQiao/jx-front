@@ -57,13 +57,13 @@
       <div class="user-section me-20px">
         <a-dropdown>
           <div class="user-info">
-            <a-avatar :size="36" :src="userStore.userInfo?.avatar">
+            <!--  <a-avatar :size="36" :src="userStore.userInfo?.avatar">
               <template #icon>
                 <UserOutlined />
               </template>
-            </a-avatar>
+            </a-avatar> -->
             <div class="user-text">
-              <span class="username">{{ userStore.userInfo?.nickname || userStore.userInfo?.username }}</span>
+              <span class="username">{{ userStore.userInfo?.nickname || '管理员' }}</span>
               <span v-if="userStore.userInfo?.role" class="user-role">{{ getRoleText(userStore.userInfo.role) }}</span>
             </div>
             <DownOutlined class="dropdown-icon" />
@@ -71,7 +71,7 @@
           <template #overlay>
             <a-menu class="user-dropdown-menu">
               <!-- 用户信息展示 -->
-              <div class="user-info-detail">
+              <!--        <div class="user-info-detail">
                 <a-avatar :size="48" :src="userStore.userInfo?.avatar">
                   <template #icon>
                     <UserOutlined />
@@ -82,7 +82,7 @@
                   <div class="detail-username">@{{ userStore.userInfo?.username }}</div>
                   <div v-if="userStore.userInfo?.email" class="detail-email">{{ userStore.userInfo?.email }}</div>
                 </div>
-              </div>
+              </div> -->
               <!--  <a-menu-divider />
               <a-menu-item key="profile">
                 <UserOutlined />
@@ -166,16 +166,7 @@ const handleLogout = async () => {
 
 <style scoped>
 .app-header {
-  /*   background: linear-gradient(
-    112deg,
-    rgba(52, 84, 134, 0.96) 0%,
-    rgba(37, 53, 82, 0.92) 50%,
-    rgba(28, 42, 68, 0.9) 100%
-  ) !important; */
-  background: var(--bg-primary) !important;
-  box-shadow: var(--nav-shadow);
-  box-shadow: 0 12px 24px rgba(8, 13, 26, 0.45);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #2e5e83;
   padding: 0 var(--spacing-lg);
   height: 48px;
   line-height: 48px;

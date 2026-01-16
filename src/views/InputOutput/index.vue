@@ -1,14 +1,14 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-12 14:20:11
+ * @LastEditTime: 2026-01-16 13:37:19
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\InputOutput\index.vue
  *
 -->
 <template>
-  <a-card title="模型输入输出" :bordered="false" class="page">
+  <a-card title="模型输入输出" class="page">
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
@@ -58,6 +58,7 @@
 
     <!-- 表格 -->
     <a-table
+      :bordered="false"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
@@ -71,7 +72,8 @@
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
         <template v-else-if="column.key === 'integrity'">
-          <a-progress
+          -
+          <!--  <a-progress
             :percent="record.integrity * 100"
             :stroke-color="{
               '0%': '#108ee9',
@@ -81,7 +83,7 @@
             <template #format="percent">
               <span class="text-white">{{ percent }}</span>
             </template>
-          </a-progress>
+          </a-progress> -->
         </template>
         <template v-else-if="column.key === 'dataInput'">
           <div class="data-input-chart">

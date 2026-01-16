@@ -1,16 +1,24 @@
 .model-table {
   margin-top: var(--spacing-md);
-
+}
+.ant-table {
   .ant-table-thead > tr > th {
     background: #285187;
     color: #fff;
     font-weight: 600;
     box-shadow: inset 0px 1px 8px 10px #305c99;
     padding: 8px !important;
+    border: none !important;
   }
-
+  .td {
+    border: none !important;
+  }
   .ant-table-tbody > tr > td {
     padding: 8px;
+    border: none !important;
+  }
+  .ant-table-tbody > tr:hover > td {
+    background: #2f618e !important;
   }
   // 斑马纹效果
   .ant-table-tbody > tr:nth-child(odd) > td {
@@ -21,10 +29,25 @@
     background: #32476e;
   }
 
-  .ant-table-tbody > tr:hover > td {
-    background: #2f618e !important;
+  &.ant-table-bordered {
+    .ant-table-container {
+      border: none !important;
+    }
+    .ant-table-container table {
+      border: none !important;
+    }
   }
 }
+
+.ant-table-wrapper {
+  .ant-table-thead > tr {
+    > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before,
+    > td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+      display: none !important;
+    }
+  }
+}
+
 .filter-section {
   margin-bottom: var(--spacing-lg);
 }
@@ -45,35 +68,8 @@
 
 .ant-select {
   position: relative;
-  background: transparent;
-  .ant-select-selector {
-    background: transparent !important;
-  }
 }
-.ant-btn {
-  box-shadow: none !important;
-}
-.ant-btn-default,
-.ant-radio-button-wrapper,
-.ant-input,
-.ant-input-number-input,
-.ant-input-affix-wrapper,
-.ant-input-number,
-.ant-picker {
-  background: transparent !important;
-}
-.data-input-chart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-:where(.css-dev-only-do-not-override-vcsy2k).ant-btn-default.ant-btn-background-ghost {
-  border-color: #fff;
-  color: #fff;
-}
-.ant-table:not(.ant-table-bordered) .ant-table-tbody > tr > td {
-  border-top: none !important;
-}
+
 .ant-switch-handle {
   &::before {
     box-shadow: 0 2px 4px 0 rgba(0, 35, 11, 1) !important;
@@ -83,20 +79,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
 
-  .switch-label {
-    color: #ffffff;
-    font-size: 14px;
-  }
-}
-.ant-alert-message {
-  color: var(--theme-info);
-}
-.black-tabs {
-  .ant-tabs {
-    margin-top: -12px;
-  }
-}
 /* Global scrollbar styling */
 :root {
   scrollbar-width: thin;

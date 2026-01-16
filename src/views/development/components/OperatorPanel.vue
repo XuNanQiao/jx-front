@@ -44,12 +44,13 @@
                 </a-form-item>
                 <a-form-item label="脚本文件">
                   <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
-                    <ImportDownloadActions
+                    <ImportAction
                       import-label="上传文件"
-                      :show-download="false"
                       :auto-upload="false"
                       :multiple="true"
-                      @import-success="handleScriptImport" />
+                      accept=".py"
+                      importUrl="/api/workflow/script_file/upload"
+                      @import-success="handleScriptUploadSuccess" />
                     <a-button type="default" @click="createFile">创建文件</a-button>
                   </div>
                   <div v-if="selected.form.files?.length">
@@ -116,13 +117,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import ToggleBox from './toggleBox.vue';
 import { aggregateOptions, granularityOptions } from '../indexData';
 import { getDataStructureList } from '@/api/inputOutput';
-import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
+import ImportAction from '@/components/common/ImportAction.vue';
 import { createCustomOperator } from '@/api/development';
-import { JsxEmit } from 'typescript';
 const emit = defineEmits(['save']);
 const props = defineProps<{
   modelId: string | number;
@@ -156,16 +156,32 @@ const selected = reactive<any>({
   },
 });
 
-const handleScriptImport = (payload: unknown) => {
-  if (!payload) return;
-  const files = Array.isArray(payload) ? payload : [payload];
-  files.forEach((file: any) => {
-    const fileName = file?.name || `script-${Date.now()}`;
-    const isFirst = selected.form.files.length === 0;
-    selected.form.files.push({ name: fileName, content: '', main: isFirst });
+const handleScriptUploadSuccess = (payload: unknown) => {
+  const uploadedFiles = Array.isArray(payload) ? payload : [];
+  if (!uploadedFiles.length) return;
+
+  const hasMain = uploadedFiles.some((item: any) => item.main);
+  if (hasMain) {
+    selected.form.files.forEach((file: any) => {
+      file.main = false;
+      if (Object.prototype.hasOwnProperty.call(file, 'is_run')) {
+        file.is_run = false;
+      }
+    });
+  }
+
+  uploadedFiles.forEach((file: any) => {
+    selected.form.files.push({
+      ...file,
+      source_type: file?.source_type || 'upload',
+    });
   });
+
   if (!selected.form.files.some((item: any) => item.main) && selected.form.files.length > 0) {
-    selected.form.files[0].main = true;
+    const firstFile = selected.form.files[0];
+    firstFile.main = true;
+    const isNamedMain = String(firstFile.name || '').toLowerCase() === 'main.py';
+    firstFile.is_run = isNamedMain;
   }
 };
 
@@ -210,7 +226,11 @@ const editScript = (index: number) => {
 };
 
 const setMainScript = (index: number) => {
-  selected.form.files.forEach((f, i) => (f.main = i === index));
+  selected.form.files.forEach((f: any, i: number) => {
+    f.main = i === index;
+    const isNamedMain = String(f.name || '').toLowerCase() === 'main.py';
+    f.is_run = f.main && isNamedMain;
+  });
 };
 
 const removeScript = (index: number) => {
@@ -258,8 +278,6 @@ const openNode = (node: any) => {
       fillNa: false,
     };
   }
-
-  open.value = true;
   activeTab.value = 'info';
 };
 const getColumnsForRepo = async (repoId: string) => {
