@@ -46,7 +46,7 @@
                   <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
                     <ImportAction
                       import-label="上传文件"
-                      accept=".py"
+                      accept=".pyc"
                       :paramsResolver="[
                         {
                           key: 'file_path',
@@ -69,16 +69,10 @@
                           <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
                             <span style="margin-left: 8px">{{ item.name }}</span>
                             <div style="display: flex; gap: 8px; align-items: center">
-                              <a-tooltip title="设为主脚本">
-                                <StarOutlined
-                                  :style="{
-                                    fontSize: '16px',
-                                    cursor: 'pointer',
-                                    color: item.main ? '#1890ff' : '#999',
-                                  }"
-                                  @click="setMainScript(index)" />
+                              <a-tooltip title="设为主文件">
+                                <a-radio :checked="item.is_run === true" @click="setMainScript(index)" />
                               </a-tooltip>
-                              <a-tooltip title="编辑" v-if="item.name.endsWith('.pyc')">
+                              <a-tooltip title="编辑" v-if="item.name.endsWith('.py')">
                                 <EditOutlined
                                   :style="{ fontSize: '16px', cursor: 'pointer', color: '#1890ff' }"
                                   @click="editScript(index)" />
@@ -107,22 +101,22 @@
             <a-form layout="vertical">
               <a-form-item label="聚合函数">
                 <a-select
-                  v-model:value="selected.params.aggregate"
+                  v-model:value="selected.params.aggregation_function"
                   :options="aggregateOptions"
                   placeholder="请选择"></a-select>
               </a-form-item>
               <a-form-item label="数据聚合粒度">
-                <a-input-number v-model:value="selected.params.granularity.value">
+                <a-input-number v-model:value="selected.params.aggregation_granularity" :min="1">
                   <template #addonAfter>
                     <a-select
                       class="!w-80px"
-                      v-model:value="selected.params.granularity.unit"
+                      v-model:value="selected.params.aggregation_unit"
                       :options="granularityOptions"></a-select>
                   </template>
                 </a-input-number>
               </a-form-item>
               <a-form-item label="填充空值">
-                <a-switch v-model:checked="selected.params.fillNa" />
+                <a-switch v-model:checked="selected.params.fill_null_values" />
               </a-form-item>
             </a-form>
           </div>
@@ -152,7 +146,7 @@ import ImportAction from '@/components/common/ImportAction.vue';
 import { createCustomOperator, createScriptFile, updateScriptFile } from '@/api/development';
 import { values } from 'lodash-es';
 import { message } from 'ant-design-vue';
-import { StarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 const emit = defineEmits(['save', 'update']);
 const props = defineProps<{
   modelId: string | number;
@@ -180,22 +174,20 @@ const selected = reactive<any>({
     ...formVal,
   },
   params: {
-    aggregate: null,
-    granularity: { value: 1, unit: 'minute' },
-    fillNa: false,
+    aggregation_function: null,
+    aggregation_granularity: 5,
+    aggregation_unit: '分钟',
+    fill_null_values: true,
   },
 });
 
 const handleScriptUploadSuccess = (payload: any) => {
   if (!payload) return;
 
-  const isPyFile = String(payload.name || '')
-    .toLowerCase()
-    .endsWith('.py');
   selected.form.files.push({
     path: payload.response.data.file_path,
-    is_run: isPyFile,
-    source_type: 'create',
+    is_run: false, // 默认不是主文件，由用户手动选择
+    source_type: 'upload',
     name: payload.name,
     content: null,
   });
@@ -219,7 +211,7 @@ const onCreateFileOk = async () => {
     if (file.source_type === 'create' || file.path) {
       try {
         const response = await updateScriptFile({
-          file_path: 'operators/' /* file.path || editFile.name + '.pyc' */,
+          file_path: 'operators/' /* file.path || editFile.name + '.py' */,
           content: editFile.content,
           is_run: file.is_run || false,
         });
@@ -227,9 +219,9 @@ const onCreateFileOk = async () => {
         if (response?.code === 200) {
           selected.form.files[editFile.editIndex] = {
             ...file,
-            name: editFile.name + '.pyc',
+            name: editFile.name + '.py',
             content: editFile.content,
-            path: file.path || editFile.name + '.pyc',
+            path: file.path || editFile.name + '.py',
           };
           message.success('文件更新成功');
         }
@@ -240,24 +232,24 @@ const onCreateFileOk = async () => {
       }
     } else {
       // 本地编辑，不调用接口
-      selected.form.files[editFile.editIndex].name = editFile.name + '.pyc';
+      selected.form.files[editFile.editIndex].name = editFile.name + '.py';
       selected.form.files[editFile.editIndex].content = editFile.content;
     }
   } else {
     // 创建新文件
     try {
       const response = await createScriptFile({
-        file_path: editFile.name + '.pyc',
+        file_path: editFile.name + '.py',
         content: editFile.content,
         is_run: false,
       });
 
       if (response?.code === 200 && response?.data) {
         selected.form.files.push({
-          path: response.data.file_path || editFile.name + '.pyc',
+          path: response.data.file_path || editFile.name + '.py',
           is_run: false,
           source_type: 'create',
-          name: editFile.name + '.pyc',
+          name: editFile.name + '.py',
           content: editFile.content,
         });
         message.success('文件创建成功');
@@ -284,7 +276,7 @@ const onCreateFileCancel = () => {
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = 'new_script.pyc';
+  editFile.name = 'new_script.py';
   editFile.content = '# new script';
   showCreateFile.value = true;
 };
@@ -299,9 +291,7 @@ const editScript = (index: number) => {
 
 const setMainScript = (index: number) => {
   selected.form.files.forEach((f: any, i: number) => {
-    f.main = i === index;
-    const isNamedMain = String(f.name || '').toLowerCase() === 'main.py';
-    f.is_run = f.main && isNamedMain;
+    f.is_run = i === index;
   });
 };
 
@@ -344,10 +334,12 @@ const openNode = (node: any) => {
 
     Object.assign(selected.form, data);
 
-    selected.params = selected.params || {
-      aggregate: null,
-      granularity: { value: 1, unit: 'minute' },
-      fillNa: false,
+    // 从节点数据中读取参数配置
+    selected.params = {
+      aggregation_function: node.aggregation_function ?? null,
+      aggregation_granularity: node.aggregation_granularity ?? 5,
+      aggregation_unit: node.aggregation_unit ?? '分钟',
+      fill_null_values: node.fill_null_values ?? true,
     };
   }
   open.value = true;
@@ -408,6 +400,16 @@ const closePanel = () => {
 // 监听 selected.form 的变化，实时同步到父组件
 watch(
   () => selected.form,
+  () => {
+    if (selected.id) {
+      const currentData = getCurrentData();
+      emit('update', currentData);
+    }
+  },
+  { deep: true },
+);
+watch(
+  () => selected.params,
   () => {
     if (selected.id) {
       const currentData = getCurrentData();

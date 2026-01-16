@@ -12,7 +12,8 @@ import dayjs from 'dayjs';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
 
-const formatDateTime = (value: dayjs.ConfigType) => (value && dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-');
+const formatDateTime = (value: dayjs.ConfigType) =>
+  value && dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-';
 
 const formatDurationWithStart = (start: dayjs.ConfigType, end: dayjs.ConfigType) => {
   const startTime = start ? dayjs(start) : null;
@@ -110,7 +111,13 @@ export const detailColumns = [
     align: 'center',
     customRender: ({ text }: any) => editorOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
   },
-  { dataIndex: 'created_time', title: '创建时间', key: 'created_time', align: 'center', customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
+  {
+    dataIndex: 'created_time',
+    title: '创建时间',
+    key: 'created_time',
+    align: 'center',
+    customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+  },
   { dataIndex: 'created_user_id', title: '创建人', key: 'created_user_id', align: 'center' },
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center', width: 80 },
 ];
@@ -127,10 +134,10 @@ export const columnOptions: SelectOption[] = [
 ];
 
 export const aggregateOptions: SelectOption[] = [
-  { label: '求和', value: 'sum' },
-  { label: '平均', value: 'avg' },
-  { label: '最大', value: 'max' },
-  { label: '最小', value: 'min' },
+  { label: '求和', value: '求和' },
+  { label: '平均', value: '平均' },
+  { label: '最大', value: '最大' },
+  { label: '最小', value: '最小' },
 ];
 
 export const granularityOptions: SelectOption[] = [
@@ -175,7 +182,8 @@ export const basicFields = [
         sort: 'default',
         type: 'select',
         options: deviceTypeOptions,
-        customRender: ({ text }: any) => deviceTypeOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
+        customRender: ({ text }: any) =>
+          deviceTypeOptions.find((opt) => String(opt.value) === String(text))?.label || '-',
       },
       {
         label: '扩展信息',
@@ -197,7 +205,12 @@ export const basicFields = [
     key: 'otherFields',
     fields: [
       { label: '创建人', key: 'created_user_id', sort: 'default' },
-      { label: '创建时间', key: 'created_time', sort: 'default', customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
+      {
+        label: '创建时间',
+        key: 'created_time',
+        sort: 'default',
+        customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      },
       { label: '可用范围', key: 'version', sort: 'default' },
       { label: '备注', key: 'category', sort: 'default' },
     ],

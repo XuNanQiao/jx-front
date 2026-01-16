@@ -92,7 +92,7 @@
                 <SettingOutlined />
                 <span>设置</span>
               </a-menu-item> -->
-              <a-menu-divider />
+              <!-- <a-menu-divider /> -->
               <a-menu-item key="logout" @click="handleLogout">
                 <LogoutOutlined />
                 <span>退出登录</span>
