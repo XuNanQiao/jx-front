@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-07 16:34:15
- * @LastEditTime: 2026-01-09 17:12:56
+ * @LastEditTime: 2026-01-15 17:50:49
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\layouts\BasicLayout.vue
@@ -53,7 +53,7 @@ import { tokenThem } from '@/styles/them';
 }
 
 .content-wrapper {
-  max-width: 1400px;
+  width: 100vw;
   margin: 0 auto;
 }
 

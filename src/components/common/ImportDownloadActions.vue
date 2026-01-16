@@ -71,6 +71,7 @@ const props = withDefaults(
     downloadFileName?: string;
     accept?: string;
     multiple?: boolean;
+    autoUpload?: boolean;
   }>(),
   {
     importLabel: '导入',
@@ -94,6 +95,7 @@ const props = withDefaults(
     downloadFileName: '',
     accept: '',
     multiple: false,
+    autoUpload: true,
   },
 );
 
@@ -129,7 +131,11 @@ const innerDownloadLoading = ref(false);
 const isImportLoading = computed(() => props.importLoading || innerImportLoading.value);
 const isDownloadLoading = computed(() => props.downloadLoading || innerDownloadLoading.value);
 
-const isImportDisabled = computed(() => !props.importUrl || props.importDisabled || isImportLoading.value);
+const isImportDisabled = computed(() => {
+  const needsUrl = props.autoUpload !== false;
+  if (needsUrl && !props.importUrl) return true;
+  return props.importDisabled || isImportLoading.value;
+});
 const isDownloadDisabled = computed(() => !props.downloadUrl || props.downloadDisabled || isDownloadLoading.value);
 
 const resetFileInput = () => {
@@ -156,6 +162,12 @@ const onFileChange = async (event: Event) => {
 };
 
 const uploadFiles = async (files: File[]) => {
+  if (props.autoUpload === false) {
+    emit('import-success', files);
+    message.success('导入成功');
+    return;
+  }
+
   if (!props.importUrl) {
     message.warning('未配置导入地址');
     return;

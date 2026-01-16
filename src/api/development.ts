@@ -60,3 +60,18 @@ export function executeJob(params: { job_id: string; run_type: 'debug' | 'formal
 export function getModelLibraryTree(payload?: Record<string, any>): Promise<ApiResponse<any>> {
   return request.post('/api/model_dev/library_tree', payload || {});
 }
+// 算子创建
+export function createCustomOperator(params: any): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/custom_operator/create', params, { showMessage: true });
+}
+// 加载工作流
+export function loadWorkflow(model_id: string | number): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/load', { model_id });
+}
+// 加载工作流
+export function saveWorkflow(params: any): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/save', params, { showMessage: true });
+}
+export function getNode(model_id: string | number): Promise<ApiResponse<any>> {
+  return request.post('/api/workflow/node_config/query', { model_id });
+}

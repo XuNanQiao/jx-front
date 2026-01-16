@@ -7,10 +7,10 @@
             <div class="title">基础信息</div>
             <a-form layout="vertical">
               <a-form-item label="节点显示名称">
-                <a-input v-model:value="selected.form.node_name_en" />
+                <a-input v-model:value="selected.form.name" />
               </a-form-item>
               <a-form-item label="节点名称">
-                <a-input v-model:value="selected.form.name" />
+                <a-input v-model:value="selected.form.display_name" />
               </a-form-item>
               <a-form-item label="算子名称">
                 <a-input :disabled="true" v-model:value="selected.form.operatorName" />
@@ -35,7 +35,7 @@
                 </a-form-item>
               </template>
 
-              <template v-if="selected.type === 'other' || selected.type == 'otherAdd'">
+              <template v-if="selected.type === 'operator' || selected.type == 'otherAdd'">
                 <a-form-item label="语言类型">
                   <a-input :disabled="true" v-model:value="selected.form.language" />
                 </a-form-item>
@@ -44,9 +44,12 @@
                 </a-form-item>
                 <a-form-item label="脚本文件">
                   <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
-                    <a-upload :beforeUpload="beforeUpload" :show-upload-list="false">
-                      <a-button>上传文件</a-button>
-                    </a-upload>
+                    <ImportDownloadActions
+                      import-label="上传文件"
+                      :show-download="false"
+                      :auto-upload="false"
+                      :multiple="true"
+                      @import-success="handleScriptImport" />
                     <a-button type="default" @click="createFile">创建文件</a-button>
                   </div>
                   <div v-if="selected.form.files?.length">
@@ -113,23 +116,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import ToggleBox from './toggleBox.vue';
-import { repoOptions, columnOptions, aggregateOptions, granularityOptions } from '../indexData';
+import { aggregateOptions, granularityOptions } from '../indexData';
+import { getDataStructureList } from '@/api/inputOutput';
+import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
+import { createCustomOperator } from '@/api/development';
+import { JsxEmit } from 'typescript';
 const emit = defineEmits(['save']);
-
+const props = defineProps<{
+  modelId: string | number;
+}>();
 const open = ref(false);
 const activeTab = ref('info');
 const showCreateFile = ref(false);
+const columnOptions = ref<SelectOption[]>([]);
+const repoOptions = ref<SelectOption[]>([]);
 const editFile = reactive({ name: '', content: '', editIndex: -1 });
 const formVal = {
-  node_name_en: '',
-  name: '',
+  display_name: 'ceshi_name',
+  name: '测试名称',
   operatorName: '',
   repo: null,
   columns: [] as string[],
   language: '',
-  description: '',
+  description: '算子描述',
   files: [],
 };
 const selected = reactive<any>({
@@ -145,9 +156,17 @@ const selected = reactive<any>({
   },
 });
 
-const beforeUpload = (file: any) => {
-  selected.form.files.push({ name: file.name, content: '', main: selected.form.files.length === 0 });
-  return false;
+const handleScriptImport = (payload: unknown) => {
+  if (!payload) return;
+  const files = Array.isArray(payload) ? payload : [payload];
+  files.forEach((file: any) => {
+    const fileName = file?.name || `script-${Date.now()}`;
+    const isFirst = selected.form.files.length === 0;
+    selected.form.files.push({ name: fileName, content: '', main: isFirst });
+  });
+  if (!selected.form.files.some((item: any) => item.main) && selected.form.files.length > 0) {
+    selected.form.files[0].main = true;
+  }
 };
 
 const onCreateFileOk = () => {
@@ -200,23 +219,38 @@ const removeScript = (index: number) => {
 
 // 对外暴露方法：用于父组件在点击节点时调用
 const openNode = (node: any) => {
-  console.log('openNode', node);
   Object.assign(selected.form, formVal);
+  columnOptions.value = [];
+  repoOptions.value = [];
   if (!node) {
+    selected.form.operatorName = 'python3自定义算子';
+    selected.form.language = 'python32';
     selected.type = 'otherAdd';
   } else {
-    selected.id = node.id ?? node.name ?? node.title;
-    if (node.attribute === '输入') {
-      node.operatorName = 'Repo输入';
-      selected.type = 'input';
-    } else if (node.attribute === '输出') {
-      node.operatorName = 'Repo输出';
-      selected.type = 'output';
+    selected.id = node.idVal;
+    selected.type = node.type;
+    let data: any = {
+      display_name: node.display_name || '',
+      name: node.name || '',
+      columns: node.columns || [],
+    };
+    if (node.type === 'input') {
+      getColumnsForRepo(node.idVal);
+      data.operatorName = node.operator_name || 'Repo输入';
+      data.repo = node.idVal;
+      repoOptions.value = [{ label: node.title, value: node.idVal }];
+    } else if (node.type === 'output') {
+      getColumnsForRepo(node.idVal);
+      data.operatorName = node.operator_name || 'Repo输出';
+      data.repo = node.idVal;
+      repoOptions.value = [{ label: node.title, value: node.idVal }];
     } else {
-      node.operatorName = 'python3自定义算子';
-      selected.type = 'other';
+      data.operatorName = node.operator_name || 'python3自定义算子';
+      data.language = node.language || 'python3';
+      data.description = node.description || null;
     }
-    Object.assign(selected.form, node);
+
+    Object.assign(selected.form, data);
 
     selected.params = selected.params || {
       aggregate: null,
@@ -228,14 +262,47 @@ const openNode = (node: any) => {
   open.value = true;
   activeTab.value = 'info';
 };
-const saveHand = () => {
-  switch (selected.type) {
-    case 'otherAdd':
-      break;
-
-    default:
-      break;
+const getColumnsForRepo = async (repoId: string) => {
+  try {
+    getDataStructureList({ model_input_output_id: repoId }).then((response) => {
+      if (response?.data?.items?.length) {
+        let options = response.data.items.map((item: any) => ({
+          label: item.name,
+          value: item.column,
+        }));
+        columnOptions.value = [...options];
+      } else {
+        columnOptions.value = [];
+      }
+    });
+  } catch (error) {
+    columnOptions.value = [];
   }
+};
+const saveHand = () => {
+  let data = {
+    model_id: props.modelId,
+    node_display_name: selected.form.display_name,
+    node_name: selected.form.name,
+    operator_name: selected.form.operatorName,
+    language: selected.form.language,
+    description: selected.form.description,
+    // files: JSON.stringify(selected.form.files),
+    script_files: [
+      {
+        path: 'custom/my_op/main.py',
+        is_main: true,
+        source_type: 'create',
+        name: 'main.py',
+        content: 'def run(context):\n    return {...}\n',
+      },
+    ],
+  };
+  createCustomOperator(data).then((response) => {
+    if (response?.code == 200 && response?.data) {
+      emit('save', { ...selected.form, node_id: response.data.node_id });
+    }
+  });
 };
 defineExpose({ openNode, saveHand });
 </script>

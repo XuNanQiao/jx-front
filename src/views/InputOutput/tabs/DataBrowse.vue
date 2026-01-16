@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-12 11:44:17
+ * @LastEditTime: 2026-01-15 16:34:52
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\InputOutput\tabs\DataBrowse.vue
@@ -15,18 +15,38 @@
         <div class="filter-section">
           <div class="filter-item">
             <label class="filter-label">设备实例</label>
-            <a-select :options="deviceInstances" v-model:value="filters.deviceInstance" placeholder="请选择设备实例" style="width: 100%"> </a-select>
+            <a-select
+              :options="deviceInstances"
+              v-model:value="filters.deviceInstance"
+              placeholder="请选择设备实例"
+              style="width: 100%"></a-select>
           </div>
 
           <div class="filter-item">
             <label class="filter-label">数据列</label>
-            <a-select :options="allColumnsOptions" v-model:value="filters.dataColumns" mode="multiple" placeholder="默认显示全部" style="width: 100%" allow-clear :max-tag-count="2"> </a-select>
+            <a-select
+              :options="columnOptions"
+              v-model:value="filters.dataColumns"
+              mode="multiple"
+              placeholder="默认显示全部"
+              style="width: 100%"
+              allow-clear
+              :max-tag-count="2"></a-select>
           </div>
 
           <div class="filter-item">
             <label class="filter-label">时间范围</label>
-            <a-select :options="timeOptions" v-model:value="filters.timeRangeType" placeholder="请选择时间范围" style="width: 100%; margin-bottom: 8px" @change="handleTimeRangeTypeChange"> </a-select>
-            <a-range-picker v-model:value="filters.dateRange" style="width: 100%" format="YYYY-MM-DD" :disabled="filters.timeRangeType !== 'custom'" />
+            <a-select
+              :options="timeOptions"
+              v-model:value="filters.timeRangeType"
+              placeholder="请选择时间范围"
+              style="width: 100%; margin-bottom: 8px"
+              @change="handleTimeRangeTypeChange"></a-select>
+            <a-range-picker
+              v-model:value="filters.dateRange"
+              style="width: 100%"
+              format="YYYY-MM-DD"
+              :disabled="filters.timeRangeType !== 'custom'" />
           </div>
 
           <div class="filter-item">
@@ -51,7 +71,12 @@
 
               <div class="filter-item">
                 <label class="filter-label">采样频率</label>
-                <a-input-number v-model:value="filters.samplingRate" placeholder="秒" style="width: 100%" :min="1" :max="3600" />
+                <a-input-number
+                  v-model:value="filters.samplingRate"
+                  placeholder="秒"
+                  style="width: 100%"
+                  :min="1"
+                  :max="3600" />
               </div>
             </a-collapse-panel>
           </a-collapse>
@@ -83,9 +108,7 @@
               @change="handleTableChange"
               row-key="id"
               class="model-table"
-              :scroll="{ x: 'max-content' }"
-            >
-            </a-table>
+              :scroll="{ x: 'max-content' }"></a-table>
           </template>
 
           <!-- 按设备分图 -->
@@ -149,55 +172,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
-import { message } from "ant-design-vue";
-import { DownOutlined } from "@ant-design/icons-vue";
-import type { Dayjs } from "dayjs";
-import { useRoute } from "vue-router";
-import { getBrowseData, type DataBrowseParams } from "@/api/inputOutput";
-import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
-import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
-import { useTablePagination } from "@/utils/useTablePagination";
-import { useTimeRangeFilter } from "@/utils/useTimeRangeFilter";
-import ChartView from "@/components/chart/chartView.vue";
-import ScatterChart from "@/components/chart/scatterChart.vue";
+import { ref, reactive, computed, onMounted } from 'vue';
+import { message } from 'ant-design-vue';
+import { DownOutlined } from '@ant-design/icons-vue';
+import type { Dayjs } from 'dayjs';
+import { useRoute } from 'vue-router';
+import { getBrowseData, getDataStructureList, type DataBrowseParams } from '@/api/inputOutput';
+import { allColumnsOptions, DataBrowseColumns } from '@/views/InputOutput/index';
+import { TIME_RANGE_OPTIONS } from '@/views/InputOutput/constants';
+import { useTablePagination } from '@/utils/useTablePagination';
+import { useTimeRangeFilter } from '@/utils/useTimeRangeFilter';
+import ChartView from '@/components/chart/chartView.vue';
+import ScatterChart from '@/components/chart/scatterChart.vue';
 
-type DisplayMode = "table" | "deviceChart" | "columnChart" | "distribution" | "correlation";
-type TimeRangeType = "0" | "1" | "7" | "30" | "custom";
-type SortOrder = "asc" | "none" | "desc";
+type DisplayMode = 'table' | 'deviceChart' | 'columnChart' | 'distribution' | 'correlation';
+type TimeRangeType = '0' | '1' | '7' | '30' | 'custom';
+type SortOrder = 'asc' | 'none' | 'desc';
 
 // 路由和组合式函数
 const route = useRoute();
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const { getTimeRange } = useTimeRangeFilter();
-
+const columnOptions = ref<SelectOption[]>([]);
+const tabColumns = ref([]);
 // 筛选条件
 const filters = reactive({
-  deviceInstance: "电脑" as string | undefined,
+  deviceInstance: '电脑' as string | undefined,
   dataColumns: [] as string[],
-  timeRangeType: "0" as TimeRangeType,
+  timeRangeType: '0' as TimeRangeType,
   dateRange: null as [Dayjs, Dayjs] | null,
-  sortOrder: "desc" as SortOrder,
-  dataType: "all" as string,
+  sortOrder: 'desc' as SortOrder,
+  dataType: 'all' as string,
   samplingRate: 60 as number,
 });
 
 // 状态管理
 const moreFiltersVisible = ref<string[]>([]);
-const displayMode = ref<DisplayMode>("table");
+const displayMode = ref<DisplayMode>('table');
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 
 // 选项数据
 const timeOptions = TIME_RANGE_OPTIONS;
-const deviceInstances = ref([{ label: "电脑", value: "电脑" }]);
+const deviceInstances = ref([{ label: '电脑', value: '电脑' }]);
 
 // 动态生成的表格列配置
 const dynamicColumns = computed(() => {
   // 如果用户选择了数据列，只显示选中的列
-  let dynamicDataColumns = DataBrowseColumns;
+  let allColumns = [DataBrowseColumns[0], ...tabColumns.value, ...DataBrowseColumns.slice(1)];
+  let dynamicDataColumns = [...allColumns];
   if (filters.dataColumns && filters.dataColumns.length > 0) {
-    dynamicDataColumns = DataBrowseColumns.filter((col: any) => filters.dataColumns!.includes(col.key));
+    dynamicDataColumns = allColumns.filter((col: any) => filters.dataColumns!.includes(col.key));
   }
   return [...dynamicDataColumns];
 });
@@ -231,7 +256,7 @@ const handleQuery = async () => {
       pagination.total = res.data.total || 0;
     }
   } catch (error: any) {
-    console.error("查询数据失败:", error);
+    console.error('查询数据失败:', error);
   } finally {
     loading.value = false;
   }
@@ -251,14 +276,37 @@ const handleDownload = ({ key }: { key: string }) => {
 // 时间范围类型变化处理
 const handleTimeRangeTypeChange = () => {
   // 如果不是自定义时间，清空日期范围选择
-  if (filters.timeRangeType !== "custom") {
+  if (filters.timeRangeType !== 'custom') {
     filters.dateRange = null;
   }
 };
-
+const getColumnsOptions = () => {
+  try {
+    getDataStructureList({ model_input_output_id: route.params.id }).then((response) => {
+      if (response?.data?.items?.length) {
+        let options = response.data.items.map((item: any) => ({
+          label: item.name,
+          value: item.column,
+        }));
+        tabColumns.value = response.data.items.map((item: any) => ({
+          title: item.name,
+          key: item.column,
+        }));
+        columnOptions.value = [...allColumnsOptions, ...options];
+      } else {
+        tabColumns.value = [];
+        columnOptions.value = [...allColumnsOptions];
+      }
+    });
+  } catch (error) {
+    tabColumns.value = [];
+    columnOptions.value = [...allColumnsOptions];
+  }
+};
 // 初始化
 onMounted(async () => {
   handleQuery(); // 再查询数据
+  getColumnsOptions();
 });
 </script>
 
