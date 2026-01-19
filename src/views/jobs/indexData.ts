@@ -1,10 +1,10 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-19 10:08:03
+ * @LastEditTime: 2026-01-19 16:46:02
  * @LastEditors: ZHAO
  * @Description:
- * @FilePath: \jx\src\views\development\indexData.ts
+ * @FilePath: \jx\src\views\jobs\indexData.ts
  *
  */
 // import { TreeProps } from 'ant-design-vue';
@@ -259,6 +259,28 @@ export const browseColumns = [
     align: 'center',
   },
   // { dataIndex: 'status', title: '状态', key: 'name' },
+  {
+    dataIndex: 'exec_start_time',
+    title: '作业时间（时长）',
+    width: 150,
+    key: 'name',
+    align: 'left',
+    customRender: ({ record }: any) => formatDurationWithStart(record?.exec_start_time, record?.exec_end_time),
+  },
+  { dataIndex: 'created_user_id', title: '创建人', key: 'name', align: 'center' },
+  { dataIndex: 'action', title: '操作', key: 'action', align: 'center', width: 60 },
+];
+export const dataStructureColumns = [
+  { dataIndex: 'name', title: '作业组ID', key: 'name' },
+  {
+    dataIndex: 'model_id',
+    title: '模型',
+    key: 'model_id',
+    align: 'left',
+  },
+  { dataIndex: 'input_repo', title: '输入Repo', key: 'input_repo', align: 'left' },
+  { dataIndex: 'output_repo', title: '状态', key: 'integrity', align: 'center' },
+
   {
     dataIndex: 'exec_start_time',
     title: '作业时间（时长）',

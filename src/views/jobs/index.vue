@@ -13,14 +13,15 @@
       <div class="detail-content">
         <!-- Tabs -->
         <a-tabs v-model:activeKey="activeKey" type="line" size="large">
-          <a-tab-pane key="basic" tab="基础信息">
+          <a-tab-pane key="browse" tab="作业列表">
+            <DataBrowse :id="id" v-if="activeKey === 'browse'" />
+          </a-tab-pane>
+
+          <a-tab-pane key="basic" tab="作业计划">
             <BasicInfo :id="id" v-if="activeKey === 'basic'" />
           </a-tab-pane>
-          <a-tab-pane key="structure" tab="依赖包">
+          <a-tab-pane key="structure" tab="作业组">
             <DataStructure :id="id" v-if="activeKey === 'structure'" />
-          </a-tab-pane>
-          <a-tab-pane key="browse" tab="作业">
-            <DataBrowse :id="id" v-if="activeKey === 'browse'" />
           </a-tab-pane>
         </a-tabs>
       </div>
