@@ -11,8 +11,8 @@
         <div
           v-for="file in files"
           :key="file.path || file.content"
-          :class="['file-item', { active: file.path === selectedPath }]"
-          @click="emit('update:selectedPath', file.path)">
+          :class="['file-item', { active: file.path === currentFile?.path }]"
+          @click="handleSelectFile(file)">
           {{ file.path || '未命名文件' }}
         </div>
       </div>
@@ -20,7 +20,13 @@
 
       <div class="source-view">
         <a-spin :spinning="loading">
-          <pre class="code-block"><code ref="codeRef" >{{ formattedContent }}</code></pre>
+          <pre class="code-block">
+            <code
+              :key="currentFile?.path || currentFile?.content || 'code'"
+              ref="codeRef"
+              :class="languageClass"
+              v-text="formattedContent"></code>
+          </pre>
         </a-spin>
       </div>
     </div>
@@ -31,9 +37,13 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import hljs from 'highlight.js/lib/core';
 import python from 'highlight.js/lib/languages/python';
+import json from 'highlight.js/lib/languages/json';
+import plaintext from 'highlight.js/lib/languages/plaintext';
 import 'highlight.js/styles/github-dark.css';
 
 hljs.registerLanguage('python', python);
+hljs.registerLanguage('json', json);
+hljs.registerLanguage('plaintext', plaintext);
 
 interface SourceFile {
   path: string;
@@ -45,17 +55,21 @@ const props = defineProps<{
   loading: boolean;
   title?: string;
   files: SourceFile[];
-  selectedPath: string;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void;
-  (e: 'update:selectedPath', value: string): void;
 }>();
 
 const codeRef = ref<HTMLElement | null>(null);
 
-const currentFile = computed(() => props.files.find((f) => f.path === props.selectedPath) || props.files[0] || null);
+const currentFile = ref(null as SourceFile | null);
+
+const languageClass = computed(() => {
+  const path = currentFile.value?.path || '';
+  if (/\.pyc?$/i.test(path)) return 'language-python';
+  return 'language-plaintext';
+});
 
 const normalizeContent = (value: unknown) => {
   if (typeof value === 'string') return value;
@@ -70,6 +84,7 @@ const formattedContent = computed(() => {
   if (typeof raw === 'string') {
     try {
       const parsed = JSON.parse(raw);
+
       return normalizeContent(parsed);
     } catch (e) {
       return raw;
@@ -94,8 +109,30 @@ const scheduleHighlight = async () => {
 };
 
 onMounted(scheduleHighlight);
+watch([formattedContent, languageClass, () => currentFile.value], scheduleHighlight);
+watch(
+  () => props.open,
+  (val) => {
+    if (val) scheduleHighlight();
+  },
+);
 
-watch(formattedContent, scheduleHighlight);
+const handleSelectFile = async (file: SourceFile) => {
+  if (file.path === currentFile.value?.path) return;
+  currentFile.value = file;
+  await nextTick();
+  highlight();
+};
+
+watch(
+  () => props.files,
+  () => {
+    if (props.files?.length) {
+      currentFile.value = props.files[0];
+    }
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

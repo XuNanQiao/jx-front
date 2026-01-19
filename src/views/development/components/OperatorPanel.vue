@@ -131,7 +131,7 @@
         <a-input v-model:value="editFile.name" placeholder="请输入文件名称，如：script" />
       </a-form-item>
       <a-form-item label="文件内容">
-        <a-textarea v-model:value="editFile.content" placeholder="请输入文件内容" :rows="16" />
+        <CodeEditor v-model="editFile.content" language="python" placeholder="请输入Python代码" :rows="16" />
       </a-form-item>
     </a-form>
   </a-modal>
@@ -143,6 +143,7 @@ import ToggleBox from './toggleBox.vue';
 import { aggregateOptions, granularityOptions } from '../indexData';
 import { getDataStructureList } from '@/api/inputOutput';
 import ImportAction from '@/components/common/ImportAction.vue';
+import CodeEditor from '@/components/common/CodeEditor.vue';
 import { createCustomOperator, createScriptFile, updateScriptFile } from '@/api/development';
 import { values } from 'lodash-es';
 import { message } from 'ant-design-vue';

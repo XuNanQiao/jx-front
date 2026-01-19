@@ -113,12 +113,7 @@
               </template>
             </template>
           </a-table>
-          <SourceModal
-            v-model:open="sourceModalOpen"
-            v-model:selectedPath="selectedFilePath"
-            :loading="sourceLoading"
-            :files="files"
-            :title="sourceTitle" />
+          <SourceModal v-model:open="sourceModalOpen" :loading="sourceLoading" :files="files" :title="sourceTitle" />
         </div>
       </div>
     </div>
@@ -198,7 +193,6 @@ const sourceModalOpen = ref(false);
 const sourceLoading = ref(false);
 const sourceTitle = ref<string>('');
 const files = ref<Array<{ path: string; content: string }>>([]);
-const selectedFilePath = ref('');
 
 // 查询
 const getListHand = async () => {
@@ -301,17 +295,14 @@ const goDetail = async (record: any) => {
   sourceModalOpen.value = true;
   sourceLoading.value = true;
   files.value = [];
-  selectedFilePath.value = '';
   sourceTitle.value = record?.name || '算子源码';
   try {
     const res = await getSourceCode(record.id);
     if (res.code === 200) {
       const parsed = parseFiles(res.data, sourceTitle.value);
       files.value = parsed;
-      selectedFilePath.value = parsed[0]?.path || '';
     }
   } catch (error: any) {
-    message.error(error?.message || '获取源码失败');
   } finally {
     sourceLoading.value = false;
   }
