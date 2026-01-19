@@ -52,7 +52,7 @@ export function fetchModelJobLog(job_id: string | number): Promise<ApiResponse<a
 }
 
 // 执行任务接口
-export function executeJob(params: { job_id: string; run_type: 'debug' | 'formal' }): Promise<ApiResponse<any>> {
+export function executeJob(params: { job_id: string; follow?: boolean }): Promise<ApiResponse<any>> {
   return request.post('/api/model_dev/execute', params, { showMessage: true, messageData: ['data', 'message'] });
 }
 

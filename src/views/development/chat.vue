@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-16 16:37:17
+ * @LastEditTime: 2026-01-19 11:05:35
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -168,7 +168,9 @@ const chartOption = computed<EChartsOption>(() => {
       left: 'center',
       show: false,
     },
-    tooltip: {},
+    tooltip: {
+      show: false,
+    },
     animationDurationUpdate: 1500,
     animationEasingUpdate: 'quinticInOut',
     dataZoom: [
