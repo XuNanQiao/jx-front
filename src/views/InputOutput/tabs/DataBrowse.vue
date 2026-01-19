@@ -108,7 +108,7 @@
               @change="handleTableChange"
               row-key="id"
               class="model-table"
-              :scroll="{ x: 'max-content', y: 'calc(100vh - 450px)' }"></a-table>
+              :scroll="{ y: 'calc(100vh - 450px)' }"></a-table>
           </template>
 
           <!-- 按设备分图 -->

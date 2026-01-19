@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-09 11:43:59
+ * @LastEditTime: 2026-01-19 09:15:13
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\Detail.vue
@@ -72,9 +72,6 @@ const activeKey = ref('basic');
   color: #ffffff !important;
 }
 :deep(.ant-tabs) {
-  .ant-tabs-nav-wrap {
-    border-bottom: 1px solid #fff;
-  }
   .ant-tabs-tab {
     padding: 0 0 4px 0;
     font-size: 14px;

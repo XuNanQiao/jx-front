@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-16 13:37:19
+ * @LastEditTime: 2026-01-19 09:09:16
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\InputOutput\index.vue
@@ -67,7 +67,7 @@
       @change="handleTableChange"
       row-key="id"
       class="model-table"
-      :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }">
+      :scroll="{ y: 'calc(100vh - 300px)' }">
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>

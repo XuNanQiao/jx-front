@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-14 17:46:12
+ * @LastEditTime: 2026-01-19 10:08:03
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\indexData.ts
@@ -235,16 +235,23 @@ export const packageFields = [
 /* ----------------basicFields----------------- */
 export const browseColumns = [
   { dataIndex: 'name', title: '作业名称', key: 'name' },
-  { dataIndex: 'name', title: '模型/部署', key: 'name', align: 'center' },
-  { dataIndex: 'name', title: '输入Repo', key: 'name', align: 'center' },
-  { dataIndex: 'name', title: '输出Repo', key: 'name', align: 'center' },
+  {
+    dataIndex: 'model_id',
+    title: '模型/部署',
+    key: 'model_id',
+    align: 'center',
+    customRender: ({ text }: any) => `${text}/模型部署`,
+  },
+  { dataIndex: 'input_repo', title: '输入Repo', key: 'input_repo', align: 'left' },
+  { dataIndex: 'output_repo', title: '输出Repo', key: 'output_repo', align: 'left' },
   {
     dataIndex: 'data_start_time',
     title: '数据时间（时长）',
     key: 'data_start_time',
+    width: 150,
     customRender: ({ record }: any) => formatDurationWithStart(record?.data_start_time, record?.data_end_time),
   },
-  { dataIndex: 'data_rows_nums', title: '数据行', key: 'name', align: 'center' },
+  { dataIndex: 'data_rows_nums', title: '数据行', key: 'data_rows_nums', align: 'left' },
   {
     dataIndex: 'exec_log',
     title: '查看日志',
@@ -255,9 +262,11 @@ export const browseColumns = [
   {
     dataIndex: 'exec_start_time',
     title: '作业时间（时长）',
+    width: 150,
     key: 'name',
+    align: 'left',
     customRender: ({ record }: any) => formatDurationWithStart(record?.exec_start_time, record?.exec_end_time),
   },
   { dataIndex: 'created_user_id', title: '创建人', key: 'name', align: 'center' },
-  { dataIndex: 'action', title: '操作', key: 'action', align: 'center' },
+  { dataIndex: 'action', title: '操作', key: 'action', align: 'center', width: 60 },
 ];

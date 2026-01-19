@@ -17,8 +17,7 @@
         :columns="columns"
         :data-source="dataSource"
         :pagination="pagination"
-        :scroll="{ x: 'max-content', y: 'calc(100vh - 280px)' }"
-      >
+        :scroll="{ y: 'calc(100vh - 280px)' }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="record.status === 'published' ? 'green' : 'orange'">
@@ -39,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { ref } from 'vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
@@ -49,8 +48,8 @@ const columns = [
   { title: '作者', dataIndex: 'author', key: 'author' },
   { title: '状态', key: 'status' },
   { title: '发布时间', dataIndex: 'publishedAt', key: 'publishedAt' },
-  { title: '操作', key: 'action', width: 180 }
-]
+  { title: '操作', key: 'action', width: 180 },
+];
 
 const dataSource = ref([
   {
@@ -59,7 +58,7 @@ const dataSource = ref([
     category: '前端技术',
     author: 'admin',
     status: 'published',
-    publishedAt: '2024-01-01'
+    publishedAt: '2024-01-01',
   },
   {
     id: 2,
@@ -67,7 +66,7 @@ const dataSource = ref([
     category: '前端技术',
     author: 'admin',
     status: 'published',
-    publishedAt: '2024-01-02'
+    publishedAt: '2024-01-02',
   },
   {
     id: 3,
@@ -75,15 +74,15 @@ const dataSource = ref([
     category: '前端技术',
     author: 'user',
     status: 'draft',
-    publishedAt: '-'
-  }
-])
+    publishedAt: '-',
+  },
+]);
 
 const pagination = {
   total: dataSource.value.length,
   pageSize: 10,
-  current: 1
-}
+  current: 1,
+};
 </script>
 
 <style scoped>

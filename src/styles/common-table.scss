@@ -13,20 +13,23 @@
   .td {
     border: none !important;
   }
-  .ant-table-tbody > tr > td {
-    padding: 8px;
-    border: none !important;
+  .ant-table-body {
+    min-height: calc(100vh - 300px) !important;
   }
-  .ant-table-tbody > tr:hover > td {
-    background: #2f618e !important;
-  }
-  // 斑马纹效果
-  .ant-table-tbody > tr:nth-child(odd) > td {
-    background: #304162;
-  }
-
-  .ant-table-tbody > tr:nth-child(even) > td {
-    background: #32476e;
+  .ant-table-tbody {
+    & > tr > td {
+      padding: 8px;
+      border: none !important;
+    }
+    & > tr:hover > td {
+      background: #3b4f6e !important;
+    }
+    & > tr:nth-child(odd) > td {
+      background: #304162;
+    }
+    & > tr:nth-child(even) > td {
+      background: #32476e;
+    }
   }
 
   &.ant-table-bordered {

@@ -134,7 +134,7 @@ router.beforeEach((to, from, next) => {
 
   // 设置页面标题
   if (to.meta.title) {
-    document.title = `${to.meta.title} - Vue Admin`;
+    document.title = `${to.meta.title} - Autoedge`;
   }
 
   // 如果需要登录但未登录，跳转到登录页

@@ -131,12 +131,15 @@
         "Tabs": {
             "inkBarColor": "#1ed4e7",
             "itemSelectedColor": "#1ed4e7",
-            "colorBorderSecondary": "#2e5e83"
+            "colorBorderSecondary": "#2e5e83",
+            "colorBorder": "red"
         },
         "Tag": {
             "defaultBg": "rgba(18, 124, 160, 0.3)",
             "defaultColor": "#1ed4e7",
-            "colorBorder": "rgb(46, 94, 131)"
+            "colorBorder": "rgb(46, 94, 131)",
+            "colorErrorBg": "rgba(245, 34, 45, 0.16)",
+            "colorSuccessBg": "rgba(82, 196, 26, 0.16)"
         },
         "Badge": {
             "colorHighlight": "#1ed4e7",

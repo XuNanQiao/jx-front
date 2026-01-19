@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-15 10:23:47
+ * @LastEditTime: 2026-01-19 10:06:07
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\tabs\DataBrowse.vue
@@ -63,7 +63,7 @@
     @change="handleTableChange"
     row-key="id"
     class="model-table"
-    :scroll="{ x: 'max-content', y: 'calc(100vh - 350px)' }">
+    :scroll="{ y: 'calc(100vh - 350px)' }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'exec_log'">
         <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">

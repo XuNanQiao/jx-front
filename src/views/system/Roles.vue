@@ -14,8 +14,7 @@
         :columns="columns"
         :data-source="dataSource"
         :pagination="pagination"
-        :scroll="{ x: 'max-content', y: 'calc(100vh - 280px)' }"
-      >
+        :scroll="{ y: 'calc(100vh - 280px)' }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <a-space>
@@ -31,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { ref } from 'vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
@@ -40,8 +39,8 @@ const columns = [
   { title: '角色标识', dataIndex: 'code', key: 'code' },
   { title: '描述', dataIndex: 'description', key: 'description' },
   { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt' },
-  { title: '操作', key: 'action', width: 200 }
-]
+  { title: '操作', key: 'action', width: 200 },
+];
 
 const dataSource = ref([
   {
@@ -49,29 +48,29 @@ const dataSource = ref([
     name: '超级管理员',
     code: 'super_admin',
     description: '拥有系统所有权限',
-    createdAt: '2024-01-01'
+    createdAt: '2024-01-01',
   },
   {
     id: 2,
     name: '管理员',
     code: 'admin',
     description: '拥有系统大部分权限',
-    createdAt: '2024-01-01'
+    createdAt: '2024-01-01',
   },
   {
     id: 3,
     name: '普通用户',
     code: 'user',
     description: '基础权限',
-    createdAt: '2024-01-01'
-  }
-])
+    createdAt: '2024-01-01',
+  },
+]);
 
 const pagination = {
   total: dataSource.value.length,
   pageSize: 10,
-  current: 1
-}
+  current: 1,
+};
 </script>
 
 <style scoped>

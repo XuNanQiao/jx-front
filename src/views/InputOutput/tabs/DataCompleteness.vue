@@ -44,7 +44,7 @@
     row-key="key"
     :pagination="pagination"
     :loading="loading"
-    :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }" />
+    :scroll="{ y: 'calc(100vh - 300px)' }" />
 </template>
 
 <script setup lang="ts">

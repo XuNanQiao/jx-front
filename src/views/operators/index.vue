@@ -106,7 +106,7 @@
             @change="handleTableChange"
             row-key="id"
             class="model-table"
-            :scroll="{ x: 'max-content', y: 'calc(100vh - 350px)' }">
+            :scroll="{ y: 'calc(100vh - 350px)' }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
                 <a-button type="link" @click="goDetail(record)">源码</a-button>

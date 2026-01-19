@@ -59,9 +59,6 @@ const activeKey = ref('basic');
   color: #ffffff !important;
 }
 :deep(.ant-tabs) {
-  .ant-tabs-nav-wrap {
-    border-bottom: 1px solid #fff;
-  }
   .ant-tabs-tab {
     padding: 0 0 4px 0;
     font-size: 14px;

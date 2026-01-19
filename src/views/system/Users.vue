@@ -15,8 +15,7 @@
         :data-source="dataSource"
         :pagination="pagination"
         :loading="loading"
-        :scroll="{ x: 'max-content', y: 'calc(100vh - 280px)' }"
-      >
+        :scroll="{ y: 'calc(100vh - 280px)' }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'avatar'">
             <a-avatar :src="record.avatar">
@@ -41,11 +40,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { PlusOutlined, UserOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { ref } from 'vue';
+import { PlusOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
-const loading = ref(false)
+const loading = ref(false);
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
@@ -55,8 +54,8 @@ const columns = [
   { title: '角色', dataIndex: 'role', key: 'role' },
   { title: '状态', key: 'status' },
   { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt' },
-  { title: '操作', key: 'action', width: 150 }
-]
+  { title: '操作', key: 'action', width: 150 },
+];
 
 const dataSource = ref([
   {
@@ -66,7 +65,7 @@ const dataSource = ref([
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
     role: '管理员',
     status: 'active',
-    createdAt: '2024-01-01'
+    createdAt: '2024-01-01',
   },
   {
     id: 2,
@@ -75,7 +74,7 @@ const dataSource = ref([
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
     role: '普通用户',
     status: 'active',
-    createdAt: '2024-01-02'
+    createdAt: '2024-01-02',
   },
   {
     id: 3,
@@ -84,19 +83,19 @@ const dataSource = ref([
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test',
     role: '测试用户',
     status: 'inactive',
-    createdAt: '2024-01-03'
-  }
-])
+    createdAt: '2024-01-03',
+  },
+]);
 
 const pagination = {
   total: dataSource.value.length,
   pageSize: 10,
-  current: 1
-}
+  current: 1,
+};
 
 const handleAdd = () => {
-  message.info('新增用户功能')
-}
+  message.info('新增用户功能');
+};
 </script>
 
 <style scoped>

@@ -65,7 +65,7 @@
       @change="handleTableChange"
       row-key="id"
       class="model-table"
-      :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }">
+      :scroll="{ y: 'calc(100vh - 300px)' }">
       <template #bodyCell="{ column, record, text }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>

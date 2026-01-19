@@ -17,7 +17,7 @@
         </template>
         新建
       </a-button>
-      <a-button  :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+      <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
         <template #icon>
           <DeleteOutlined />
         </template>
@@ -36,10 +36,19 @@
   </div>
 
   <!-- 表格 -->
-  <a-table :columns="columnsDataStructure" :data-source="filteredData" :loading="loading" :pagination="paginationConfig" :row-selection="rowSelection" @change="handleTableChange" row-key="id" class="model-table" :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }">
+  <a-table
+    :columns="columnsDataStructure"
+    :data-source="filteredData"
+    :loading="loading"
+    :pagination="paginationConfig"
+    :row-selection="rowSelection"
+    @change="handleTableChange"
+    row-key="id"
+    class="model-table"
+    :scroll="{ y: 'calc(100vh - 300px)' }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
-        <a-button type="text" class="text-white" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+        <a-button type="text" class="text-white" size="small" @click="handleEdit(record)">编辑</a-button>
       </template>
     </template>
   </a-table>
@@ -48,33 +57,36 @@
 </template>
 
 <script setup lang="ts">
-import { getDataStructureList, batchDeleteDataStructures } from "@/api/inputOutput";
-import type { DataStructure } from "@/types/model";
-import { DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons-vue";
-import type { TableProps } from "ant-design-vue";
-import { message, Modal } from "ant-design-vue";
-import { Dayjs } from "dayjs";
-import { LineChart } from "echarts/charts";
-import { GridComponent, TooltipComponent } from "echarts/components";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import VChart from "vue-echarts";
-import { useRouter, useRoute } from "vue-router";
-import { columnsDataStructure } from "../index";
-import DataStructureForm from "./DataStructureForm.vue";
+import { getDataStructureList, batchDeleteDataStructures } from '@/api/inputOutput';
+import type { DataStructure } from '@/types/model';
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import type { TableProps } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
+import { Dayjs } from 'dayjs';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import VChart from 'vue-echarts';
+import { useRouter, useRoute } from 'vue-router';
+import { columnsDataStructure } from '../index';
+import DataStructureForm from './DataStructureForm.vue';
 
 const router = useRouter();
 const route = useRoute();
 
 // 获取当前模型输入输出的ID
-const modelInputOutputId = computed(() => (route.params.id as string) || "");
+const modelInputOutputId = computed(() => (route.params.id as string) || '');
 
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent]);
 
 // 防抖函数
-const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number = 300): ((...args: Parameters<T>) => void) => {
+const debounce = <T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number = 300,
+): ((...args: Parameters<T>) => void) => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<T>) => {
     if (timer) clearTimeout(timer);
@@ -94,7 +106,7 @@ const filters = reactive<{
   completenessDateRange: [Dayjs, Dayjs] | null;
   dataInputDateRange: [Dayjs, Dayjs] | null;
 }>({
-  keyword: "",
+  keyword: '',
   category: undefined,
   completenessDateRange: null,
   dataInputDateRange: null,
@@ -117,32 +129,32 @@ const dataSource = ref<DataStructure[]>([]);
 
 const loadData = async () => {
   if (!modelInputOutputId.value) {
-    message.error("缺少模型输入输出ID参数");
+    message.error('缺少模型输入输出ID参数');
     return;
   }
 
   loading.value = true;
   try {
-    console.log("📤 正在加载数据结构列表，model_input_output_id:", modelInputOutputId.value);
+    console.log('📤 正在加载数据结构列表，model_input_output_id:', modelInputOutputId.value);
     let dataParams: any = {
       model_input_output_id: modelInputOutputId.value,
       page: pagination.current,
       size: pagination.pageSize,
     };
     const res: any = await getDataStructureList(dataParams);
-    console.log("📥 数据结构列表响应:", res);
+    console.log('📥 数据结构列表响应:', res);
 
     if (res?.code === 200) {
       // 后端返回的数据可能在 res.data.items 或 res.data
       const items = res.data?.items || res.data || [];
       dataSource.value = items;
       pagination.total = res.data?.total || items.length;
-      console.log("✅ 数据结构列表加载成功，共", pagination.total, "条");
+      console.log('✅ 数据结构列表加载成功，共', pagination.total, '条');
     } else {
-      console.error("❌ 数据结构列表加载失败:", res);
+      console.error('❌ 数据结构列表加载失败:', res);
     }
   } catch (err: any) {
-    console.error("❌ 数据结构列表加载错误:", err);
+    console.error('❌ 数据结构列表加载错误:', err);
   } finally {
     loading.value = false;
   }
@@ -153,7 +165,7 @@ onMounted(() => {
 });
 
 // 搜索关键词（用于防抖）
-const searchKeyword = ref("");
+const searchKeyword = ref('');
 
 // 监听搜索关键词变化（带防抖）
 const debouncedSearch = debounce(() => {
@@ -172,10 +184,10 @@ const filteredData = computed(() => {
   if (filters.keyword) {
     const keyword = filters.keyword.toLowerCase();
     result = result.filter((item) => {
-      const name = item.name?.toLowerCase() || "";
-      const column = item.column?.toLowerCase() || "";
+      const name = item.name?.toLowerCase() || '';
+      const column = item.column?.toLowerCase() || '';
       // 支持 dataType 和 data_type 两种字段名
-      const dataType = (item.dataType || item.data_type || "").toLowerCase();
+      const dataType = (item.dataType || item.data_type || '').toLowerCase();
       return name.includes(keyword) || column.includes(keyword) || dataType.includes(keyword);
     });
   }
@@ -204,7 +216,7 @@ const rowSelection = computed(() => ({
 }));
 
 // 表格变化处理（排序、分页）
-const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, sorter: any) => {
+const handleTableChange: TableProps['onChange'] = (paginationConfig, filters, sorter: any) => {
   // 更新分页
 
   if (paginationConfig.current) {
@@ -222,7 +234,7 @@ const handleTableChange: TableProps["onChange"] = (paginationConfig, filters, so
         const aValue = a[field as keyof DataStructure];
         const bValue = b[field as keyof DataStructure];
 
-        if (order === "ascend") {
+        if (order === 'ascend') {
           return aValue > bValue ? 1 : -1;
         } else {
           return aValue < bValue ? 1 : -1;
@@ -238,15 +250,15 @@ const dataFormRef = ref<any>(null);
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning("请先选择要删除的数据");
+    message.warning('请先选择要删除的数据');
     return;
   }
 
   Modal.confirm({
-    title: "确认删除",
+    title: '确认删除',
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: "确定",
-    cancelText: "取消",
+    okText: '确定',
+    cancelText: '取消',
     async onOk() {
       try {
         const res = await batchDeleteDataStructures(selectedRowKeys.value);
@@ -255,7 +267,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error("批量删除失败:", error);
+        console.error('批量删除失败:', error);
       }
     },
   });
