@@ -12,52 +12,84 @@
     </div>
 
     <!-- 基础信息 模块 -->
-    <div class="module" v-for="(item, index) in list" :key="index">
-      <div class="module-header" @click="toggle(item.key)">
-        <span class="triangle" v-if="openHand" :class="{ open: open[item.key] }" aria-hidden="true"></span>
-        <span class="module-title">{{ item.title }}</span>
+    <a-form ref="formRef" :model="form">
+      <div class="module" v-for="(item, index) in list" :key="index">
+        <div class="module-header" @click="toggle(item.key)">
+          <span class="triangle" v-if="openHand" :class="{ open: open[item.key] }" aria-hidden="true"></span>
+          <span class="module-title">{{ item.title }}</span>
+        </div>
+        <div v-show="open[item.key] || !openHand" class="module-body">
+          <a-row :gutter="16">
+            <a-col :span="field.span || 12" v-for="(field, chilIndex) in item.fields" :key="chilIndex">
+              <div class="h-38px mb-16px !pl-16px">
+                <a-row :gutter="16">
+                  <a-col :span="field.labelSpan || 5">{{ field.label }}：</a-col>
+                  <a-col :span="24 - (field.labelSpan || 5)">
+                    <template v-if="editMode && field.editSlot">
+                      <slot :name="field.editSlot" />
+                    </template>
+                    <template v-else-if="editMode && field.type === 'switch'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-switch v-model:checked="form[field.key]" />
+                      </a-form-item>
+                    </template>
+                    <template v-else-if="editMode && field.type === 'checkbox'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-checkbox-group v-model:value="form[field.key]" :options="field.options" />
+                      </a-form-item>
+                    </template>
+                    <template v-else-if="editMode && field.type === 'select'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-select
+                          v-model:value="form[field.key]"
+                          :mode="field.mode"
+                          style="width: 100%"
+                          placeholder="请选择">
+                          <a-select-option v-for="option in field.options" :key="option.value" :value="option.value">
+                            {{ option.label }}
+                          </a-select-option>
+                        </a-select>
+                      </a-form-item>
+                    </template>
+                    <template v-else-if="editMode && field.type === 'number'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-input-number
+                          v-model:value="form[field.key]"
+                          :min="0"
+                          style="width: 100%"
+                          placeholder="请输入数据周期" />
+                      </a-form-item>
+                    </template>
+                    <template v-else-if="editMode && field.type === 'input'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-input v-model:value="form[field.key]" />
+                      </a-form-item>
+                    </template>
+                    <!-- 非编辑态优先使用自定义渲染 -->
+                    <template v-else-if="!editMode && field.customRender">
+                      <VNodeRenderer :vnode="field.customRender({ text: detail[field.key], record: detail })" />
+                    </template>
+                    <template v-else-if="!editMode && field.slot">
+                      <slot :name="field.slot" />
+                    </template>
+                    <template v-else>
+                      <span class="desc-text">{{ formatValue(detail[field.key]) }}</span>
+                    </template>
+                  </a-col>
+                </a-row>
+              </div>
+            </a-col>
+          </a-row>
+        </div>
       </div>
-      <div v-show="open[item.key] || !openHand" class="module-body">
-        <a-descriptions :bordered="bordered" :column="2">
-          <a-descriptions-item :span="1" v-for="(field, chilIndex) in item.fields" :key="chilIndex" :label="field.label">
-            <template v-if="editMode && field.editSlot">
-              <slot :name="field.editSlot" />
-            </template>
-            <template v-else-if="editMode && field.type === 'switch'">
-              <a-switch v-model:checked="form[field.key]" />
-            </template>
-            <template v-else-if="editMode && field.type === 'select'">
-              <a-select v-model:value="form[field.key]" style="width: 100%" placeholder="请选择数据保留周期">
-                <a-select-option v-for="option in field.options" :key="option.value" :value="option.value">
-                  {{ option.label }}
-                </a-select-option>
-              </a-select>
-            </template>
-            <template v-else-if="editMode && field.type === 'number'">
-              <a-input-number v-model:value="form[field.key]" :min="0" style="width: 100%" placeholder="请输入数据周期" />
-            </template>
-            <template v-else-if="editMode && field.type === 'input'">
-              <a-input v-model:value="form[field.key]" />
-            </template>
-            <!-- 非编辑态优先使用自定义渲染 -->
-            <template v-else-if="!editMode && field.customRender">
-              <VNodeRenderer :vnode="field.customRender({ text: detail[field.key], record: detail })" />
-            </template>
-            <template v-else-if="!editMode && field.slot">
-              <slot :name="field.slot" />
-            </template>
-            <template v-else>
-              <span class="desc-text">{{ formatValue(detail[field.key]) }}</span>
-            </template>
-          </a-descriptions-item>
-        </a-descriptions>
-      </div>
-    </div>
+    </a-form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, reactive, defineComponent, h } from 'vue';
+import { message } from 'ant-design-vue';
+import type { FormInstance } from 'ant-design-vue';
 // 用于直接挂载 VNode 或字符串到模板
 const VNodeRenderer = defineComponent({
   name: 'VNodeRenderer',
@@ -70,12 +102,23 @@ const VNodeRenderer = defineComponent({
 });
 type SelectOption = { label: string; value: any };
 type CustomRenderCtx = { text: any; record: Record<string, any> };
+type ValidationRule = {
+  required?: boolean;
+  message?: string;
+  type?: string;
+  min?: number;
+  max?: number;
+  pattern?: RegExp;
+  validator?: (rule: any, value: any) => Promise<void>;
+  trigger?: string | string[];
+};
 interface FieldItem {
   label: string;
   key: string;
-  sort?: string;
-  type?: 'input' | 'select' | 'switch' | 'number' | 'link';
+  type?: 'input' | 'select' | 'switch' | 'number' | 'link' | 'checkbox';
+  mode?: 'multiple' | 'tags';
   options?: SelectOption[];
+  rules?: ValidationRule[];
   editSlot?: string;
   slot?: string;
   customRender?: (ctx: CustomRenderCtx) => any;
@@ -106,6 +149,7 @@ const props = withDefaults(
 );
 const emit = defineEmits(['save', 'update:editModeShow']);
 
+const formRef = ref<FormInstance>();
 const open = ref<Record<string, boolean>>({});
 const editMode = ref(false);
 const form = reactive<any>({});
@@ -150,6 +194,8 @@ const toggleEdit = () => {
 const cancelEdit = () => {
   editMode.value = false;
   emit('update:editModeShow', false);
+  // 重置表单验证状态
+  formRef.value?.clearValidate();
   if (props.detail) {
     Object.keys(form).forEach((k) => delete form[k]);
     Object.assign(form, props.detail);
@@ -157,7 +203,16 @@ const cancelEdit = () => {
 };
 
 const onSave = async () => {
-  emit('save', form);
+  try {
+    // 执行表单验证
+    await formRef.value?.validate();
+    // 验证通过，触发保存事件
+    emit('save', form);
+  } catch (error) {
+    // 验证失败
+    message.error('请检查表单填写是否正确');
+    console.error('表单验证失败:', error);
+  }
 };
 
 const formatValue = (value: any) => {
@@ -220,6 +275,14 @@ const formatValue = (value: any) => {
         .ant-descriptions-item-content,
         .desc-text {
           color: #ffffff;
+        }
+      }
+      /* 表单项内联样式，去除默认间距 */
+      :deep(.form-item-inline) {
+        margin-bottom: 0;
+        .ant-form-item-explain-error {
+          margin-top: 4px;
+          font-size: 12px;
         }
       }
     }

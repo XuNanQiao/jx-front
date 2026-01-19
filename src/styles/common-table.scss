@@ -99,11 +99,6 @@
 .ant-list-item {
   padding: 8px !important;
 }
-/* Global scrollbar styling */
-:root {
-  scrollbar-width: thin;
-  scrollbar-color: #4a6fb4 rgba(255, 255, 255, 0.06);
-}
 .tableComPage {
   .ant-table {
     .ant-table-body {
@@ -111,5 +106,10 @@
         100vh - 48px - 24px - 40px - 12px - 26px - 16px - 24px - 38px - 16px - 64px - 3px - 12px
       ) !important;
     }
+  }
+}
+.ant-card {
+  .ant-card-head {
+    min-height: 40px;
   }
 }

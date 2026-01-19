@@ -1,24 +1,30 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-19 15:32:54
+ * @LastEditTime: 2026-01-19 15:08:06
  * @LastEditors: ZHAO
  * @Description: 
- * @FilePath: \jx\src\views\jobs\index.vue
+ * @FilePath: \jx\src\views\deployment\Detail.vue
  * 
 -->
 <template>
   <div>
-    <a-card title="模型作业" :bordered="false" class="page">
+    <a-card :bordered="false" class="page">
+      <template #title>
+        <a-breadcrumb style="margin-bottom: 0">
+          <a-breadcrumb-item class="crumb-parent">
+            <router-link :to="{ name: 'ModelDevelopment' }">模型开发</router-link>
+          </a-breadcrumb-item>
+          <a-breadcrumb-item class="crumb-current">{{ detailName }}</a-breadcrumb-item>
+        </a-breadcrumb>
+      </template>
       <div class="detail-content">
         <!-- Tabs -->
         <a-tabs v-model:activeKey="activeKey" type="line" size="large">
           <a-tab-pane key="basic" tab="基础信息">
             <BasicInfo :id="id" v-if="activeKey === 'basic'" />
           </a-tab-pane>
-          <a-tab-pane key="structure" tab="依赖包">
-            <DataStructure :id="id" v-if="activeKey === 'structure'" />
-          </a-tab-pane>
+
           <a-tab-pane key="browse" tab="作业">
             <DataBrowse :id="id" v-if="activeKey === 'browse'" />
           </a-tab-pane>
@@ -32,7 +38,6 @@
 import { useRoute } from 'vue-router';
 import { computed, ref } from 'vue';
 import BasicInfo from './tabs/BasicInfo.vue';
-import DataStructure from './tabs/DataStructure.vue';
 import DataBrowse from './tabs/DataBrowse.vue';
 
 const route = useRoute();

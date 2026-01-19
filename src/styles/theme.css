@@ -100,7 +100,11 @@ a:hover {
 .ant-btn-default.ant-btn-background-:disabled {
   color: #fff !important;
 }
-
+/* Global scrollbar styling */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: #4a6fb4 rgba(255, 255, 255, 0.06);
+}
 /* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 4px;

@@ -115,6 +115,33 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/',
+    component: BasicLayout,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '/model/deployment',
+        name: 'ModelDeployment',
+        component: () => import('@/views/deployment/index.vue'),
+        meta: {
+          title: '模型部署',
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/model/deployment/detail/:id',
+        name: 'ModelDeploymentDetail',
+        component: () => import('@/views/deployment/Detail.vue'),
+        meta: {
+          title: '模型部署详情',
+          requiresAuth: true,
+        },
+      },
+    ],
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/home',
   },
