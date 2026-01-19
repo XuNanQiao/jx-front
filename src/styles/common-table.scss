@@ -14,7 +14,7 @@
     border: none !important;
   }
   .ant-table-body {
-    min-height: calc(100vh - 300px) !important;
+    min-height: calc(100vh - 48px - 24px - 56px - 8px - 16px - 24px - 38px - 64px - 1px) !important;
   }
   .ant-table-tbody {
     & > tr > td {
@@ -104,22 +104,12 @@
   scrollbar-width: thin;
   scrollbar-color: #4a6fb4 rgba(255, 255, 255, 0.06);
 }
-
-*::-webkit-scrollbar {
-  width: 4px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-*::-webkit-scrollbar-thumb {
-  background: #4a6fb4;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: #5f89d3;
+.tableComPage {
+  .ant-table {
+    .ant-table-body {
+      min-height: calc(
+        100vh - 48px - 24px - 40px - 12px - 26px - 16px - 24px - 38px - 16px - 64px - 3px - 12px
+      ) !important;
+    }
+  }
 }

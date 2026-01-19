@@ -8,50 +8,52 @@
  * 
 -->
 <template>
-  <!-- 筛选区域 -->
-  <div class="filter-section flex-between page">
-    <a-space :size="16" wrap>
-      <a-button type="primary" @click="handleEdit()">
-        <template #icon>
-          <PlusOutlined />
-        </template>
-        新建
-      </a-button>
-      <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-        <template #icon>
-          <DeleteOutlined />
-        </template>
-        批量删除 ({{ selectedRowKeys.length }})
-      </a-button>
-    </a-space>
-    <a-space :size="16" wrap>
-      <div class="filter-inter">
-        <a-input v-model:value="searchKeyword" placeholder="请输入关键词搜索" style="width: 220px" allow-clear>
-          <template #suffix>
-            <SearchOutlined />
+  <div class="tableComPage">
+    <!-- 筛选区域 -->
+    <div class="filter-section flex-between page">
+      <a-space :size="16" wrap>
+        <a-button type="primary" @click="handleEdit()">
+          <template #icon>
+            <PlusOutlined />
           </template>
-        </a-input>
-      </div>
-    </a-space>
-  </div>
+          新建
+        </a-button>
+        <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+          <template #icon>
+            <DeleteOutlined />
+          </template>
+          批量删除 ({{ selectedRowKeys.length }})
+        </a-button>
+      </a-space>
+      <a-space :size="16" wrap>
+        <div class="filter-inter">
+          <a-input v-model:value="searchKeyword" placeholder="请输入关键词搜索" style="width: 220px" allow-clear>
+            <template #suffix>
+              <SearchOutlined />
+            </template>
+          </a-input>
+        </div>
+      </a-space>
+    </div>
 
-  <!-- 表格 -->
-  <a-table
-    :columns="columnsDataStructure"
-    :data-source="filteredData"
-    :loading="loading"
-    :pagination="paginationConfig"
-    :row-selection="rowSelection"
-    @change="handleTableChange"
-    row-key="id"
-    class="model-table"
-    :scroll="{ y: 'calc(100vh - 300px)' }">
-    <template #bodyCell="{ column, record }">
-      <template v-if="column.key === 'action'">
-        <a-button type="text" class="text-white" size="small" @click="handleEdit(record)">编辑</a-button>
+    <!-- 表格 -->
+    <a-table
+      :columns="columnsDataStructure"
+      :data-source="filteredData"
+      :loading="loading"
+      :pagination="paginationConfig"
+      :row-selection="rowSelection"
+      @change="handleTableChange"
+      row-key="id"
+      class="model-table"
+      :scroll="{ y: 'calc(100vh - 300px)' }">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'action'">
+          <a-button type="text" class="text-white" size="small" @click="handleEdit(record)">编辑</a-button>
+        </template>
       </template>
-    </template>
-  </a-table>
+    </a-table>
+  </div>
   <!-- 新增/编辑弹窗组件 -->
   <DataStructureForm :modelInputOutputId="modelInputOutputId" ref="dataFormRef" @saved="handleSaved" />
 </template>

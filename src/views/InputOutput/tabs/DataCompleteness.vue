@@ -1,50 +1,52 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:05:28
- * @LastEditTime: 2026-01-15 09:41:33
+ * @LastEditTime: 2026-01-19 14:30:38
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\InputOutput\tabs\DataCompleteness.vue
  * 
 -->
 <template>
-  <div class="query-bar page">
-    <div class="query-left">
-      <a-space :size="12">
-        <a-select v-model:value="metric" :options="metricOptions" style="width: 160px" />
-        <a-select v-model:value="mode" :options="modeOptions" style="width: 120px" />
-        <template v-if="mode === 'year'">
-          <a-date-picker v-model:value="selectedYear" picker="year" style="width: 160px" />
+  <div class="tableComPage">
+    <div class="query-bar page">
+      <div class="query-left">
+        <a-space :size="12">
+          <a-select v-model:value="metric" :options="metricOptions" style="width: 160px" />
+          <a-select v-model:value="mode" :options="modeOptions" style="width: 120px" />
+          <template v-if="mode === 'year'">
+            <a-date-picker v-model:value="selectedYear" picker="year" style="width: 160px" />
 
-          <!-- <a-select v-model:value="selectedYear" :options="yearOptions" style="width: 120px" /> -->
-        </template>
-        <template v-else-if="mode === 'month'">
-          <a-date-picker v-model:value="selectedMonth" picker="month" style="width: 160px" />
-        </template>
-        <template v-else>
-          <a-date-picker v-model:value="selectedDay" style="width: 160px" />
-        </template>
-        <a-button type="primary" @click="onQuery">查询</a-button>
-      </a-space>
+            <!-- <a-select v-model:value="selectedYear" :options="yearOptions" style="width: 120px" /> -->
+          </template>
+          <template v-else-if="mode === 'month'">
+            <a-date-picker v-model:value="selectedMonth" picker="month" style="width: 160px" />
+          </template>
+          <template v-else>
+            <a-date-picker v-model:value="selectedDay" style="width: 160px" />
+          </template>
+          <a-button type="primary" @click="onQuery">查询</a-button>
+        </a-space>
+      </div>
+      <div class="query-right">
+        <a-space>
+          <a-button @click="onBack">返回上层</a-button>
+          <a-button @click="onBrowse">浏览</a-button>
+          <a-button @click="onDownload">下载</a-button>
+        </a-space>
+      </div>
     </div>
-    <div class="query-right">
-      <a-space>
-        <a-button @click="onBack">返回上层</a-button>
-        <a-button @click="onBrowse">浏览</a-button>
-        <a-button @click="onDownload">下载</a-button>
-      </a-space>
-    </div>
+
+    <a-table
+      class="model-table"
+      :bordered="false"
+      :columns="columns"
+      :data-source="filteredData"
+      row-key="key"
+      :pagination="pagination"
+      :loading="loading"
+      :scroll="{ y: 'calc(100vh - 300px)' }" />
   </div>
-
-  <a-table
-    class="model-table"
-    :bordered="false"
-    :columns="columns"
-    :data-source="filteredData"
-    row-key="key"
-    :pagination="pagination"
-    :loading="loading"
-    :scroll="{ y: 'calc(100vh - 300px)' }" />
 </template>
 
 <script setup lang="ts">

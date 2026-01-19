@@ -1,110 +1,112 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-19 10:06:07
+ * @LastEditTime: 2026-01-19 14:47:44
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\development\tabs\DataBrowse.vue
  *
 -->
 <template>
-  <!-- 筛选区域 -->
-  <div class="filter-section flex-between">
-    <a-space :size="16" wrap>
-      <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-        <template #icon>
-          <DeleteOutlined />
-        </template>
-        批量删除 ({{ selectedRowKeys.length }})
-      </a-button>
-      <div class="switch-item">
-        <span class="switch-label">包含定时</span>
-        <a-switch v-model:checked="filters.autoMonitor" @change="searchHandler" />
-      </div>
-      <div class="switch-item">
-        <span class="switch-label">包含组作业</span>
-        <a-switch v-model:checked="filters.haveFile" @change="searchHandler" />
-      </div>
-      <div class="filter-inter">
-        <span class="select-inter">状态：</span>
-        <a-select
-          :options="statusOptions"
-          @change="searchHandler"
-          v-model:value="filters.status"
-          allowClear
-          placeholder="请选择状态"
-          style="width: 150px"></a-select>
-      </div>
-    </a-space>
-    <a-space :size="16" wrap>
-      <div class="filter-inter">
-        <a-input
-          v-model:value="filters.name"
-          @change="debouncedSearch"
-          @pressEnter="debouncedSearch"
-          placeholder="搜索关键词"
-          style="width: 220px"
-          allow-clear>
-          <template #suffix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-      </div>
-    </a-space>
-  </div>
-
-  <!-- 表格 -->
-  <a-table
-    :columns="browseColumns"
-    :data-source="dataSource"
-    :loading="loading"
-    :pagination="pagination"
-    :row-selection="rowSelection"
-    @change="handleTableChange"
-    row-key="id"
-    class="model-table"
-    :scroll="{ y: 'calc(100vh - 350px)' }">
-    <template #bodyCell="{ column, record }">
-      <template v-if="column.key === 'exec_log'">
-        <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">
-          {{ statusMap[record.status]?.text || '-' }}
-        </a-tag>
-        <a-button type="link" size="small" @click="openLogModal(record)">
+  <div class="tableComPage">
+    <!-- 筛选区域 -->
+    <div class="filter-section flex-between">
+      <a-space :size="16" wrap>
+        <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
           <template #icon>
-            <FileOutlined />
+            <DeleteOutlined />
           </template>
+          批量删除 ({{ selectedRowKeys.length }})
         </a-button>
-      </template>
-      <template v-if="column.key === 'action'">
-        <a-dropdown :trigger="['hover']">
-          <a-button type="text" size="small">
-            <MoreOutlined class="text-16px text-white" />
+        <div class="switch-item">
+          <span class="switch-label">包含定时</span>
+          <a-switch v-model:checked="filters.autoMonitor" @change="searchHandler" />
+        </div>
+        <div class="switch-item">
+          <span class="switch-label">包含组作业</span>
+          <a-switch v-model:checked="filters.haveFile" @change="searchHandler" />
+        </div>
+        <div class="filter-inter">
+          <span class="select-inter">状态：</span>
+          <a-select
+            :options="statusOptions"
+            @change="searchHandler"
+            v-model:value="filters.status"
+            allowClear
+            placeholder="请选择状态"
+            style="width: 150px"></a-select>
+        </div>
+      </a-space>
+      <a-space :size="16" wrap>
+        <div class="filter-inter">
+          <a-input
+            v-model:value="filters.name"
+            @change="debouncedSearch"
+            @pressEnter="debouncedSearch"
+            placeholder="搜索关键词"
+            style="width: 220px"
+            allow-clear>
+            <template #suffix>
+              <SearchOutlined />
+            </template>
+          </a-input>
+        </div>
+      </a-space>
+    </div>
+
+    <!-- 表格 -->
+    <a-table
+      :columns="browseColumns"
+      :data-source="dataSource"
+      :loading="loading"
+      :pagination="pagination"
+      :row-selection="rowSelection"
+      @change="handleTableChange"
+      row-key="id"
+      class="model-table"
+      :scroll="{ y: 'calc(100vh - 350px)' }">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'exec_log'">
+          <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">
+            {{ statusMap[record.status]?.text || '-' }}
+          </a-tag>
+          <a-button type="link" size="small" @click="openLogModal(record)">
+            <template #icon>
+              <FileOutlined />
+            </template>
           </a-button>
-          <template #overlay>
-            <a-menu @click="handleMenuClick($event, record)">
-              <a-menu-item key="priority">
-                <ArrowUpOutlined />
-                <span style="margin-left: 8px">调整优先级</span>
-              </a-menu-item>
-              <a-menu-item key="rerun">
-                <ReloadOutlined />
-                <span style="margin-left: 8px">再次运行</span>
-              </a-menu-item>
-              <a-menu-item key="retry">
-                <RetweetOutlined />
-                <span style="margin-left: 8px">重试</span>
-              </a-menu-item>
-              <a-menu-divider />
-              <a-menu-item key="delete" danger>
-                <DeleteOutlined />
-                <span style="margin-left: 8px">删除</span>
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown>
+        </template>
+        <template v-if="column.key === 'action'">
+          <a-dropdown :trigger="['hover']">
+            <a-button type="text" size="small">
+              <MoreOutlined class="text-16px text-white" />
+            </a-button>
+            <template #overlay>
+              <a-menu @click="handleMenuClick($event, record)">
+                <a-menu-item key="priority">
+                  <ArrowUpOutlined />
+                  <span style="margin-left: 8px">调整优先级</span>
+                </a-menu-item>
+                <a-menu-item key="rerun">
+                  <ReloadOutlined />
+                  <span style="margin-left: 8px">再次运行</span>
+                </a-menu-item>
+                <a-menu-item key="retry">
+                  <RetweetOutlined />
+                  <span style="margin-left: 8px">重试</span>
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="delete" danger>
+                  <DeleteOutlined />
+                  <span style="margin-left: 8px">删除</span>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </template>
       </template>
-    </template>
-  </a-table>
+    </a-table>
+  </div>
 
   <LogModal v-model:open="logModal.open" :title="logModal.title" :record="logModal.record" />
 </template>
