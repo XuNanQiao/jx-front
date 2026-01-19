@@ -36,7 +36,7 @@ export const triggerOptions: SelectOption[] = [
 ];
 
 /* ----------------------detail------------------- */
-export const detailColumns = [
+export const detailColumns = () => [
   { dataIndex: 'name', title: '名称', key: 'name' },
   { dataIndex: 'version', title: '模型', key: 'version', align: 'center' },
   {
@@ -73,62 +73,70 @@ export const detailColumns = [
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center', width: 80 },
 ];
 
-export const basicFields = [
-  {
-    title: '基础信息',
-    key: 'basicInfo',
-    fields: [
-      {
-        label: '模型名称',
-        key: 'name',
-
-        type: 'input',
-        rules: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-      },
-      { label: '显示名称', key: 'display_name', type: 'input' },
-      { label: '运行环境', key: 'runtime_env', type: 'input' },
-      {
-        label: '触发方式',
-        key: 'trigger_type',
-
-        type: 'checkbox',
-        options: triggerOptions,
-        rules: [{ required: true, type: 'array', message: '请至少选择一种触发方式', trigger: 'change' }],
-        customRender: ({ text }: any) => {
-          if (!text) return '-';
-          // 如果是数组，显示多个标签
-          if (Array.isArray(text)) {
-            return text
-              .map((val) => triggerOptions.find((opt) => opt.value === val)?.label)
-              .filter(Boolean)
-              .join('、');
-          }
-          // 如果是单个值
-          return triggerOptions.find((opt) => opt.value === text)?.label || '-';
+export const basicFields = () => {
+  return [
+    {
+      title: '基础信息',
+      key: 'basicInfo',
+      fields: [
+        {
+          label: '模型名称',
+          key: 'name',
+          type: 'input' as const,
+          rules: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
         },
-      },
-      {
-        label: '执行周期',
-        key: 'cycle',
-        editSlot: 'cycleEditor',
-        type: 'input',
-      },
-      { label: '作业保留数', key: 'job_retention', type: 'input' },
-    ],
-  },
-  {
-    title: '其他信息',
-    key: 'otherFields',
-    fields: [
-      { label: '创建人', key: 'created_user_id', sort: 'default' },
-      {
-        label: '创建时间',
-        key: 'created_time',
+        { label: '显示名称', key: 'display_name', type: 'input' as const },
+        { label: '运行环境', key: 'runtime_env', type: 'input' as const },
+        {
+          label: '触发方式',
+          key: 'trigger_type',
+          type: 'checkbox' as const,
+          options: triggerOptions,
+          rules: [{ required: true, type: 'array', message: '请至少选择一种触发方式', trigger: 'change' }],
+          customRender: ({ text }: any) => {
+            if (!text) return '-';
+            // 如果是数组，显示多个标签
+            if (Array.isArray(text)) {
+              return text
+                .map((val) => triggerOptions.find((opt) => opt.value === val)?.label)
+                .filter(Boolean)
+                .join('、');
+            }
+            // 如果是单个值
+            return triggerOptions.find((opt) => opt.value === text)?.label || '-';
+          },
+        },
+        {
+          label: '执行周期',
+          key: 'cycle',
+          editSlot: 'cycleEditor',
+          type: 'input' as const,
+        },
+        { label: '作业保留数', key: 'job_retention', type: 'input' as const, editSlot: 'jobRetentionEditor' },
+      ],
+    },
+    {
+      title: '其他信息',
+      key: 'otherFields',
+      fields: [
+        { label: '创建人', key: 'created_user_id' },
+        {
+          label: '创建时间',
+          key: 'created_time',
 
-        customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
-      },
-      { label: '可用范围', key: 'available_range', sort: 'default' },
-      { label: '备注', key: 'remark', sort: 'default' },
-    ],
-  },
+          customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+        },
+        { label: '可用范围', key: 'available_range' },
+        { label: '备注', key: 'remark' },
+      ],
+    },
+  ];
+};
+export const basicInp = [
+  { label: 'Rep', key: 'created_user_id', type: 'input' },
+  { label: '数据列', key: 'created_time', type: 'input' },
+  { label: '设备实例', key: 'available_range', type: 'input' },
+  { label: '数据时间', key: 'remark', type: 'input', span: 4, labelSpan: 12 },
+  { label: '窗口长度', key: 'remark', type: 'input', span: 4, labelSpan: 12 },
+  { label: '对齐时间', key: 'remark', type: 'input', span: 4, labelSpan: 12 },
 ];

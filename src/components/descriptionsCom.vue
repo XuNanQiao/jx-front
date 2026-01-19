@@ -26,7 +26,7 @@
                   <a-col :span="field.labelSpan || 5">{{ field.label }}：</a-col>
                   <a-col :span="24 - (field.labelSpan || 5)">
                     <template v-if="editMode && field.editSlot">
-                      <slot :name="field.editSlot" />
+                      <slot :name="field.editSlot" :form="form" :field="field" />
                     </template>
                     <template v-else-if="editMode && field.type === 'switch'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
@@ -121,6 +121,8 @@ interface FieldItem {
   rules?: ValidationRule[];
   editSlot?: string;
   slot?: string;
+  span?: number; // 字段占据的列数（24栅格系统）
+  labelSpan?: number; // 标签占据的列数
   customRender?: (ctx: CustomRenderCtx) => any;
 }
 interface ModuleItem {

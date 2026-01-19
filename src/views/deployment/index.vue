@@ -61,7 +61,7 @@
 
     <!-- 表格 -->
     <a-table
-      :columns="detailColumns"
+      :columns="detailColumns()"
       :data-source="dataSource"
       :loading="loading"
       :pagination="pagination"
