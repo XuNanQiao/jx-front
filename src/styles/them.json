@@ -132,7 +132,8 @@
             "inkBarColor": "#1ed4e7",
             "itemSelectedColor": "#1ed4e7",
             "colorBorderSecondary": "#2e5e83",
-            "colorBorder": "red"
+            "colorBorder": "red",
+            "colorSplit": "rgb(46, 94, 131)"
         },
         "Tag": {
             "defaultBg": "rgba(18, 124, 160, 0.3)",
