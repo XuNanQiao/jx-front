@@ -52,8 +52,12 @@ export function fetchModelJobLog(job_id: string | number): Promise<ApiResponse<a
 }
 
 // 执行任务接口
-export function executeJob(params: { job_id: string; follow?: boolean }): Promise<ApiResponse<any>> {
+export function executeJob(params: { job_id: string; run_type: 'debug' | 'formal' }): Promise<ApiResponse<any>> {
   return request.post('/api/model_dev/execute', params, { showMessage: true, messageData: ['data', 'message'] });
+}
+// 执行任务接口
+export function getStream(params: { job_id: string; follow?: boolean }): Promise<ApiResponse<any>> {
+  return request.get('/api/model_dev/log/stream', { params, showMessage: true, messageData: ['data', 'message'] });
 }
 
 // 获取算子库树

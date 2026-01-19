@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-19 16:58:34
+ * @LastEditTime: 2026-01-19 17:31:21
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 横向柱状图
  * @FilePath: \jx\src\views\jobs\tabs\BasicInfo.vue
@@ -42,12 +42,27 @@ const jobData = ref([
   { name: '性能评估作业-007', duration: 2700 }, // 45分钟
   { name: '数据备份作业-008', duration: 10800 }, // 3小时
 ]);
-
+const barData = ref([
+  { name: '成功', duration: 3600 }, // 1小时
+  { name: '失败', duration: 7200 }, // 2小时
+  { name: '运行中', duration: 14400 }, // 4小时
+  { name: '等待', duration: 1800 }, // 30分钟
+  { name: '计划', duration: 5400 }, // 1.5小时
+]);
 // 图表配置
 const chartOption = computed(() => {
-  const jobNames = jobData.value.map((item) => item.name);
-  const durations = jobData.value.map((item) => item.duration);
-
+  const statusNames = jobData.value.map((item) => item.name);
+  const statusCounts = () => {
+    return Array.from({ length: 10 }, () => Math.floor(Math.random() * 100));
+  };
+  let series = [];
+  for (let item of barData.value) {
+    series.push({
+      name: item.name,
+      type: 'bar',
+      data: statusCounts(),
+    });
+  }
   return {
     tooltip: {
       trigger: 'axis',
@@ -55,38 +70,25 @@ const chartOption = computed(() => {
         type: 'shadow',
       },
       formatter: (params: any) => {
-        const duration = params[0].value;
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        const seconds = duration % 60;
-        let timeStr = '';
-        if (hours > 0) timeStr += `${hours}小时`;
-        if (minutes > 0) timeStr += `${minutes}分`;
-        if (seconds > 0 || timeStr === '') timeStr += `${seconds}秒`;
-        return `${params[0].name}<br/>执行时长: ${timeStr}`;
+        return `${params[0].name}<br/>作业数量: ${params[0].value}`;
+      },
+    },
+    legend: {
+      top: 0,
+      textStyle: {
+        color: '#ffffff',
       },
     },
     grid: {
-      left: '8%',
-      right: '10%',
+      left: '5%',
+      right: '2%',
       top: '5%',
-      bottom: '5%',
+      bottom: '2%',
       containLabel: true,
     },
     xAxis: {
       type: 'value',
-      name: '执行时长（秒）',
-      nameTextStyle: {
-        color: '#ffffff',
-      },
-      axisLabel: {
-        color: '#ffffff',
-      },
-      axisLine: {
-        lineStyle: {
-          color: 'rgba(255, 255, 255, 0.3)',
-        },
-      },
+      name: '',
       splitLine: {
         lineStyle: {
           color: 'rgba(255, 255, 255, 0.1)',
@@ -95,7 +97,7 @@ const chartOption = computed(() => {
     },
     yAxis: {
       type: 'category',
-      data: jobNames,
+      data: statusNames,
       axisLabel: {
         color: '#ffffff',
       },
@@ -105,7 +107,7 @@ const chartOption = computed(() => {
         },
       },
       axisPointer: {
-        type: 'line',
+        type: 'shadow',
         show: true,
         label: {
           show: true,
@@ -117,43 +119,7 @@ const chartOption = computed(() => {
         },
       },
     },
-    series: [
-      {
-        name: '执行时长',
-        type: 'bar',
-        data: durations,
-        itemStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 1,
-            y2: 0,
-            colorStops: [
-              { offset: 0, color: '#4facfe' },
-              { offset: 1, color: '#00f2fe' },
-            ],
-          },
-          borderRadius: [0, 4, 4, 0],
-        },
-        label: {
-          show: true,
-          position: 'right',
-          color: '#ffffff',
-          formatter: (params: any) => {
-            const duration = params.value;
-            const hours = Math.floor(duration / 3600);
-            const minutes = Math.floor((duration % 3600) / 60);
-            const seconds = duration % 60;
-            let timeStr = '';
-            if (hours > 0) timeStr += `${hours}h `;
-            if (minutes > 0) timeStr += `${minutes}m `;
-            if (seconds > 0 || timeStr === '') timeStr += `${seconds}s`;
-            return timeStr;
-          },
-        },
-      },
-    ],
+    series,
   };
 });
 

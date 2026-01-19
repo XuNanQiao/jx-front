@@ -38,8 +38,7 @@ import DataBrowse from './tabs/DataBrowse.vue';
 
 const route = useRoute();
 const id = computed(() => route.params.id);
-const detailName = computed(() => (route.query.name as string) || '详情');
-const activeKey = ref('basic');
+const activeKey = ref('browse');
 </script>
 
 <style scoped lang="scss">
