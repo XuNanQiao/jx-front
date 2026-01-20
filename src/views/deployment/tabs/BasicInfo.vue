@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-19 16:35:03
+ * @LastEditTime: 2026-01-20 16:14:56
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -17,7 +17,7 @@
               v-model:value="slotProps.form[slotProps.field.key]"
               placeholder="请输入执行周期"
               style="width: calc(100% - 120px)" />
-            <a-button type="primary" @click="handleConfigCycle">
+            <a-button type="primary" @click="handleConfigCycle(slotProps.form, slotProps.field.key)">
               <template #icon>
                 <ImportOutlined />
               </template>
@@ -42,51 +42,110 @@
         </a-form-item>
       </template>
     </DescriptionsCom>
+
+    <!-- Crontab 配置弹窗 -->
+    <a-modal
+      v-model:open="cronModalVisible"
+      title="配置执行周期"
+      :width="600"
+      @ok="handleCronConfirm"
+      @cancel="handleCronCancel">
+      <a-form :model="cronForm" layout="vertical">
+        <a-form-item label="Crontab 表达式">
+          <a-input
+            v-model:value="cronForm.expression"
+            placeholder="请输入 Crontab 表达式，例如：0 0 * * *"
+            :maxlength="100" />
+          <!--    <div class="cron-tips">
+            <p>格式说明：分 时 日 月 周</p>
+            <p>示例：</p>
+            <ul>
+              <li>0 0 * * * - 每天凌晨执行</li>
+              <li>0 */2 * * * - 每2小时执行一次</li>
+              <li>0 0 * * 1 - 每周一凌晨执行</li>
+            </ul>
+          </div> -->
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getModelDevDetail, updateModelDev } from '@/api/development';
-import DescriptionsCom from '@/components/descriptionsCom.vue';
-import { ImportOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-import { ref, watch } from 'vue';
-import { basicFields, basicInp } from '../indexData';
+import { getModelDevDetail, updateModelDev } from "@/api/development";
+import DescriptionsCom from "@/components/descriptionsCom.vue";
+import { ImportOutlined } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { ref, watch } from "vue";
+import { basicFields, basicInp } from "../indexData";
+import { getDataStructureList } from "@/api/inputOutput";
 const props = defineProps<{ id: any | null }>();
 const loading = ref(false);
 const editMode = ref(false);
 const detail = ref<any>({});
 const basicList = ref<any[]>([]);
+
+// Crontab 配置弹窗相关
+const cronModalVisible = ref(false);
+const cronForm = ref({
+  expression: "",
+});
+let currentForm: any = null;
+let currentFieldKey: string = "";
+
+// 配置执行周期
+const handleConfigCycle = (form: any, fieldKey: string) => {
+  currentForm = form;
+  currentFieldKey = fieldKey;
+  cronForm.value.expression = form[fieldKey] || "";
+  cronModalVisible.value = true;
+};
+
+// 确认配置
+const handleCronConfirm = () => {
+  if (!cronForm.value.expression.trim()) {
+    message.warning("请输入 Crontab 表达式");
+    return;
+  }
+
+  if (currentForm && currentFieldKey) {
+    currentForm[currentFieldKey] = cronForm.value.expression.trim();
+  }
+
+  cronModalVisible.value = false;
+  message.success("配置成功");
+};
+
+// 取消配置
+const handleCronCancel = () => {
+  cronModalVisible.value = false;
+};
+
 const onSave = async (form: any) => {
   await save(form);
   editMode.value = false;
 };
+
 const save = async (form: any) => {
   if (!form.id) {
-    message.error('缺少 id，无法保存');
+    message.error("缺少 id，无法保存");
     return;
   }
   try {
     let data = JSON.parse(JSON.stringify(form));
     delete data.dependency_package;
     await updateModelDev(data);
-    message.success('保存成功');
+    message.success("保存成功");
     await loadDetail(); // 保存后重新加载数据
   } catch (err) {
-    message.error('保存失败');
+    message.error("保存失败");
   }
-};
-
-// 配置执行周期
-const handleConfigCycle = () => {
-  // TODO: 打开执行周期配置弹窗
-  message.info('执行周期配置功能开发中');
 };
 
 // 加载详情数据
 const loadDetail = async () => {
   if (!props.id) {
-    message.error('缺少ID参数');
+    message.error("缺少ID参数");
     return;
   }
 
@@ -97,15 +156,25 @@ const loadDetail = async () => {
       detail.value = res.data;
     }
     let list = basicFields();
-
+    const newList: any = [];
+    for (let item of list) {
+      await getDataStructureList({ model_input_output_id: 2 }).then((res: any) => {
+        if (res?.code === 200) {
+          const options = res.data.items.map((ds: any) => ({
+            label: ds.name,
+            value: ds.column,
+          }));
+          let fields: any = basicInp();
+          fields[1].options = options;
+          newList.push({
+            title: "输入配置",
+            key: "inputConfig",
+            fields: fields,
+          });
+        }
+      });
+    }
     // 创建新列表项
-    const newList = [
-      {
-        title: '输入配置',
-        key: 'inputConfig',
-        fields: basicInp,
-      },
-    ];
 
     // 在第一项后插入新列表
     if (list.length > 0) {
@@ -114,7 +183,7 @@ const loadDetail = async () => {
 
     basicList.value = list;
   } catch (err: any) {
-    console.error('❌ 详情数据加载错误:', err);
+    console.error("❌ 详情数据加载错误:", err);
   } finally {
     loading.value = false;
   }
@@ -131,4 +200,28 @@ watch(
   { immediate: true },
 );
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.cron-tips {
+  margin-top: 8px;
+  padding: 12px;
+  background-color: #f6f8fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+
+  p {
+    margin: 0 0 8px 0;
+    font-weight: 500;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+
+    li {
+      margin: 4px 0;
+      color: #999;
+    }
+  }
+}
+</style>

@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-19 15:08:06
+ * @LastEditTime: 2026-01-20 15:51:27
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\Detail.vue
@@ -13,7 +13,7 @@
       <template #title>
         <a-breadcrumb style="margin-bottom: 0">
           <a-breadcrumb-item class="crumb-parent">
-            <router-link :to="{ name: 'ModelDevelopment' }">模型开发</router-link>
+            <router-link :to="{ name: 'ModelDevelopment' }">模型部署</router-link>
           </a-breadcrumb-item>
           <a-breadcrumb-item class="crumb-current">{{ detailName }}</a-breadcrumb-item>
         </a-breadcrumb>
@@ -35,15 +35,15 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { computed, ref } from 'vue';
-import BasicInfo from './tabs/BasicInfo.vue';
-import DataBrowse from './tabs/DataBrowse.vue';
+import { useRoute } from "vue-router";
+import { computed, ref } from "vue";
+import BasicInfo from "./tabs/BasicInfo.vue";
+import DataBrowse from "./tabs/DataBrowse.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id);
-const detailName = computed(() => (route.query.name as string) || '详情');
-const activeKey = ref('basic');
+const detailName = computed(() => (route.query.name as string) || "详情");
+const activeKey = ref("basic");
 </script>
 
 <style scoped lang="scss">

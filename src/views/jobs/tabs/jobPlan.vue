@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 15:25:14
+ * @LastEditTime: 2026-01-20 15:44:39
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -29,7 +29,7 @@
     </div>
     <a-spin :spinning="loading">
       <div class="chart-container">
-        <v-chart :option="chartOption" :autoresize="true" />
+        <v-chart :option="chartOption" :autoresize="true" @datazoom="handleDataZoom" />
       </div>
     </a-spin>
   </div>
@@ -59,6 +59,71 @@ const filters = ref({
   autoMonitor: false as boolean,
 });
 const loading = ref(false);
+
+// 动态时间格式
+const xAxisFormatter = ref<(value: number) => string>((value: number) => {
+  const formatted = dayjsFormat(value);
+  return formatted.slice(0, 10) + "\n" + formatted.slice(11);
+});
+
+// 计算时间格式化函数
+const getTimeFormatter = (timeRange: number) => {
+  // timeRange 单位是毫秒
+  const hourInMs = 3600 * 1000;
+  const dayInMs = 24 * hourInMs;
+
+  if (timeRange <= 6 * hourInMs) {
+    // 6小时以内：显示 年-月-日 时:分:秒
+    return (value: number) => {
+      const formatted = dayjsFormat(value);
+      return formatted.slice(0, 10) + "\n" + formatted.slice(11);
+    };
+  } else if (timeRange <= 3 * dayInMs) {
+    // 3天以内：显示 年-月-日 时:分
+    return (value: number) => {
+      const formatted = dayjsFormat(value);
+      return formatted.slice(0, 10) + "\n" + formatted.slice(11, 16);
+    };
+  } else if (timeRange <= 7 * dayInMs) {
+    // 7天以内：显示 年-月-日 时
+    return (value: number) => {
+      const formatted = dayjsFormat(value);
+      return formatted.slice(0, 10) + "\n" + formatted.slice(11, 13) + ":00";
+    };
+  } else {
+    // 7天以上：只显示 年-月-日
+    return (value: number) => {
+      return dayjsFormat(value).slice(0, 10);
+    };
+  }
+};
+
+// 处理缩放事件
+const handleDataZoom = (event: any) => {
+  // 处理单个事件或批量事件
+  const zoomData = event.batch ? event.batch[0] : event;
+
+  if (zoomData) {
+    const { start, end, startValue, endValue } = zoomData;
+
+    // 优先使用 startValue 和 endValue（精确值）
+    if (startValue !== undefined && endValue !== undefined) {
+      const timeRange = endValue - startValue;
+      xAxisFormatter.value = getTimeFormatter(timeRange);
+    } else if (start !== undefined && end !== undefined) {
+      // 如果没有精确值，使用百分比计算
+      const allTimes = jobData.value.flatMap((item: any) => [
+        new Date(item.data_start_time).getTime(),
+        new Date(item.data_end_time).getTime(),
+      ]);
+      const minTime = Math.min(...allTimes);
+      const maxTime = Math.max(...allTimes);
+      const totalRange = maxTime - minTime;
+      const timeRange = (totalRange * (end - start)) / 100;
+      xAxisFormatter.value = getTimeFormatter(timeRange);
+    }
+  }
+};
 
 // 状态映射:将数字状态码映射为中文状态名称
 const statusMap: Record<string, string> = {
@@ -92,6 +157,18 @@ const loadJobPlanData = async () => {
     jobData.value = [];
     if (res?.data?.items) {
       jobData.value = res.data.items;
+
+      // 初始化时间格式化函数
+      if (jobData.value.length > 0) {
+        const allTimes = jobData.value.flatMap((item: any) => [
+          new Date(item.data_start_time).getTime(),
+          new Date(item.data_end_time).getTime(),
+        ]);
+        const minTime = Math.min(...allTimes);
+        const maxTime = Math.max(...allTimes);
+        const timeRange = maxTime - minTime;
+        xAxisFormatter.value = getTimeFormatter(timeRange);
+      }
     }
   } catch (err) {
     console.error("获取作业计划数据失败:", err);
@@ -204,9 +281,13 @@ const chartOption = computed(() => {
       show: false,
     },
     tooltip: {
+      trigger: "axis",
       formatter: (params: any) => {
-        if (!params || !params.data) return "";
-        const { name, value, status } = params.data;
+        if (!params || params.length === 0) return "";
+        // axis 模式下 params 是数组，取第一个有数据的项
+        const param = params.find((p: any) => p.data);
+        if (!param || !param.data) return "";
+        const { name, value, status } = param.data;
         if (!value || !status) return "";
         return `
           <div style="padding: 8px">
@@ -223,6 +304,13 @@ const chartOption = computed(() => {
       borderWidth: 1,
       textStyle: {
         color: "#ffffff",
+      },
+      axisPointer: {
+        type: "shadow",
+        axis: "y",
+        shadowStyle: {
+          color: "rgba(24, 144, 255, 0.2)",
+        },
       },
     },
     legend: {
@@ -256,8 +344,7 @@ const chartOption = computed(() => {
       scale: true,
       position: "top",
       axisLabel: {
-        formatter: (value: number) =>
-          dayjsFormat(value /* "YYYY-MM-DD" */).slice(0, 10) + "\n" + dayjsFormat(value /* "YYYY-MM-DD" */).slice(11),
+        formatter: (value: number) => xAxisFormatter.value(value),
         color: "#ffffff",
         fontSize: 12,
       },

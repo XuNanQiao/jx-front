@@ -14,7 +14,7 @@ export const triggerOptions: SelectOption[] = [
   { label: "手工触发", value: "manual" },
   { label: "自启动", value: "auto" },
 ];
-
+export const retentionOptions: SelectOption[] = [{ label: "指定", value: "指定" }];
 /* ----------------------detail------------------- */
 export const detailColumns = () => [
   { dataIndex: "name", title: "名称", key: "name" },
@@ -92,7 +92,13 @@ export const basicFields = () => {
           editSlot: "cycleEditor",
           type: "input" as const,
         },
-        { label: "作业保留数", key: "job_retention", type: "input" as const, editSlot: "jobRetentionEditor" },
+        {
+          label: "作业保留数",
+          key: "job_retention",
+          type: "input" as const,
+          options: retentionOptions,
+          editSlot: "jobRetentionEditor",
+        },
       ],
     },
     {
@@ -112,11 +118,11 @@ export const basicFields = () => {
     },
   ];
 };
-export const basicInp = [
+export const basicInp = () => [
   { label: "Rep", key: "created_user_id", type: "input" },
-  { label: "数据列", key: "created_time", type: "input" },
-  { label: "设备实例", key: "available_range", type: "input" },
-  { label: "数据时间", key: "remark", type: "input", span: 4, labelSpan: 12 },
-  { label: "窗口长度", key: "remark", type: "input", span: 4, labelSpan: 12 },
-  { label: "对齐时间", key: "remark", type: "input", span: 4, labelSpan: 12 },
+  { label: "数据列", key: "created_time", type: "select", mode: "multiple" },
+  { label: "设备实例", key: "available_range", type: "select", mode: "multiple" },
+  { label: "数据时间", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
+  { label: "窗口长度", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
+  { label: "对齐时间", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
 ];

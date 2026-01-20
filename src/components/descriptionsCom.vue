@@ -55,7 +55,8 @@
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
                         <a-input-number
                           v-model:value="form[field.key]"
-                          :min="0"
+                          :min="field.min"
+                          :max="field.max"
                           style="width: 100%"
                           placeholder="请输入数据周期" />
                       </a-form-item>
@@ -87,17 +88,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, defineComponent, h } from 'vue';
-import { message } from 'ant-design-vue';
-import type { FormInstance } from 'ant-design-vue';
+import { ref, watch, reactive, defineComponent, h } from "vue";
+import { message } from "ant-design-vue";
+import type { FormInstance } from "ant-design-vue";
 // 用于直接挂载 VNode 或字符串到模板
 const VNodeRenderer = defineComponent({
-  name: 'VNodeRenderer',
+  name: "VNodeRenderer",
   props: {
     vnode: { type: [Object, String, Number], required: true },
   },
   setup(props) {
-    return () => (typeof props.vnode === 'object' ? (props.vnode as any) : h('span', {}, String(props.vnode)));
+    return () => (typeof props.vnode === "object" ? (props.vnode as any) : h("span", {}, String(props.vnode)));
   },
 });
 type SelectOption = { label: string; value: any };
@@ -115,8 +116,8 @@ type ValidationRule = {
 interface FieldItem {
   label: string;
   key: string;
-  type?: 'input' | 'select' | 'switch' | 'number' | 'link' | 'checkbox';
-  mode?: 'multiple' | 'tags';
+  type?: "input" | "select" | "switch" | "number" | "link" | "checkbox";
+  mode?: "multiple" | "tags";
   options?: SelectOption[];
   rules?: ValidationRule[];
   editSlot?: string;
@@ -149,7 +150,7 @@ const props = withDefaults(
     openHand: true,
   },
 );
-const emit = defineEmits(['save', 'update:editModeShow']);
+const emit = defineEmits(["save", "update:editModeShow"]);
 
 const formRef = ref<FormInstance>();
 const open = ref<Record<string, boolean>>({});
@@ -190,12 +191,12 @@ const toggle = (key: string) => {
 
 const toggleEdit = () => {
   editMode.value = true;
-  emit('update:editModeShow', true);
+  emit("update:editModeShow", true);
 };
 
 const cancelEdit = () => {
   editMode.value = false;
-  emit('update:editModeShow', false);
+  emit("update:editModeShow", false);
   // 重置表单验证状态
   formRef.value?.clearValidate();
   if (props.detail) {
@@ -209,18 +210,18 @@ const onSave = async () => {
     // 执行表单验证
     await formRef.value?.validate();
     // 验证通过，触发保存事件
-    emit('save', form);
+    emit("save", form);
   } catch (error) {
     // 验证失败
-    message.error('请检查表单填写是否正确');
-    console.error('表单验证失败:', error);
+    message.error("请检查表单填写是否正确");
+    console.error("表单验证失败:", error);
   }
 };
 
 const formatValue = (value: any) => {
-  if (value === undefined || value === null || value === '') return '-';
-  if (Array.isArray(value)) return value.length ? JSON.stringify(value) : '-';
-  if (typeof value === 'object') return Object.keys(value).length ? JSON.stringify(value) : '-';
+  if (value === undefined || value === null || value === "") return "-";
+  if (Array.isArray(value)) return value.length ? JSON.stringify(value) : "-";
+  if (typeof value === "object") return Object.keys(value).length ? JSON.stringify(value) : "-";
   return value;
 };
 </script>
