@@ -12,6 +12,7 @@ export interface IOConfig {
 export interface ModelInputOutput {
   id?: string;
   name: string; // 模型名称
+  node_name_en?: string; // 节点名称（英文）
   version?: string; // 模型版本
   category?: string | number; // 分类：0=其他,1=风机,2=光伏,3=电气
   editor?: string | number; // 编辑器：0=canvas
@@ -25,6 +26,8 @@ export interface ModelInputOutput {
   created_user_id?: string; // 创建人
   updated_time?: string; // 更新时间
   updated_user_id?: string; // 更新人
+  is_active?: boolean; // 启动状态
+  status?: number; // 作业状态
 
   // 兼容历史字段（Input/Output 模块使用）
   attribute?: string; // 属性/版本别名

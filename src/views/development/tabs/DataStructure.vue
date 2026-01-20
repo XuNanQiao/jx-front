@@ -48,15 +48,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, computed } from 'vue';
-import { getModelDevDetail, updateModelDev } from '@/api/development';
+import { ref, watch, computed } from 'vue';
+import { getModelDevDetail } from '@/api/development';
 import { message } from 'ant-design-vue';
-import { packageFields } from '../indexData';
 import DatabaseConfigModal from './DatabaseConfigModal.vue';
-import DescriptionsCom from '@/components/descriptionsCom.vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps<{ id: any | null }>();
-const editMode = ref(false);
 const loading = ref(false);
 const detail = ref<any>({});
 

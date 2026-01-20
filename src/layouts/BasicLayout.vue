@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
-import { tokenThem } from '@/styles/them';
 import theme from '@/styles/them.json';
 // 用户信息已在 main.ts 中初始化到全局状态
 </script>

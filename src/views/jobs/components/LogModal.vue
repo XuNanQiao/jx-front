@@ -76,8 +76,8 @@ const state = reactive({
   activeTab: 'log',
 });
 
-const displayLog = ref({});
-const displayExtension = ref([]);
+const displayLog = ref<{ exec_log?: string; refresh_interval?: number }>({});
+const displayExtension = ref<{ exec_log?: string }>({});
 const time = ref(10);
 const refreshTimer = ref<any | null>(null);
 

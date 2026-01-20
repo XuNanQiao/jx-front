@@ -70,12 +70,12 @@
       row-key="id"
       class="model-table"
       :scroll="{ y: 'calc(100vh - 300px)' }">
-      <template #bodyCell="{ column, record, text }">
+      <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
         <template v-else-if="column.key === 'is_active'">
-          <a-switch v-model:checked="record.is_active" @change="(checked) => handleStatusChange(checked, record)" />
+          <a-switch v-model:checked="record.is_active" @change="(checked: boolean) => handleStatusChange(checked, record)" />
         </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
@@ -83,7 +83,7 @@
               <MoreOutlined class="text-16px text-white" />
             </a-button>
             <template #overlay>
-              <a-menu @click="(e) => handleMenuClick(e, record)">
+              <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
                 <a-menu-item key="edit">
                   <EditOutlined />
                   <span style="margin-left: 8px">编辑</span>
@@ -126,7 +126,6 @@ import {
   ExportOutlined,
   MoreOutlined,
   PlayCircleOutlined,
-  PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
@@ -216,7 +215,7 @@ const handleTableChange = (pag: any) => {
 };
 
 // 新建
-const formModalRef = ref(null);
+const formModalRef = ref<{ openModal: (record?: any) => void } | null>(null);
 const handleCreate = (record?: any) => {
   if (formModalRef.value) {
     formModalRef.value.openModal(record);
@@ -269,7 +268,9 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
       handleExport(record);
       break;
     case 'delete':
-      handleDelete(record.id);
+      if (record.id) {
+        handleDelete(record.id);
+      }
       break;
     case 'view':
       // 跳转到详情页
@@ -339,11 +340,6 @@ const handleExport = async (record: ModelInputOutput) => {
     console.error('导出失败:', error);
     message.error('导出失败');
   }
-};
-
-const handleSaved = async () => {
-  // 保存成功后刷新列表
-  await loadData();
 };
 
 // 处理启动状态变化

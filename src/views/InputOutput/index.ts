@@ -17,7 +17,7 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
     key: 'category',
     width: 80,
     align: 'center',
-    customRender: ({ text }) => (text == '1' ? '系统' : '台账'),
+    customRender: ({ text }: { text: any }) => (text == '1' ? '系统' : '台账'),
   },
   { title: '完整度', dataIndex: 'integrity', key: 'integrity', width: 150, align: 'center' },
   { title: '数据输入', dataIndex: 'data_input', key: 'dataInput', align: 'center' },
@@ -27,7 +27,7 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
     key: 'cycleTime',
     width: 120,
     align: 'center',
-    customRender: ({ text }) => text + 'ms',
+    customRender: ({ text }: { text: any }) => text + 'ms',
   },
   {
     title: '创建时间',
@@ -35,7 +35,7 @@ export const columns: TableColumnType<ModelInputOutput>[] = [
     key: 'createdTime',
     sorter: true,
     width: 150,
-    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+    customRender: ({ text }: { text: any }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
   },
   { title: '创建人', dataIndex: 'created_user_id', key: 'createdUserId', width: 120, align: 'center' },
   { title: '操作', key: 'action', fixed: 'right', width: 50, align: 'center' },
@@ -53,14 +53,14 @@ export const columnsDataStructure: TableColumnType<DataStructure>[] = [
 
 // 数据浏览表格基础列（固定列）
 export const DataBrowseColumns = [
-  { title: '序号', key: 'index', width: 80, customRender: ({ index }) => index + 1 },
+  { title: '序号', key: 'index', width: 80, customRender: ({ index }: { index: number }) => index + 1 },
   { title: '设备', dataIndex: 'name', key: 'device', width: 150 },
   {
     title: '时间',
     dataIndex: 'created_time',
     key: 'time',
     width: 180,
-    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+    customRender: ({ text }: { text: any }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
   },
 ];
 

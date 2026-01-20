@@ -66,7 +66,7 @@
       row-key="id"
       class="model-table"
       :scroll="{ y: 'calc(100vh - 300px)' }">
-      <template #bodyCell="{ column, record, text }">
+      <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
@@ -76,7 +76,7 @@
               <MoreOutlined class="text-16px text-white" />
             </a-button>
             <template #overlay>
-              <a-menu @click="(e) => handleMenuClick(e, record)">
+              <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
                 <a-menu-item key="exploitation">
                   <EditOutlined />
                   <span style="margin-left: 8px">开发</span>
@@ -116,11 +116,10 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons-vue';
-import type { TableProps } from 'ant-design-vue';
 import { message, Modal } from 'ant-design-vue';
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { detailColumns, selectOptions, editorOptions } from './indexData';
+import { detailColumns, selectOptions } from './indexData';
 import detailFormModal from './components/detailFormModal.vue';
 import ImportAction from '@/components/common/ImportAction.vue';
 import { debounce } from 'lodash-es';
@@ -207,7 +206,7 @@ const handleTableChange = (pag: any) => {
 };
 
 // 新建
-const formModalRef = ref(null);
+const formModalRef = ref<{ openModal: (record?: any) => void } | null>(null);
 const handleCreate = (record?: any) => {
   if (formModalRef.value) {
     formModalRef.value.openModal(record);
@@ -259,7 +258,9 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
       message.info(`复制: ${record.name}`);
       break;
     case 'delete':
-      handleDelete(record.id);
+      if (record.id) {
+        handleDelete(record.id);
+      }
       break;
   }
 };

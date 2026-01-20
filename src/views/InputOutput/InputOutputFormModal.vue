@@ -78,7 +78,7 @@
 import { reactive, ref } from 'vue';
 import type { ModelInputOutput } from '@/types/model';
 import { createItem, updateItem } from '@/api/inputOutput';
-import { message, type FormInstance } from 'ant-design-vue';
+import { type FormInstance } from 'ant-design-vue';
 import { selectOptions, attributeOptions } from './index';
 const emit = defineEmits(['update:modelValue', 'saved']);
 const visibleLocal = ref<boolean>(false);

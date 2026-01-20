@@ -15,7 +15,7 @@
         :data-source="dataSource"
         :pagination="pagination"
         :scroll="{ y: 'calc(100vh - 280px)' }">
-        <template #bodyCell="{ column, record }">
+        <template #bodyCell="{ column }">
           <template v-if="column.key === 'action'">
             <a-space>
               <a-button type="link" size="small">编辑</a-button>

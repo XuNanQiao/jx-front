@@ -223,13 +223,6 @@ const openLogModal = (record: ModelInputOutput) => {
   logModal.record = record;
 };
 
-// 新建
-const formModalRef = ref<any | null>(null);
-const handleCreate = (record?: any) => {
-  if (formModalRef.value) {
-    formModalRef.value.openModal(record);
-  }
-};
 
 // 预留导入功能（如需启用可补充）
 

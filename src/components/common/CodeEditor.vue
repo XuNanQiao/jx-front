@@ -42,7 +42,6 @@ const emit = defineEmits<{
 
 const textareaRef = ref<HTMLTextAreaElement>();
 const highlightRef = ref<HTMLPreElement>();
-const editorRef = ref<HTMLDivElement>();
 const localValue = ref(props.modelValue || '');
 
 // 计算高亮后的代码

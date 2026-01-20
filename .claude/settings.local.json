@@ -7,7 +7,9 @@
       "Bash(npm install:*)",
       "Bash(npm run type-check)",
       "Bash(npm run)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run build:prod:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

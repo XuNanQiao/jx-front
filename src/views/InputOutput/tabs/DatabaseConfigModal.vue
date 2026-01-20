@@ -87,8 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from "vue";
-import { getDatabaseConfig, createDatabaseConfig, updateDatabaseConfig, updateItem } from "@/api/inputOutput";
+import { ref, computed } from "vue";
+import { updateItem } from "@/api/inputOutput";
 import { message, type FormInstance } from "ant-design-vue";
 
 // 数据库配置表单类型（使用下划线命名匹配后端）

@@ -115,7 +115,6 @@ import {
   FunctionOutlined,
   ImportOutlined,
   LogoutOutlined,
-  UserOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { ref, watch } from 'vue';

@@ -9,7 +9,7 @@
 -->
 <template>
   <div class="basic-info page">
-    <DescriptionsCom v-model:edit-mode-show="editMode" :detail="detail" :list="basicFields" @save="onSave" />
+    <DescriptionsCom v-model:edit-mode-show="editMode" :detail="detail" :list="basicFieldsComputed" @save="onSave" />
   </div>
 </template>
 
@@ -23,6 +23,7 @@ const props = defineProps<{ id: any | null }>();
 const loading = ref(false);
 const editMode = ref(false);
 const detail = ref<any>({});
+const basicFieldsComputed = basicFields as any;
 
 const onSave = async (form: any) => {
   await save(form);

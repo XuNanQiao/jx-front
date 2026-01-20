@@ -7,7 +7,6 @@
  * @FilePath: \jx\src\views\development\indexData.ts
  *
  */
-// import { TreeProps } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';

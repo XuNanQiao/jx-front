@@ -115,9 +115,9 @@ const loadData = async (params?: any) => {
     if (mode.value === 'year') {
       p.year = p.year || selectedYear.value;
     } else if (mode.value === 'month') {
-      p.month = p.month || (selectedMonth ? selectedMonth.format('YYYY-MM') : undefined);
+      p.month = p.month || (selectedMonth.value ? selectedMonth.value.format('YYYY-MM') : undefined);
     } else if (mode.value === 'day') {
-      p.day = p.day || (selectedDay ? selectedDay.format('YYYY-MM-DD') : undefined);
+      p.day = p.day || (selectedDay.value ? selectedDay.value.format('YYYY-MM-DD') : undefined);
     }
     p.metric = metric.value;
     const res: any = await getCompleteness(p);

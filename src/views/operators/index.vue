@@ -124,10 +124,10 @@
 import { getList, getSourceCode } from '@/api/operators';
 import { useTablePagination } from '@/utils/useTablePagination';
 import { SearchOutlined } from '@ant-design/icons-vue';
-import { message, TreeProps } from 'ant-design-vue';
+import { TreeProps } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { tableColumns, treeData, versionOptions } from './indexData';
+import { tableColumns, treeData } from './indexData';
 import SourceModal from './components/SourceModal.vue';
 import ImportAction from '@/components/common/ImportAction.vue';
 import DownloadAction from '@/components/common/DownloadAction.vue';
@@ -136,7 +136,7 @@ const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
 // 筛选条件
 const filters = reactive({
-  expandedKeys: 0,
+  expandedKeys: 0 as string | number,
   version: null,
   name: null,
 });
@@ -200,7 +200,7 @@ const getListHand = async () => {
   try {
     // 构建查询参数
     const params = {
-      category: filters.expandedKeys,
+      category: String(filters.expandedKeys),
       version: filters.version,
       name: filters.name,
       page: pagination.current,

@@ -1,6 +1,4 @@
 import dayjs from 'dayjs';
-import { h } from 'vue';
-import { Tag } from 'ant-design-vue';
 
 // 选项定义
 export const selectOptions: SelectOption[] = [
@@ -65,7 +63,7 @@ export const detailColumns = () => [
     key: 'createdTime',
     sorter: true,
     width: 150,
-    customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+    customRender: ({ text }: { text: any }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
   },
 
   { dataIndex: 'created_user_id', title: '创建人', key: 'created_user_id', align: 'center' },
@@ -124,7 +122,7 @@ export const basicFields = () => {
           label: '创建时间',
           key: 'created_time',
 
-          customRender: ({ text }: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+          customRender: ({ text }: { text: any }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
         },
         { label: '可用范围', key: 'available_range' },
         { label: '备注', key: 'remark' },

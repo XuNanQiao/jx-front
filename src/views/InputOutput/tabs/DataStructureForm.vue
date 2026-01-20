@@ -30,7 +30,7 @@
 import { reactive, ref } from "vue";
 import type { DataStructure } from "@/types/model";
 import { createDataStructure, updateDataStructure } from "@/api/inputOutput";
-import { message, type FormInstance } from "ant-design-vue";
+import { type FormInstance } from "ant-design-vue";
 const emit = defineEmits(["update:modelValue", "saved"]);
 const visibleLocal = ref<boolean>(false);
 const loadingLocal = ref(false);

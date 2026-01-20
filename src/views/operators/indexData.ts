@@ -9,18 +9,11 @@
  */
 import dayjs from 'dayjs';
 
-const categoryMap: Record<number, string> = {
-  0: '基础算子',
-  1: '文件读写',
-  2: '机器学习',
-  3: '信号处理',
-};
-
 export const tableColumns = [
   { dataIndex: 'name', title: '名称', key: 'name' },
   { dataIndex: 'run_env', title: '运行环境', align: 'center' },
   { dataIndex: 'version', title: '版本号', align: 'center' },
-  { dataIndex: 'created_time', title: '创建时间', align: 'center', customRender: ({ text }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
+  { dataIndex: 'created_time', title: '创建时间', align: 'center', customRender: ({ text }: { text: any }) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-') },
   { dataIndex: 'created_user_id', title: '创建人', align: 'center' },
   { dataIndex: 'action', title: '操作', key: 'action', align: 'center' },
 ];

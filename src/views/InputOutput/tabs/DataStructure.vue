@@ -62,7 +62,6 @@
 import { getDataStructureList, batchDeleteDataStructures } from '@/api/inputOutput';
 import type { DataStructure } from '@/types/model';
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import type { TableProps } from 'ant-design-vue';
 import { message, Modal } from 'ant-design-vue';
 import { Dayjs } from 'dayjs';
 import { LineChart } from 'echarts/charts';
@@ -70,12 +69,9 @@ import { GridComponent, TooltipComponent } from 'echarts/components';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
-import VChart from 'vue-echarts';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { columnsDataStructure } from '../index';
 import DataStructureForm from './DataStructureForm.vue';
-
-const router = useRouter();
 const route = useRoute();
 
 // 获取当前模型输入输出的ID
@@ -189,7 +185,7 @@ const filteredData = computed(() => {
       const name = item.name?.toLowerCase() || '';
       const column = item.column?.toLowerCase() || '';
       // 支持 dataType 和 data_type 两种字段名
-      const dataType = (item.dataType || item.data_type || '').toLowerCase();
+      const dataType = (item.data_type || '').toLowerCase();
       return name.includes(keyword) || column.includes(keyword) || dataType.includes(keyword);
     });
   }
@@ -218,7 +214,7 @@ const rowSelection = computed(() => ({
 }));
 
 // 表格变化处理（排序、分页）
-const handleTableChange: TableProps['onChange'] = (paginationConfig, filters, sorter: any) => {
+const handleTableChange: (paginationConfig: any, _filters: any, sorter: any) => void = (paginationConfig, _filters, sorter) => {
   // 更新分页
 
   if (paginationConfig.current) {
@@ -237,9 +233,9 @@ const handleTableChange: TableProps['onChange'] = (paginationConfig, filters, so
         const bValue = b[field as keyof DataStructure];
 
         if (order === 'ascend') {
-          return aValue > bValue ? 1 : -1;
+          return (aValue ?? '') > (bValue ?? '') ? 1 : -1;
         } else {
-          return aValue < bValue ? 1 : -1;
+          return (aValue ?? '') < (bValue ?? '') ? 1 : -1;
         }
       });
     }
