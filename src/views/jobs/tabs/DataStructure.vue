@@ -66,20 +66,6 @@
       class="model-table"
       :scroll="{ y: 'calc(100vh - 350px)' }">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'integrity'">
-          -
-          <!--  <a-progress
-            :percent="record.integrity * 100"
-            :stroke-color="{
-              '0%': '#108ee9',
-              '100%': '#87d068',
-            }"
-            size="small">
-            <template #format="percent">
-              <span class="text-white">{{ percent }}</span>
-            </template>
-          </a-progress> -->
-        </template>
         <template v-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
             <a-button type="text" size="small">
@@ -116,8 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelJob, deleteModelJob, getModelJobList, type JobListQueryParams } from "@/api/modelJob";
-import type { ModelInputOutput } from "@/types/model";
+import { batchDeleteModelJob, deleteModelJob, getModelJobList } from "@/api/modelJob";
 import { useTablePagination } from "@/utils/useTablePagination";
 import {
   ArrowUpOutlined,

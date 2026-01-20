@@ -172,22 +172,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
-import { message } from 'ant-design-vue';
-import { DownOutlined } from '@ant-design/icons-vue';
-import type { Dayjs } from 'dayjs';
-import { useRoute } from 'vue-router';
-import { getBrowseData, getDataStructureList, type DataBrowseParams } from '@/api/inputOutput';
-import { allColumnsOptions, DataBrowseColumns } from '@/views/InputOutput/index';
-import { TIME_RANGE_OPTIONS } from '@/views/InputOutput/constants';
-import { useTablePagination } from '@/utils/useTablePagination';
-import { useTimeRangeFilter } from '@/utils/useTimeRangeFilter';
-import ChartView from '@/components/chart/chartView.vue';
-import ScatterChart from '@/components/chart/scatterChart.vue';
+import { ref, reactive, computed, onMounted } from "vue";
+import { message } from "ant-design-vue";
+import { DownOutlined } from "@ant-design/icons-vue";
+import type { Dayjs } from "dayjs";
+import { useRoute } from "vue-router";
+import { getBrowseData, getDataStructureList } from "@/api/inputOutput";
+import { allColumnsOptions, DataBrowseColumns } from "@/views/InputOutput/index";
+import { TIME_RANGE_OPTIONS } from "@/views/InputOutput/constants";
+import { useTablePagination } from "@/utils/useTablePagination";
+import { useTimeRangeFilter } from "@/utils/useTimeRangeFilter";
+import ChartView from "@/components/chart/chartView.vue";
+import ScatterChart from "@/components/chart/scatterChart.vue";
 
-type DisplayMode = 'table' | 'deviceChart' | 'columnChart' | 'distribution' | 'correlation';
-type TimeRangeType = '0' | '1' | '7' | '30' | 'custom';
-type SortOrder = 'asc' | 'none' | 'desc';
+type DisplayMode = "table" | "deviceChart" | "columnChart" | "distribution" | "correlation";
+type TimeRangeType = "0" | "1" | "7" | "30" | "custom";
+type SortOrder = "asc" | "none" | "desc";
 
 // 路由和组合式函数
 const route = useRoute();
@@ -197,24 +197,24 @@ const columnOptions = ref<SelectOption[]>([]);
 const tabColumns = ref([]);
 // 筛选条件
 const filters = reactive({
-  deviceInstance: '电脑' as string | undefined,
+  deviceInstance: "电脑" as string | undefined,
   dataColumns: [] as string[],
-  timeRangeType: '0' as TimeRangeType,
+  timeRangeType: "0" as TimeRangeType,
   dateRange: null as [Dayjs, Dayjs] | null,
-  sortOrder: 'desc' as SortOrder,
-  dataType: 'all' as string,
+  sortOrder: "desc" as SortOrder,
+  dataType: "all" as string,
   samplingRate: 60 as number,
 });
 
 // 状态管理
 const moreFiltersVisible = ref<string[]>([]);
-const displayMode = ref<DisplayMode>('table');
+const displayMode = ref<DisplayMode>("table");
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 
 // 选项数据
 const timeOptions = TIME_RANGE_OPTIONS;
-const deviceInstances = ref([{ label: '电脑', value: '电脑' }]);
+const deviceInstances = ref([{ label: "电脑", value: "电脑" }]);
 
 // 动态生成的表格列配置
 const dynamicColumns = computed(() => {
@@ -256,7 +256,7 @@ const handleQuery = async () => {
       pagination.total = res.data.total || 0;
     }
   } catch (error: any) {
-    console.error('查询数据失败:', error);
+    console.error("查询数据失败:", error);
   } finally {
     loading.value = false;
   }
@@ -276,7 +276,7 @@ const handleDownload = ({ key }: { key: string }) => {
 // 时间范围类型变化处理
 const handleTimeRangeTypeChange = () => {
   // 如果不是自定义时间，清空日期范围选择
-  if (filters.timeRangeType !== 'custom') {
+  if (filters.timeRangeType !== "custom") {
     filters.dateRange = null;
   }
 };

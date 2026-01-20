@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:17:13
- * @LastEditTime: 2026-01-16 16:00:55
+ * @LastEditTime: 2026-01-20 14:11:14
  * @LastEditors: ZHAO
  * @Description: 数据浏览页面
  * @FilePath: \jx\src\views\operators\index.vue
@@ -121,16 +121,16 @@
 </template>
 
 <script setup lang="ts">
-import { getList, getSourceCode } from '@/api/operators';
-import { useTablePagination } from '@/utils/useTablePagination';
-import { SearchOutlined } from '@ant-design/icons-vue';
-import { TreeProps } from 'ant-design-vue';
-import { debounce } from 'lodash-es';
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import { tableColumns, treeData } from './indexData';
-import SourceModal from './components/SourceModal.vue';
-import ImportAction from '@/components/common/ImportAction.vue';
-import DownloadAction from '@/components/common/DownloadAction.vue';
+import { getList, getSourceCode } from "@/api/operators";
+import { useTablePagination } from "@/utils/useTablePagination";
+import { SearchOutlined } from "@ant-design/icons-vue";
+import { TreeProps } from "ant-design-vue";
+import { debounce } from "lodash-es";
+import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { tableColumns, treeData } from "./indexData";
+import SourceModal from "./components/SourceModal.vue";
+import ImportAction from "@/components/common/ImportAction.vue";
+import DownloadAction from "@/components/common/DownloadAction.vue";
 
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 
@@ -152,7 +152,7 @@ const onSelectChange = (keys: Array<string | number>) => {
 };
 
 // 树搜索与展开控制
-const searchValue = ref('');
+const searchValue = ref("");
 const autoExpandParent = ref(true);
 const treeExpandedKeys = ref<Array<string | number>>([]);
 
@@ -161,7 +161,7 @@ type TreeNode = { key: string | number; title?: string; children?: TreeNode[] } 
 const dataList: Array<{ key: string | number; title: string }> = [];
 const generateList = (data: TreeNode[]) => {
   (data || []).forEach((node) => {
-    dataList.push({ key: node.key, title: String(node.title ?? '') });
+    dataList.push({ key: node.key, title: String(node.title ?? "") });
     if (node.children) generateList(node.children);
   });
 };
@@ -180,10 +180,10 @@ const getParentKey = (key: string | number, tree: TreeNode[]): string | number |
 };
 
 // 匹配高亮函数
-const filterTreeNode: TreeProps['filterTreeNode'] = (node: any) => {
+const filterTreeNode: TreeProps["filterTreeNode"] = (node: any) => {
   const val = searchValue.value?.trim().toLowerCase();
   if (!val) return false;
-  return String(node.title ?? '')
+  return String(node.title ?? "")
     .toLowerCase()
     .includes(val);
 };
@@ -191,7 +191,7 @@ const filterTreeNode: TreeProps['filterTreeNode'] = (node: any) => {
 // 源码弹窗状态
 const sourceModalOpen = ref(false);
 const sourceLoading = ref(false);
-const sourceTitle = ref<string>('');
+const sourceTitle = ref<string>("");
 const files = ref<Array<{ path: string; content: string }>>([]);
 
 // 查询
@@ -213,7 +213,7 @@ const getListHand = async () => {
       pagination.total = res.data.total || 0;
     }
   } catch (error: any) {
-    console.error('查询数据失败:', error);
+    console.error("查询数据失败:", error);
   } finally {
     loading.value = false;
   }
@@ -232,13 +232,13 @@ onMounted(async () => {
   getListHand(); // 再查询数据
 });
 // 树选择
-const onSelect: TreeProps['onSelect'] = (_selectedKeys, { node }) => {
+const onSelect: TreeProps["onSelect"] = (_selectedKeys, { node }) => {
   filters.expandedKeys = node.key;
   pagination.current = 1;
   getListHand();
 };
 // 树展开
-const onExpand: TreeProps['onExpand'] = (keys) => {
+const onExpand: TreeProps["onExpand"] = (keys) => {
   treeExpandedKeys.value = keys as Array<string | number>;
   autoExpandParent.value = false;
 };
@@ -254,12 +254,12 @@ const inputSearch = debounce(() => {
 // 文件名解析器：从文件名中提取 name，去掉后缀
 const fileNameResolver = [
   {
-    key: 'name',
-    values: ['name'],
+    key: "name",
+    values: ["name"],
     transform: (fileName: string | undefined): string => {
-      if (!fileName) return '';
+      if (!fileName) return "";
       // 去掉文件后缀，支持多个后缀如 .tar.gz
-      return fileName.replace(/\.(zip|rar|7z|tar\.gz|tar|gz)$/i, '');
+      return fileName.replace(/\.(zip|rar|7z|tar\.gz|tar|gz)$/i, "");
     },
   },
 ];
@@ -268,7 +268,7 @@ const fileNameResolver = [
 watch(
   () => searchValue.value,
   (val) => {
-    const v = (val || '').trim().toLowerCase();
+    const v = (val || "").trim().toLowerCase();
     if (!v) {
       // 清空搜索后保持原先全部展开的体验
       treeExpandedKeys.value = dataList.map((d) => d.key);
@@ -295,7 +295,7 @@ const goDetail = async (record: any) => {
   sourceModalOpen.value = true;
   sourceLoading.value = true;
   files.value = [];
-  sourceTitle.value = record?.name || '算子源码';
+  sourceTitle.value = record?.name || "算子源码";
   try {
     const res = await getSourceCode(record.id);
     if (res.code === 200) {
@@ -324,19 +324,19 @@ const parseFiles = (data: any, fallbackName: string) => {
     }));
   }
   // 3) 单文件对象
-  if (typeof data === 'object' && data) {
+  if (typeof data === "object" && data) {
     return [
       {
-        path: data.path || data.name || fallbackName || 'source',
+        path: data.path || data.name || fallbackName || "source",
         content: data.content || data.code || data.source || JSON.stringify(data, null, 2),
       },
     ];
   }
   // 4) 文本
-  if (typeof data === 'string') {
+  if (typeof data === "string") {
     return [
       {
-        path: fallbackName || 'source.txt',
+        path: fallbackName || "source.txt",
         content: data,
       },
     ];
@@ -440,7 +440,7 @@ const parseFiles = (data: any, fallbackName: string) => {
         margin: 0;
         white-space: pre-wrap;
         word-break: break-word;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         line-height: 1.5;
       }
     }

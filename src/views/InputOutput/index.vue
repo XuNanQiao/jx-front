@@ -129,8 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { getList, deleteItem, batchDeleteItems, type ListQueryParams } from '@/api/inputOutput';
-import type { ModelInputOutput } from '@/types/model';
+import { getList, deleteItem, batchDeleteItems } from "@/api/inputOutput";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -138,15 +137,15 @@ import {
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
-} from '@ant-design/icons-vue';
-import { message, Modal } from 'ant-design-vue';
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { columns, attributeOptions } from './index';
-import ImportDownloadActions from '@/components/common/ImportDownloadActions.vue';
-import InputOutputFormModal from './InputOutputFormModal.vue';
-import ChartView from '@/components/chart/chartView.vue';
-import { debounce } from 'lodash-es';
+} from "@ant-design/icons-vue";
+import { message, Modal } from "ant-design-vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import { columns, attributeOptions } from "./index";
+import ImportDownloadActions from "@/components/common/ImportDownloadActions.vue";
+import InputOutputFormModal from "./InputOutputFormModal.vue";
+import ChartView from "@/components/chart/chartView.vue";
+import { debounce } from "lodash-es";
 
 const router = useRouter();
 
@@ -158,7 +157,7 @@ const filters = reactive<{
   name: string;
   category: string | undefined;
 }>({
-  name: '',
+  name: "",
   category: undefined,
 });
 
@@ -204,7 +203,7 @@ onMounted(() => {
 });
 
 // 搜索关键词（用于防抖）
-const searchKeyword = ref('');
+const searchKeyword = ref("");
 
 // 监听搜索关键词变化（带防抖）
 const debouncedSearch = debounce(() => {
@@ -260,15 +259,15 @@ const handleCreate = (record?: any) => {
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning('请先选择要删除的数据');
+    message.warning("请先选择要删除的数据");
     return;
   }
 
   Modal.confirm({
-    title: '确认删除',
+    title: "确认删除",
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: '确定',
-    cancelText: '取消',
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await batchDeleteItems(selectedRowKeys.value);
@@ -277,7 +276,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('批量删除失败:', error);
+        console.error("批量删除失败:", error);
       }
     },
   });
@@ -286,18 +285,18 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case 'view':
+    case "view":
       // 跳转到详情页
-      router.push({ name: 'ModelInputOutputDetail', params: { id: record.id }, query: { name: record.name } });
+      router.push({ name: "ModelInputOutputDetail", params: { id: record.id }, query: { name: record.name } });
       break;
-    case 'edit':
+    case "edit":
       // 打开编辑弹窗并加载数据
       handleCreate(record);
       break;
-    case 'copy':
+    case "copy":
       message.info(`复制: ${record.name}`);
       break;
-    case 'delete':
+    case "delete":
       if (record.id) {
         handleDelete(record.id);
       }
@@ -308,10 +307,10 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 // 删除操作
 const handleDelete = (id: string) => {
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除这条数据吗？删除后无法恢复。',
-    okText: '确定',
-    cancelText: '取消',
+    title: "确认删除",
+    content: "确定要删除这条数据吗？删除后无法恢复。",
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await deleteItem(id);
@@ -319,7 +318,7 @@ const handleDelete = (id: string) => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('删除失败:', error);
+        console.error("删除失败:", error);
       }
     },
   });

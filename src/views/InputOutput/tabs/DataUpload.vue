@@ -9,10 +9,10 @@
 -->
 <template>
   <div class="data-upload page">
-    <!-- 顶部操作栏 --> 
+    <!-- 顶部操作栏 -->
     <div class="upload-header">
       <div class="header-left">
-        <a-button size="small"  @click="handleRefresh">
+        <a-button size="small" @click="handleRefresh">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -24,13 +24,13 @@
         </div>
       </div>
       <div class="header-right">
-        <a-button size="small"  @click="handleConfig">
+        <a-button size="small" @click="handleConfig">
           <template #icon>
             <SettingOutlined />
           </template>
           配置
         </a-button>
-        <a-button size="small"  @click="handleBatchUpload">
+        <a-button size="small" @click="handleBatchUpload">
           <template #icon>
             <UploadOutlined />
           </template>
@@ -48,14 +48,21 @@
             <HomeOutlined class="home-icon" />
           </div>
           <div class="header-right">
-            <a-button size="small" danger  @click="handleDeleteAll">全部删除</a-button>
-            <a-button size="small"  @click="handleRetryAll">全部重试</a-button>
+            <a-button size="small" danger @click="handleDeleteAll">全部删除</a-button>
+            <a-button size="small" @click="handleRetryAll">全部重试</a-button>
           </div>
         </div>
 
         <a-tabs v-model:activeKey="fileTabKey" class="file-tabs">
           <a-tab-pane key="all" tab="全部">
-            <a-table :columns="fileColumns" :data-source="allFiles" :pagination="false" :scroll="{ y: 'calc(100vh - 400px)' }" row-key="id" size="small" class="file-table">
+            <a-table
+              :columns="fileColumns"
+              :data-source="allFiles"
+              :pagination="false"
+              :scroll="{ y: 'calc(100vh - 400px)' }"
+              row-key="id"
+              size="small"
+              class="file-table">
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'fileName'">
                   <div class="file-name">
@@ -80,7 +87,14 @@
           </a-tab-pane>
 
           <a-tab-pane key="pending" tab="待处理">
-            <a-table :columns="fileColumns" :data-source="pendingFiles" :pagination="false" :scroll="{ y: 'calc(100vh - 400px)' }" row-key="id" size="small" class="file-table">
+            <a-table
+              :columns="fileColumns"
+              :data-source="pendingFiles"
+              :pagination="false"
+              :scroll="{ y: 'calc(100vh - 400px)' }"
+              row-key="id"
+              size="small"
+              class="file-table">
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'fileName'">
                   <div class="file-name">
@@ -105,7 +119,14 @@
           </a-tab-pane>
 
           <a-tab-pane key="failed" tab="失败">
-            <a-table :columns="fileColumns" :data-source="failedFiles" :pagination="false" :scroll="{ y: 'calc(100vh - 400px)' }" row-key="id" size="small" class="file-table">
+            <a-table
+              :columns="fileColumns"
+              :data-source="failedFiles"
+              :pagination="false"
+              :scroll="{ y: 'calc(100vh - 400px)' }"
+              row-key="id"
+              size="small"
+              class="file-table">
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'fileName'">
                   <div class="file-name">
@@ -142,13 +163,13 @@
               <span class="switch-label">自动执行</span>
               <a-switch v-model:checked="autoExecute" size="small" @change="handleAutoExecuteChange" />
             </div>
-            <a-button size="small"  @click="handleDownloadLog">
+            <a-button size="small" @click="handleDownloadLog">
               <template #icon>
                 <DownloadOutlined />
               </template>
               下载日志
             </a-button>
-            <a-button size="small" danger  @click="handleClearLog">
+            <a-button size="small" danger @click="handleClearLog">
               <template #icon>
                 <DeleteOutlined />
               </template>
@@ -174,7 +195,15 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { message } from "ant-design-vue";
-import { ReloadOutlined, SettingOutlined, UploadOutlined, HomeOutlined, FileOutlined, DownloadOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import {
+  ReloadOutlined,
+  SettingOutlined,
+  UploadOutlined,
+  HomeOutlined,
+  FileOutlined,
+  DownloadOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons-vue";
 
 // 自动监控开关
 const autoMonitor = ref(false);
@@ -378,8 +407,6 @@ addLog("info", "系统启动，等待文件上传");
       gap: 12px;
       align-items: center;
     }
-
- 
   }
 
   .upload-content {
@@ -565,25 +592,6 @@ addLog("info", "系统启动，等待文件上传");
 
   .ant-table-tbody > tr:hover > td {
     background: rgba(255, 255, 255, 0.05);
-  }
-}
-
-// 滚动条样式
-.log-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.log-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.log-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
   }
 }
 </style>

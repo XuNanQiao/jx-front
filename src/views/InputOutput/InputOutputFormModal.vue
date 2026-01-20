@@ -75,21 +75,20 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import type { ModelInputOutput } from '@/types/model';
-import { createItem, updateItem } from '@/api/inputOutput';
-import { type FormInstance } from 'ant-design-vue';
-import { selectOptions, attributeOptions } from './index';
-const emit = defineEmits(['update:modelValue', 'saved']);
+import { reactive, ref } from "vue";
+import { createItem, updateItem } from "@/api/inputOutput";
+import { type FormInstance } from "ant-design-vue";
+import { selectOptions, attributeOptions } from "./index";
+const emit = defineEmits(["update:modelValue", "saved"]);
 const visibleLocal = ref<boolean>(false);
 const loadingLocal = ref(false);
 const formRef = ref<FormInstance>();
 const formdate = {
   id: undefined,
-  name: '',
-  node_name_en: '',
-  attribute: '输入',
-  category: '1',
+  name: "",
+  node_name_en: "",
+  attribute: "输入",
+  category: "1",
   integrity: 0,
   cycle_time: 1000,
 };
@@ -99,17 +98,17 @@ const form = reactive<Partial<ModelInputOutput>>({ ...formdate });
 // 表单验证规则
 const rules = {
   name: [
-    { required: true, message: '请输入显示名称', trigger: 'blur' },
-    { min: 1, max: 50, message: '显示名称长度应在1-50个字符之间', trigger: 'blur' },
+    { required: true, message: "请输入显示名称", trigger: "blur" },
+    { min: 1, max: 50, message: "显示名称长度应在1-50个字符之间", trigger: "blur" },
   ],
   node_name_en: [
-    { required: true, message: '请输入节点名称', trigger: 'blur' },
-    { min: 1, max: 50, message: '节点名称长度应在1-50个字符之间', trigger: 'blur' },
+    { required: true, message: "请输入节点名称", trigger: "blur" },
+    { min: 1, max: 50, message: "节点名称长度应在1-50个字符之间", trigger: "blur" },
   ],
-  attribute: [{ required: true, message: '请选择属性', trigger: 'change' }],
-  category: [{ required: true, message: '请选择类别', trigger: 'change' }],
-  integrity: [{ type: 'number', min: 0, max: 100, message: '完整度应在0-100之间', trigger: 'blur' }],
-  cycle_time: [{ type: 'number', min: 1, message: '周期必须大于0', trigger: 'blur' }],
+  attribute: [{ required: true, message: "请选择属性", trigger: "change" }],
+  category: [{ required: true, message: "请选择类别", trigger: "change" }],
+  integrity: [{ type: "number", min: 0, max: 100, message: "完整度应在0-100之间", trigger: "blur" }],
+  cycle_time: [{ type: "number", min: 1, message: "周期必须大于0", trigger: "blur" }],
 };
 
 // 重置表单
@@ -147,7 +146,7 @@ const onOk = async () => {
       // 编辑模式
       const res: any = await updateItem(data);
       if (res && res.code === 200) {
-        emit('saved', res.data);
+        emit("saved", res.data);
         visibleLocal.value = false;
         resetForm();
       }
@@ -155,13 +154,13 @@ const onOk = async () => {
       // 新建模式
       const res: any = await createItem(data);
       if (res && res.code === 200) {
-        emit('saved', res.data);
+        emit("saved", res.data);
         visibleLocal.value = false;
         resetForm();
       }
     }
   } catch (err: any) {
-    console.error('保存失败:', err);
+    console.error("保存失败:", err);
   } finally {
     loadingLocal.value = false;
   }

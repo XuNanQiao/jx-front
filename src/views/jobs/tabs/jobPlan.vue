@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 11:52:22
+ * @LastEditTime: 2026-01-20 14:11:59
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -19,7 +19,7 @@
             v-model:value="filters.timeRang"
             allowClear
             valueFormat="YYYY-MM-DDTHH:mm:ss"
-            style="width: 250px" />
+            style="width: 350px" />
         </div>
         <div class="switch-item">
           <a-switch v-model:checked="filters.autoMonitor" />
@@ -49,7 +49,7 @@ import {
   DataZoomComponent,
   TitleComponent,
 } from "echarts/components";
-import { getModelJobPlan, type JobPlanItem } from "@/api/modelJob";
+import { getModelJobPlan } from "@/api/modelJob";
 import { formatDurationWithStart } from "@/utils/useTimeRangeFilter";
 
 // 注册 ECharts 组件
@@ -77,7 +77,7 @@ const loadJobPlanData = async () => {
   loading.value = true;
   try {
     const res = await getModelJobPlan({
-      model_id: 2,
+      // model_id: 2,
       time_start: filters.value.timeRang[0] || "", //开始时间
       time_end: filters.value.timeRang[1] || "", //结束时间
     });
@@ -101,6 +101,8 @@ const formatTime = (timestamp: number) => {
 
 // 图表配置
 const chartOption = computed(() => {
+  let startKey = "data_start_time";
+  let endKey = "data_end_time";
   // 如果没有数据,返回空配置
   if (!jobData.value || jobData.value.length === 0) {
     return {
@@ -116,10 +118,10 @@ const chartOption = computed(() => {
     };
   }
 
-  const categories = jobData.value.map((item) => item.name);
-  const data = jobData.value.map((item, index) => ({
+  const categories = jobData.value.map((item: any) => item.name);
+  const data = jobData.value.map((item: any, index: number) => ({
     name: item.name,
-    value: [index, item.startTime, item.endTime, formatDurationWithStart(item.startTime, item.endTime), item.status],
+    value: [index, item[startKey], item[endKey], formatDurationWithStart(item[startKey], item[endKey]), item.status],
     itemStyle: {
       color: statusColors[item.status] || "#1890ff",
     },
@@ -127,7 +129,7 @@ const chartOption = computed(() => {
   }));
 
   // 获取时间范围
-  const allTimes = jobData.value.flatMap((item) => [item.startTime, item.endTime]);
+  const allTimes = jobData.value.flatMap((item: any) => [item[startKey], item[endKey]]);
   const minTime = Math.min(...allTimes);
   const maxTime = Math.max(...allTimes);
   const dataZoom = filters.value.autoMonitor

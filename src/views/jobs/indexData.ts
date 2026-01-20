@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-20 11:27:54
+ * @LastEditTime: 2026-01-20 13:55:27
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\jobs\indexData.ts
@@ -248,7 +248,16 @@ export const dataStructureColumns = [
     align: "left",
   },
   { dataIndex: "input_repo", title: "输入Repo", key: "input_repo", align: "left" },
-  { dataIndex: "output_repo", title: "状态", key: "integrity", align: "center" },
+  {
+    dataIndex: "output_repo",
+    title: "状态",
+    key: "integrity",
+    align: "center",
+    customRender: ({ text }: any) => {
+      const status = statusMap[text] || { text: "未知", color: "default" };
+      return h(Tag, { color: status.color }, () => status.text);
+    },
+  },
 
   {
     dataIndex: "exec_start_time",

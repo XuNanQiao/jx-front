@@ -12,13 +12,13 @@
     <!-- 顶部操作栏 -->
     <div class="stats-header">
       <div class="header-left">
-        <a-button size="small"  @click="handleRefresh">
+        <a-button size="small" @click="handleRefresh">
           <template #icon>
             <ReloadOutlined />
           </template>
           刷新
         </a-button>
-        <a-button size="small"  @click="handleViewDataSource">
+        <a-button size="small" @click="handleViewDataSource">
           <template #icon>
             <DatabaseOutlined />
           </template>
@@ -113,7 +113,9 @@ const generateMockData = () => {
   const now = new Date();
   for (let i = 11; i >= 0; i--) {
     const time = new Date(now.getTime() - i * 5 * 60 * 1000);
-    last1HourData.xAxis.push(`${String(time.getHours()).padStart(2, "0")}:${String(time.getMinutes()).padStart(2, "0")}`);
+    last1HourData.xAxis.push(
+      `${String(time.getHours()).padStart(2, "0")}:${String(time.getMinutes()).padStart(2, "0")}`,
+    );
     last1HourData.yAxis.push(Math.floor(Math.random() * 50 + 10));
   }
 
@@ -248,25 +250,6 @@ onMounted(() => {
       @media (max-width: 1200px) {
         grid-template-columns: 1fr;
       }
-    }
-  }
-
-  // 自定义滚动条样式
-  .stats-content::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .stats-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-  }
-
-  .stats-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
     }
   }
 }

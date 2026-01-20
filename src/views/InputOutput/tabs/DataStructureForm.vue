@@ -1,5 +1,13 @@
 <template>
-  <a-modal v-model:open="visibleLocal" :confirm-loading="loadingLocal" :title="form.id ? '编辑数据项' : '新建数据项'" :width="700" ok-text="保存" cancel-text="取消" @ok="onOk" @cancel="onCancel">
+  <a-modal
+    v-model:open="visibleLocal"
+    :confirm-loading="loadingLocal"
+    :title="form.id ? '编辑数据项' : '新建数据项'"
+    :width="700"
+    ok-text="保存"
+    cancel-text="取消"
+    @ok="onOk"
+    @cancel="onCancel">
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
       <a-row :gutter="16">
         <a-col :span="12">
@@ -18,7 +26,11 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="数据类型" name="data_type" required>
-            <a-select v-model:value="form.data_type" placeholder="请选择数据类型" :options="dataTypeOptions" allow-clear />
+            <a-select
+              v-model:value="form.data_type"
+              placeholder="请选择数据类型"
+              :options="dataTypeOptions"
+              allow-clear />
           </a-form-item>
         </a-col>
       </a-row>
@@ -28,7 +40,6 @@
 
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import type { DataStructure } from "@/types/model";
 import { createDataStructure, updateDataStructure } from "@/api/inputOutput";
 import { type FormInstance } from "ant-design-vue";
 const emit = defineEmits(["update:modelValue", "saved"]);
@@ -98,14 +109,14 @@ const onOk = async () => {
   form.model_input_output_id = props.modelInputOutputId;
   try {
     if (form.id) {
-      const res: any = await updateDataStructure(String(form.id), form, );
+      const res: any = await updateDataStructure(String(form.id), form);
       if (res && res.code === 200) {
         emit("saved", res.data);
         visibleLocal.value = false;
         resetForm();
       }
     } else {
-      const res: any = await createDataStructure(form, );
+      const res: any = await createDataStructure(form);
       if (res && res.code === 200) {
         emit("saved", res.data);
         visibleLocal.value = false;

@@ -106,8 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { getModelDevList, deleteModelDev, batchDeleteModelDev, type ListQueryParams } from '@/api/development';
-import type { ModelInputOutput } from '@/types/model';
+import { getModelDevList, deleteModelDev, batchDeleteModelDev } from "@/api/development";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -115,15 +114,15 @@ import {
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
-} from '@ant-design/icons-vue';
-import { message, Modal } from 'ant-design-vue';
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { detailColumns, selectOptions } from './indexData';
-import detailFormModal from './components/detailFormModal.vue';
-import ImportAction from '@/components/common/ImportAction.vue';
-import { debounce } from 'lodash-es';
-import { useTablePagination } from '@/utils/useTablePagination';
+} from "@ant-design/icons-vue";
+import { message, Modal } from "ant-design-vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { detailColumns, selectOptions } from "./indexData";
+import detailFormModal from "./components/detailFormModal.vue";
+import ImportAction from "@/components/common/ImportAction.vue";
+import { debounce } from "lodash-es";
+import { useTablePagination } from "@/utils/useTablePagination";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const route = useRoute();
 const router = useRouter();
@@ -134,7 +133,7 @@ const loading = ref(false);
 
 // 筛选条件
 const filters = reactive({
-  name: '',
+  name: "",
   category: undefined,
   editor: undefined,
 });
@@ -169,7 +168,7 @@ const loadData = async () => {
 };
 
 onMounted(() => {
-  console.log(route, '---------route');
+  console.log(route, "---------route");
 
   loadData();
 });
@@ -216,15 +215,15 @@ const handleCreate = (record?: any) => {
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning('请先选择要删除的数据');
+    message.warning("请先选择要删除的数据");
     return;
   }
 
   Modal.confirm({
-    title: '确认删除',
+    title: "确认删除",
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: '确定',
-    cancelText: '取消',
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await batchDeleteModelDev(selectedRowKeys.value);
@@ -233,7 +232,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('批量删除失败:', error);
+        console.error("批量删除失败:", error);
       }
     },
   });
@@ -242,22 +241,22 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case 'exploitation':
-      console.log('跳转到开发页', record.id);
-      router.push({ name: 'ModelDevelopmentExploitation', params: { id: record.id }, query: { name: record.name } });
+    case "exploitation":
+      console.log("跳转到开发页", record.id);
+      router.push({ name: "ModelDevelopmentExploitation", params: { id: record.id }, query: { name: record.name } });
       break;
-    case 'view':
+    case "view":
       // 跳转到详情页
-      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id }, query: { name: record.name } });
+      router.push({ name: "ModelDevelopmentDetail", params: { id: record.id }, query: { name: record.name } });
       break;
-    case 'edit':
+    case "edit":
       // 打开编辑弹窗并加载数据
       handleCreate(record);
       break;
-    case 'copy':
+    case "copy":
       message.info(`复制: ${record.name}`);
       break;
-    case 'delete':
+    case "delete":
       if (record.id) {
         handleDelete(record.id);
       }
@@ -268,10 +267,10 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 // 删除操作
 const handleDelete = (id: string) => {
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除这条数据吗？删除后无法恢复。',
-    okText: '确定',
-    cancelText: '取消',
+    title: "确认删除",
+    content: "确定要删除这条数据吗？删除后无法恢复。",
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await deleteModelDev(id);
@@ -279,7 +278,7 @@ const handleDelete = (id: string) => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('删除失败:', error);
+        console.error("删除失败:", error);
       }
     },
   });

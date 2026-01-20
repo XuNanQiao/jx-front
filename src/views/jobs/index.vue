@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-20 11:55:24
+ * @LastEditTime: 2026-01-20 14:02:55
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\jobs\index.vue
@@ -17,8 +17,8 @@
             <DataBrowse v-if="activeKey === 'browse'" />
           </a-tab-pane>
 
-          <a-tab-pane key="basic" tab="作业计划">
-            <JobPlan v-if="activeKey === 'basic'" />
+          <a-tab-pane key="jobPlan" tab="作业计划">
+            <JobPlan v-if="activeKey === 'jobPlan'" />
           </a-tab-pane>
           <a-tab-pane key="structure" tab="作业组">
             <DataStructure v-if="activeKey === 'structure'" />
@@ -35,7 +35,7 @@ import DataStructure from "./tabs/DataStructure.vue";
 import DataBrowse from "./tabs/DataBrowse.vue";
 import JobPlan from "./tabs/jobPlan.vue";
 
-const activeKey = ref("browse");
+const activeKey = ref("jobPlan");
 </script>
 
 <style scoped lang="scss">

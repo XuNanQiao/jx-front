@@ -112,8 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelJob, deleteModelJob, getModelJobList, type JobListQueryParams } from "@/api/modelJob";
-import type { ModelInputOutput } from "@/types/model";
+import { batchDeleteModelJob, deleteModelJob, getModelJobList } from "@/api/modelJob";
 import { useTablePagination } from "@/utils/useTablePagination";
 import {
   ArrowUpOutlined,
