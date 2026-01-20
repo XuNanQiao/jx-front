@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-19 15:06:30
+ * @LastEditTime: 2026-01-20 17:05:29
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -12,9 +12,8 @@
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
-        <ImportAction
-          import-url="/api/model_dev/import"
-          :import-params="() => ({ category: filters.category, editor: filters.editor })" />
+        <ImportAction import-url="/api/model_dev/import" />
+        <!--  :import-params="() => ({ category: filters.category, trigger_type: filters.trigger_type })"  -->
         <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
           <template #icon>
             <DeleteOutlined />
@@ -26,7 +25,7 @@
           <a-select
             :options="selectOptions"
             @change="searchHandler"
-            v-model:value="filters.category"
+            v-model:value="filters.trigger_type"
             allowClear
             placeholder="请选择类别"
             style="width: 150px"></a-select>
@@ -34,9 +33,9 @@
         <div class="filter-inter">
           <span class="select-inter">模型：</span>
           <a-select
-            :options="selectOptions"
+            :options="options"
             @change="searchHandler"
-            v-model:value="filters.category"
+            v-model:value="filters.model_id"
             allowClear
             placeholder="请选择类别"
             style="width: 150px"></a-select>
@@ -45,7 +44,7 @@
       <a-space :size="16" wrap>
         <div class="filter-inter">
           <a-input
-            v-model:value="filters.name"
+            v-model:value="filters.keyword"
             @change="debouncedSearch"
             @pressEnter="debouncedSearch"
             placeholder="搜索关键词"
@@ -75,7 +74,9 @@
           <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
         </template>
         <template v-else-if="column.key === 'is_active'">
-          <a-switch v-model:checked="record.is_active" @change="(checked: boolean) => handleStatusChange(checked, record)" />
+          <a-switch
+            v-model:checked="record.is_active"
+            @change="(checked: boolean) => handleStatusChange(checked, record)" />
         </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['hover']">
@@ -84,7 +85,7 @@
             </a-button>
             <template #overlay>
               <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
-                <a-menu-item key="edit">
+                <a-menu-item key="view">
                   <EditOutlined />
                   <span style="margin-left: 8px">编辑</span>
                 </a-menu-item>
@@ -115,10 +116,10 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelDev, deleteModelDev, getModelDevList, type ListQueryParams } from '@/api/development';
-import ImportAction from '@/components/common/ImportAction.vue';
-import type { ModelInputOutput } from '@/types/model';
-import { useTablePagination } from '@/utils/useTablePagination';
+import { batchDeleteModelDev, getModelDevList } from "@/api/development";
+import { deleteModelDeploy, getModelDeployList } from "@/api/deployment";
+import ImportAction from "@/components/common/ImportAction.vue";
+import { useTablePagination } from "@/utils/useTablePagination";
 import {
   CopyOutlined,
   DeleteOutlined,
@@ -127,33 +128,28 @@ import {
   MoreOutlined,
   PlayCircleOutlined,
   SearchOutlined,
-} from '@ant-design/icons-vue';
-import { message, Modal } from 'ant-design-vue';
-import { debounce } from 'lodash-es';
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { detailColumns, selectOptions } from './indexData';
+} from "@ant-design/icons-vue";
+import { message, Modal } from "ant-design-vue";
+import { debounce } from "lodash-es";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { detailColumns, selectOptions } from "./indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const route = useRoute();
 const router = useRouter();
-// const id = computed(() => (route.params.id as string) || "");
-
 // 加载状态
 const loading = ref(false);
-
 // 筛选条件
 const filters = reactive({
-  name: '',
-  category: undefined,
-  editor: undefined,
+  keyword: "",
+  model_id: undefined,
+  trigger_type: undefined,
 });
-
 // 选中的行
 const selectedRowKeys = ref<string[]>([]);
-
 // data source will be loaded from API
 const dataSource = ref<ModelInputOutput[]>([]);
-
+const options = ref<any[]>([]);
 const loadData = async () => {
   loading.value = true;
   try {
@@ -161,11 +157,9 @@ const loadData = async () => {
     const params: ListQueryParams = {
       size: pagination.pageSize,
       page: pagination.current,
-      name: filters.name,
-      category: filters.category,
-      editor: filters.editor,
+      ...filters,
     };
-    const res = await getModelDevList(params);
+    const res = await getModelDeployList(params);
     dataSource.value = res?.data?.items || [];
     pagination.total = res?.data?.total || 0;
   } catch (err) {
@@ -176,27 +170,36 @@ const loadData = async () => {
     loading.value = false;
   }
 };
-
+const getOptions = () => {
+  getModelDevList().then((res) => {
+    options.value = res.data.items.map((item: any) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  });
+  // TODO: 获取筛选选项数据
+};
 onMounted(() => {
-  console.log(route, '---------route');
-
+  getOptions();
   loadData();
 });
-
-// 监听搜索关键词变化（带防抖）
-const debouncedSearch = debounce(() => {
-  searchHandler();
-}, 300);
 
 // 组件卸载时取消防抖
 onUnmounted(() => {
   debouncedSearch.cancel();
 });
+/* --------------------筛选-------------------------- */
 
+// 监听搜索关键词变化（带防抖）
+const debouncedSearch = debounce(() => {
+  searchHandler();
+}, 300);
 const searchHandler = () => {
   pagination.current = 1;
   loadData();
 };
+/* --------------------表格选择-------------------------- */
+
 // 行选择配置
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
@@ -214,26 +217,19 @@ const handleTableChange = (pag: any) => {
   loadData();
 };
 
-// 新建
-const formModalRef = ref<{ openModal: (record?: any) => void } | null>(null);
-const handleCreate = (record?: any) => {
-  if (formModalRef.value) {
-    formModalRef.value.openModal(record);
-  }
-};
-
+/* --------------------操作-------------------------- */
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning('请先选择要删除的数据');
+    message.warning("请先选择要删除的数据");
     return;
   }
 
   Modal.confirm({
-    title: '确认删除',
+    title: "确认删除",
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: '确定',
-    cancelText: '取消',
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await batchDeleteModelDev(selectedRowKeys.value);
@@ -242,7 +238,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('批量删除失败:', error);
+        console.error("批量删除失败:", error);
       }
     },
   });
@@ -251,30 +247,26 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case 'edit':
-      // 打开编辑弹窗并加载数据
-      handleCreate(record);
-      break;
-    case 'run':
+    case "run":
       // 运行模型
       handleRun(record);
       break;
-    case 'copy':
+    case "copy":
       // 复制模型
       handleCopy(record);
       break;
-    case 'export':
+    case "export":
       // 导出模型
       handleExport(record);
       break;
-    case 'delete':
+    case "delete":
       if (record.id) {
         handleDelete(record.id);
       }
       break;
-    case 'view':
+    case "view":
       // 跳转到详情页
-      router.push({ name: 'ModelDeploymentDetail', params: { id: record.id }, query: { name: record.name } });
+      router.push({ name: "ModelDeploymentDetail", params: { id: record.id }, query: { name: record.name } });
       break;
   }
 };
@@ -282,18 +274,18 @@ const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
 // 删除操作
 const handleDelete = (id: string) => {
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除这条数据吗？删除后无法恢复。',
-    okText: '确定',
-    cancelText: '取消',
+    title: "确认删除",
+    content: "确定要删除这条数据吗？删除后无法恢复。",
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
-        const res = await deleteModelDev(id);
+        const res = await deleteModelDeploy(id);
         if (res.code === 200) {
           await loadData();
         }
       } catch (error: any) {
-        console.error('删除失败:', error);
+        console.error("删除失败:", error);
       }
     },
   });
@@ -306,8 +298,8 @@ const handleRun = async (record: ModelInputOutput) => {
     // await runModel(record.id);
     message.success(`模型 ${record.name} 开始运行`);
   } catch (error: any) {
-    console.error('运行失败:', error);
-    message.error('运行失败');
+    console.error("运行失败:", error);
+    message.error("运行失败");
   }
 };
 
@@ -319,8 +311,8 @@ const handleCopy = async (record: ModelInputOutput) => {
     message.success(`模型 ${record.name} 复制成功`);
     await loadData();
   } catch (error: any) {
-    console.error('复制失败:', error);
-    message.error('复制失败');
+    console.error("复制失败:", error);
+    message.error("复制失败");
   }
 };
 
@@ -337,8 +329,8 @@ const handleExport = async (record: ModelInputOutput) => {
     // window.URL.revokeObjectURL(url);
     message.success(`模型 ${record.name} 导出成功`);
   } catch (error: any) {
-    console.error('导出失败:', error);
-    message.error('导出失败');
+    console.error("导出失败:", error);
+    message.error("导出失败");
   }
 };
 
@@ -347,12 +339,12 @@ const handleStatusChange = async (checked: boolean, record: ModelInputOutput) =>
   try {
     // TODO: 调用API更新启动状态
     // await updateModelStatus(record.id, { is_active: checked });
-    message.success(checked ? '已启动' : '已停止');
+    message.success(checked ? "已启动" : "已停止");
   } catch (error: any) {
-    console.error('更新状态失败:', error);
+    console.error("更新状态失败:", error);
     // 失败时恢复原状态
     record.is_active = !checked;
-    message.error('状态更新失败');
+    message.error("状态更新失败");
   }
 };
 </script>

@@ -58,7 +58,7 @@
                           :min="field.min"
                           :max="field.max"
                           style="width: 100%"
-                          placeholder="请输入数据周期" />
+                          placeholder="请输入" />
                       </a-form-item>
                     </template>
                     <template v-else-if="editMode && field.type === 'input'">
@@ -124,6 +124,8 @@ interface FieldItem {
   slot?: string;
   span?: number; // 字段占据的列数（24栅格系统）
   labelSpan?: number; // 标签占据的列数
+  min?: number; // 数字输入框最小值
+  max?: number; // 数字输入框最大值
   customRender?: (ctx: CustomRenderCtx) => any;
 }
 interface ModuleItem {

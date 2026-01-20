@@ -1,10 +1,10 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-19 14:47:44
+ * @LastEditTime: 2026-01-20 16:36:03
  * @LastEditors: ZHAO
  * @Description:
- * @FilePath: \jx\src\views\development\tabs\DataBrowse.vue
+ * @FilePath: \jx\src\components\journalView\DataBrowse.vue
  *
 -->
 <template>
@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 import { batchDeleteModelJob, deleteModelJob, getModelJobList } from "@/api/modelJob";
+
 import { useTablePagination } from "@/utils/useTablePagination";
 import {
   ArrowUpOutlined,
@@ -127,10 +128,15 @@ import { message, Modal } from "ant-design-vue";
 import { debounce } from "lodash-es";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import LogModal from "../../development/components/LogModal.vue";
-import { browseColumns, statusMap, statusOptions } from "../indexData";
+import LogModal from "./LogModal.vue";
+import { browseColumns, statusMap, statusOptions } from "./indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const router = useRouter();
+const props = defineProps({
+  id: {
+    type: [String, Number],
+  },
+});
 
 // 加载状态
 const loading = ref(false);
@@ -161,6 +167,7 @@ const loadData = async () => {
   try {
     // 构建查询参数
     const params: JobListQueryParams = {
+      model_id: props.id,
       size: pagination.pageSize,
       page: pagination.current,
       name: filters.name || undefined,
@@ -252,8 +259,7 @@ const handleBatchDelete = () => {
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
     case "priority":
-      // 跳转到详情页，后续可在详情页中调整优先级
-      router.push({ name: "ModelDevelopmentDetail", params: { id: record.id }, query: { name: record.name } });
+      message.info(`调整优先级: ${record.name || record.id}`);
       break;
     case "rerun":
       handleRerun(record);

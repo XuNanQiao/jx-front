@@ -9,41 +9,44 @@ export const selectOptions: SelectOption[] = [
 ];
 // 触发方式选项
 export const triggerOptions: SelectOption[] = [
-  { label: "定时触发", value: "scheduled" },
-  { label: "作业触发", value: "job" },
-  { label: "手工触发", value: "manual" },
-  { label: "自启动", value: "auto" },
+  { label: "定时触发", value: 0 },
+  { label: "作业触发", value: 2 },
+  { label: "手工触发", value: 1 },
+  { label: "自启动", value: 3 },
 ];
 export const retentionOptions: SelectOption[] = [{ label: "指定", value: "指定" }];
 /* ----------------------detail------------------- */
 export const detailColumns = () => [
   { dataIndex: "name", title: "名称", key: "name" },
-  { dataIndex: "version", title: "模型", key: "version", align: "center" },
+  { dataIndex: "model_name", title: "模型", key: "model_name", align: "center" },
   {
     dataIndex: "trigger_type",
     title: "触发方式",
     key: "trigger_type",
     align: "center",
     customRender: ({ text }: any) => {
-      if (!text) return "-";
-      // 如果是数组，显示多个标签
-      if (Array.isArray(text)) {
-        return text
-          .map((val) => triggerOptions.find((opt) => opt.value === val)?.label)
-          .filter(Boolean)
-          .join("、");
-      }
       // 如果是单个值
       return triggerOptions.find((opt) => opt.value === text)?.label || "-";
     },
   },
-  { dataIndex: "input_repo", title: "输入Repo", key: "input_repo", align: "left" },
-  { dataIndex: "output_repo", title: "输出Repo", key: "output_repo", align: "left" },
+  {
+    dataIndex: "input_config",
+    title: "输入Repo",
+    key: "input_config",
+    align: "left",
+    customRender: ({ text }: { text: any }) => (text?.length ? text[0].column : "-"),
+  },
+  {
+    dataIndex: "output_config",
+    title: "输出Repo",
+    key: "output_config",
+    align: "left",
+    customRender: ({ text }: { text: any }) => (text?.length ? text[0].target : "-"),
+  },
   {
     title: "创建时间",
     dataIndex: "created_time",
     key: "createdTime",
-    sorter: true,
     width: 150,
     customRender: ({ text }: { text: any }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-"),
   },
@@ -119,10 +122,10 @@ export const basicFields = () => {
   ];
 };
 export const basicInp = () => [
-  { label: "Rep", key: "created_user_id", type: "input" },
-  { label: "数据列", key: "created_time", type: "select", mode: "multiple" },
-  { label: "设备实例", key: "available_range", type: "select", mode: "multiple" },
-  { label: "数据时间", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
-  { label: "窗口长度", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
-  { label: "对齐时间", key: "remark", type: "number", min: 1, span: 4, labelSpan: 12 },
+  { label: "Rep", key: "created_user_id", type: "input", span: 9 },
+  { label: "数据列", key: "category", type: "select", span: 9, mode: "multiple" },
+  { label: "设备实例", key: "available_range", type: "select", span: 9, mode: "multiple" },
+  { label: "数据时间", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
+  { label: "窗口长度", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
+  { label: "对齐时间", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
 ];

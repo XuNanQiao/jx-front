@@ -37,16 +37,16 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { computed, ref } from 'vue';
-import BasicInfo from './tabs/BasicInfo.vue';
-import DataStructure from './tabs/DataStructure.vue';
-import DataBrowse from './tabs/DataBrowse.vue';
+import { useRoute } from "vue-router";
+import { computed, ref } from "vue";
+import BasicInfo from "./tabs/BasicInfo.vue";
+import DataStructure from "./tabs/DataStructure.vue";
+import DataBrowse from "@/components/journalView/DataBrowse.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id);
-const detailName = computed(() => (route.query.name as string) || '详情');
-const activeKey = ref('basic');
+const detailName = computed(() => (route.query.name as string) || "详情");
+const activeKey = ref("basic");
 </script>
 
 <style scoped lang="scss">

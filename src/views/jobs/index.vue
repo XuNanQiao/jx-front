@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-20 14:02:55
+ * @LastEditTime: 2026-01-20 16:35:45
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\jobs\index.vue
@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import DataStructure from "./tabs/DataStructure.vue";
-import DataBrowse from "./tabs/DataBrowse.vue";
 import JobPlan from "./tabs/jobPlan.vue";
+import DataBrowse from "@/components/journalView/DataBrowse.vue";
 
 const activeKey = ref("jobPlan");
 </script>

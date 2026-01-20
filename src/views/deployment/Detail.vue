@@ -38,7 +38,7 @@
 import { useRoute } from "vue-router";
 import { computed, ref } from "vue";
 import BasicInfo from "./tabs/BasicInfo.vue";
-import DataBrowse from "./tabs/DataBrowse.vue";
+import DataBrowse from "@/components/journalView/DataBrowse.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id);
