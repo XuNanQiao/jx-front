@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-19 15:32:54
+ * @LastEditTime: 2026-01-20 11:00:18
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\jobs\index.vue
@@ -18,7 +18,7 @@
           </a-tab-pane>
 
           <a-tab-pane key="basic" tab="作业计划">
-            <BasicInfo :id="id" v-if="activeKey === 'basic'" />
+            <JobPlan :id="id" v-if="activeKey === 'basic'" />
           </a-tab-pane>
           <a-tab-pane key="structure" tab="作业组">
             <DataStructure :id="id" v-if="activeKey === 'structure'" />
@@ -30,15 +30,15 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { computed, ref } from 'vue';
-import BasicInfo from './tabs/BasicInfo.vue';
-import DataStructure from './tabs/DataStructure.vue';
-import DataBrowse from './tabs/DataBrowse.vue';
+import { useRoute } from "vue-router";
+import { computed, ref } from "vue";
+import DataStructure from "./tabs/DataStructure.vue";
+import DataBrowse from "./tabs/DataBrowse.vue";
+import JobPlan from "./tabs/jobPlan.vue";
 
 const route = useRoute();
 const id = computed(() => route.params.id);
-const activeKey = ref('browse');
+const activeKey = ref("browse");
 </script>
 
 <style scoped lang="scss">

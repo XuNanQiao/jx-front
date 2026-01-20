@@ -29,3 +29,23 @@ export function deleteModelJob(id: string | number): Promise<ApiResponse<any>> {
 export function batchDeleteModelJob(ids: (string | number)[]): Promise<ApiResponse<any>> {
   return request.delete('/api/model_job/batch_delete', { data: { ids }, showMessage: true });
 }
+
+// 作业计划数据接口参数
+export interface JobPlanQueryParams {
+  model_id?: string | number; // 模型ID
+  [key: string]: any;
+}
+
+// 作业计划数据
+export interface JobPlanItem {
+  name: string; // 作业名称
+  startTime: number; // 开始时间戳
+  endTime: number; // 结束时间戳
+  status: string; // 作业状态
+  [key: string]: any;
+}
+
+// 获取作业计划数据
+export function getModelJobPlan(params?: JobPlanQueryParams): Promise<ApiResponse<JobPlanItem[]>> {
+  return request.post('/api/model_job/plan', params || {});
+}
