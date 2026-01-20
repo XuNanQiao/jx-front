@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 14:11:59
+ * @LastEditTime: 2026-01-20 15:25:14
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -29,7 +29,7 @@
     </div>
     <a-spin :spinning="loading">
       <div class="chart-container">
-        <v-chart :option="chartOption" :autoresize="true" style="height: 600px" />
+        <v-chart :option="chartOption" :autoresize="true" />
       </div>
     </a-spin>
   </div>
@@ -49,8 +49,8 @@ import {
   DataZoomComponent,
   TitleComponent,
 } from "echarts/components";
-import { getModelJobPlan } from "@/api/modelJob";
-import { formatDurationWithStart } from "@/utils/useTimeRangeFilter";
+import { getModelJobPlan, type JobPlanItem } from "@/api/modelJob";
+import { dayjsFormat, formatDurationWithStart } from "@/utils/useTimeRangeFilter";
 
 // 注册 ECharts 组件
 use([CanvasRenderer, CustomChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent, TitleComponent]);
@@ -60,15 +60,23 @@ const filters = ref({
 });
 const loading = ref(false);
 
-// 状态颜色配置
-const statusColors: Record<string, string> = {
-  成功: "#52c41a",
-  失败: "#ff4d4f",
-  运行中: "#1890ff",
-  等待: "#faad14",
-  计划: "#722ed1",
+// 状态映射:将数字状态码映射为中文状态名称
+const statusMap: Record<string, string> = {
+  "0": "等待",
+  "1": "运行中",
+  "2": "成功",
+  "3": "失败",
+  "4": "计划",
 };
 
+// 状态颜色配置
+const statusColors: Record<string, string> = {
+  等待: "#faad14",
+  运行中: "#1890ff",
+  成功: "#52c41a",
+  失败: "#ff4d4f",
+  计划: "#722ed1",
+};
 // 作业计划数据
 const jobData = ref<JobPlanItem[]>([]);
 
@@ -93,16 +101,11 @@ const loadJobPlanData = async () => {
   }
 };
 
-// 格式化时间显示
-const formatTime = (timestamp: number) => {
-  const date = new Date(timestamp);
-  return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
-};
-
 // 图表配置
 const chartOption = computed(() => {
   let startKey = "data_start_time";
   let endKey = "data_end_time";
+  let statusKey = "status";
   // 如果没有数据,返回空配置
   if (!jobData.value || jobData.value.length === 0) {
     return {
@@ -119,28 +122,41 @@ const chartOption = computed(() => {
   }
 
   const categories = jobData.value.map((item: any) => item.name);
-  const data = jobData.value.map((item: any, index: number) => ({
-    name: item.name,
-    value: [index, item[startKey], item[endKey], formatDurationWithStart(item[startKey], item[endKey]), item.status],
-    itemStyle: {
-      color: statusColors[item.status] || "#1890ff",
-    },
-    status: item.status,
-  }));
-
+  const data = jobData.value.map((item: any, index: number) => {
+    const statusCode = item[statusKey];
+    const statusText = statusMap[statusCode] || "未知";
+    return {
+      name: item.name,
+      value: [
+        index,
+        new Date(item[startKey]).getTime(),
+        new Date(item[endKey]).getTime(),
+        formatDurationWithStart(item[startKey], item[endKey], false),
+        statusText,
+      ],
+      itemStyle: {
+        color: statusColors[statusText] || "#1890ff",
+      },
+      status: statusText,
+    };
+  });
   // 获取时间范围
-  const allTimes = jobData.value.flatMap((item: any) => [item[startKey], item[endKey]]);
+  const allTimes = jobData.value.flatMap((item: any) => [
+    new Date(item[startKey]).getTime(),
+    new Date(item[endKey]).getTime(),
+  ]);
   const minTime = Math.min(...allTimes);
   const maxTime = Math.max(...allTimes);
   const dataZoom = filters.value.autoMonitor
-    ? [
+    ? []
+    : [
         {
           type: "slider",
           xAxisIndex: 0,
           filterMode: "weakFilter",
           showDataShadow: false,
-          bottom: 20,
-          height: 20,
+          bottom: 10,
+          height: 10,
           borderColor: "transparent",
           backgroundColor: "rgba(255, 255, 255, 0.1)",
           handleSize: "80%",
@@ -177,14 +193,16 @@ const chartOption = computed(() => {
           xAxisIndex: 0,
           filterMode: "weakFilter",
         },
-        {
+        /*   {
           type: "inside",
           yAxisIndex: 0,
           filterMode: "weakFilter",
-        },
-      ]
-    : [];
+        }, */
+      ];
   return {
+    title: {
+      show: false,
+    },
     tooltip: {
       formatter: (params: any) => {
         if (!params || !params.data) return "";
@@ -194,8 +212,8 @@ const chartOption = computed(() => {
           <div style="padding: 8px">
             <div style="font-weight: bold; margin-bottom: 8px">${name}</div>
             <div>状态: <span style="color: ${statusColors[status]}">${status}</span></div>
-            <div>开始: ${formatTime(value[1])}</div>
-            <div>结束: ${formatTime(value[2])}</div>
+            <div>开始: ${dayjsFormat(value[1])}</div>
+            <div>结束: ${dayjsFormat(value[2])}</div>
             <div>持续: ${value[3]}</div>
           </div>
         `;
@@ -210,6 +228,7 @@ const chartOption = computed(() => {
     legend: {
       show: true,
       top: 10,
+      right: 0,
       data: Object.keys(statusColors).map((status) => ({
         name: status,
         itemStyle: {
@@ -224,9 +243,9 @@ const chartOption = computed(() => {
     },
     grid: {
       left: "50px",
-      right: "50px",
-      top: "70px",
-      bottom: "80px",
+      right: filters.value.autoMonitor ? "10px" : "50px",
+      top: "60px",
+      bottom: filters.value.autoMonitor ? "10px" : "60px",
       containLabel: true,
     },
     dataZoom,
@@ -237,7 +256,8 @@ const chartOption = computed(() => {
       scale: true,
       position: "top",
       axisLabel: {
-        formatter: (value: number) => formatTime(value),
+        formatter: (value: number) =>
+          dayjsFormat(value /* "YYYY-MM-DD" */).slice(0, 10) + "\n" + dayjsFormat(value /* "YYYY-MM-DD" */).slice(11),
         color: "#ffffff",
         fontSize: 12,
       },
@@ -338,5 +358,15 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
+}
+.filter-section {
+  position: relative;
+  z-index: 20;
+}
+.chart-container {
+  margin-top: -40px;
+  height: calc(100vh - 100px);
+  z-index: 10;
+  position: relative;
 }
 </style>

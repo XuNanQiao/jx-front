@@ -59,21 +59,16 @@ export function useTimeRangeFilter() {
     getTimeRange,
   };
 }
-export function dayjsFormat(date: Dayjs | null, format = "YYYY-MM-DD HH:mm:ss"): string {
-  return date ? date.format(format) : "";
+export function dayjsFormat(date: Dayjs | null | dayjs.ConfigType, format = "YYYY-MM-DD HH:mm:ss"): string {
+  return date && dayjs(date).isValid() ? dayjs(date).format(format) : "-";
 }
-export const formatDateTime = (value: dayjs.ConfigType) =>
-  value && dayjs(value).isValid() ? dayjs(value).format("YYYY-MM-DD HH:mm:ss") : "-";
-
-export const formatDurationWithStart = (start: dayjs.ConfigType, end: dayjs.ConfigType) => {
+export const formatDurationWithStart = (start: dayjs.ConfigType, end: dayjs.ConfigType, baseShow = true) => {
   const startTime = start ? dayjs(start) : null;
   const endTime = end ? dayjs(end) : null;
 
   if (!startTime || !startTime.isValid()) return "-";
-
-  const base = formatDateTime(startTime);
+  const base = dayjsFormat(startTime);
   if (!endTime || !endTime.isValid()) return base;
-
   let diffSeconds = endTime.diff(startTime, "second");
   if (diffSeconds < 0) diffSeconds = 0;
 
@@ -89,6 +84,9 @@ export const formatDurationWithStart = (start: dayjs.ConfigType, end: dayjs.Conf
   if (parts.length < 2 && seconds) parts.push(`${seconds}秒`);
 
   if (!parts.length) parts.push("0秒");
-
-  return `${base}（${parts.join("")}）`;
+  if (baseShow) {
+    return `${base}（${parts.join("")}）`;
+  } else {
+    return parts.join("");
+  }
 };
