@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-20 11:00:18
+ * @LastEditTime: 2026-01-20 11:55:24
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\jobs\index.vue
@@ -14,14 +14,14 @@
         <!-- Tabs -->
         <a-tabs v-model:activeKey="activeKey" type="line" size="large">
           <a-tab-pane key="browse" tab="作业列表">
-            <DataBrowse :id="id" v-if="activeKey === 'browse'" />
+            <DataBrowse v-if="activeKey === 'browse'" />
           </a-tab-pane>
 
           <a-tab-pane key="basic" tab="作业计划">
-            <JobPlan :id="id" v-if="activeKey === 'basic'" />
+            <JobPlan v-if="activeKey === 'basic'" />
           </a-tab-pane>
           <a-tab-pane key="structure" tab="作业组">
-            <DataStructure :id="id" v-if="activeKey === 'structure'" />
+            <DataStructure v-if="activeKey === 'structure'" />
           </a-tab-pane>
         </a-tabs>
       </div>
