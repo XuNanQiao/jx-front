@@ -1,23 +1,6 @@
-import { DataBrowseParams } from "@/types/model";
 import { request } from "@/utils/request";
 
 // 重新导出类型以便其他模块使用
-export type { DataBrowseParams };
-
-interface ApiResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-}
-/* -------------------------列表-------------------------------- */
-// 列表查询参数
-export interface ListQueryParams {
-  size?: number; // 当前页码
-  page?: number; // 每页数量
-  keyword?: string; // 搜索关键词
-  category?: string; // 类别筛选
-  [key: string]: any; // 其他筛选参数
-}
 
 // 模型输入输出列表
 export function getList(params?: ListQueryParams): Promise<ApiResponse<any>> {
@@ -82,13 +65,6 @@ export function batchDeleteDataStructures(ids: (string | number)[]): Promise<Api
 /* -------------------------数据完整度-------------------------------- */
 
 // 数据完整度查询
-export type CompletenessParams = {
-  year?: number | string;
-  month?: number | string;
-  day?: string;
-  metric?: string;
-};
-
 export function getCompleteness(params: CompletenessParams): Promise<ApiResponse<any[]>> {
   return request.get("/input-output/completeness", { params });
 }

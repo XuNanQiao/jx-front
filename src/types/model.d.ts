@@ -1,15 +1,15 @@
-export interface DependencyPackage {
+interface DependencyPackage {
   name: string;
   version?: string;
 }
 
-export interface IOConfig {
+interface IOConfig {
   name?: string;
   [key: string]: any;
 }
 
 // 模型输入输出 / 模型开发信息
-export interface ModelInputOutput {
+interface ModelInputOutput {
   id?: string;
   name: string; // 模型名称
   node_name_en?: string; // 节点名称（英文）
@@ -42,13 +42,13 @@ export interface ModelInputOutput {
   updatedUserId?: string; // 更新人（驼峰）
 }
 
-export interface TableFilterParams {
+interface TableFilterParams {
   completenessDateRange?: [string, string] | null;
   dataInputDateRange?: [string, string] | null;
 }
 
 // 模型输入输出数据结构
-export interface DataStructure {
+interface DataStructure {
   id: string;
   column: string; // 列名
   name: string; // 显示名称
@@ -61,7 +61,7 @@ export interface DataStructure {
 }
 
 // 数据库连接配置
-export interface DatabaseConfig {
+interface DatabaseConfig {
   id: string;
   databaseCategory: string; // 数据库类别 (MySQL, PostgreSQL, InfluxDB, Kingbase)
   connectionConfig: Record<string, any>; // 数据库连接配置
@@ -71,7 +71,7 @@ export interface DatabaseConfig {
   updatedTime?: string; // 更新时间
   updatedUserId?: string; // 更新人
 }
-export interface DataBrowseParams {
+interface DataBrowseParams {
   model_input_output_id?: string | string[];
   device_value?: string;
   device_instance?: string;
@@ -82,7 +82,7 @@ export interface DataBrowseParams {
   end_time?: string;
   start_date?: string;
   end_date?: string;
-  sort_order?: 'asc' | 'desc' | 'none';
+  sort_order?: "asc" | "desc" | "none";
   data_type?: string;
   sampling_rate?: number;
   page?: number;
@@ -92,7 +92,7 @@ export interface DataBrowseParams {
 }
 
 // 不同数据库的连接配置接口
-export interface MySQLConfig {
+interface MySQLConfig {
   host: string;
   port: number;
   database: string;
@@ -101,7 +101,7 @@ export interface MySQLConfig {
   charset?: string;
 }
 
-export interface PostgreSQLConfig {
+interface PostgreSQLConfig {
   host: string;
   port: number;
   database: string;
@@ -110,14 +110,14 @@ export interface PostgreSQLConfig {
   schema?: string;
 }
 
-export interface InfluxDBConfig {
+interface InfluxDBConfig {
   url: string;
   token: string;
   org: string;
   bucket: string;
 }
 
-export interface KingbaseConfig {
+interface KingbaseConfig {
   host: string;
   port: number;
   database: string;

@@ -30,14 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import DataStructure from "./tabs/DataStructure.vue";
 import DataBrowse from "./tabs/DataBrowse.vue";
 import JobPlan from "./tabs/jobPlan.vue";
 
-const route = useRoute();
-const id = computed(() => route.params.id);
 const activeKey = ref("browse");
 </script>
 

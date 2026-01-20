@@ -137,8 +137,8 @@ const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 // 筛选条件
 const filters = reactive({
   expandedKeys: 0 as string | number,
-  version: null,
-  name: null,
+  version: undefined as string | undefined,
+  name: undefined as string | undefined,
 });
 
 // 状态管理

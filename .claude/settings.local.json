@@ -9,7 +9,11 @@
       "Bash(npm run)",
       "Bash(cat:*)",
       "Bash(npm run build:prod:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(ren:*)",
+      "Bash(ren component.ts component.d.ts)",
+      "Bash(ren upload.ts upload.d.ts)",
+      "Bash(npx vue-tsc:*)"
     ]
   }
 }
