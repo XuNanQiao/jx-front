@@ -13,3 +13,10 @@ interface FieldConfig {
   label: string;
   sort?: string;
 }
+
+interface ApiResponse<T = any> {
+  code: number;
+  msg?: string;
+  message?: string;
+  data: T;
+}

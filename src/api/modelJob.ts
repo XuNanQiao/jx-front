@@ -1,11 +1,4 @@
-import { request } from '@/utils/request';
-
-interface ApiResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-}
-
+import { request } from "@/utils/request";
 export interface JobListQueryParams {
   page?: number; // 页码
   size?: number; // 每页数量
@@ -17,17 +10,17 @@ export interface JobListQueryParams {
 
 // 模型作业列表查询
 export function getModelJobList(params?: JobListQueryParams): Promise<ApiResponse<any>> {
-  return request.post('/api/model_job/retrieve', params || {});
+  return request.post("/api/model_job/retrieve", params || {});
 }
 
 // 删除单个模型作业
 export function deleteModelJob(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete('/api/model_job/delete', { data: { id }, showMessage: true });
+  return request.delete("/api/model_job/delete", { data: { id }, showMessage: true });
 }
 
 // 批量删除模型作业
 export function batchDeleteModelJob(ids: (string | number)[]): Promise<ApiResponse<any>> {
-  return request.delete('/api/model_job/batch_delete', { data: { ids }, showMessage: true });
+  return request.delete("/api/model_job/batch_delete", { data: { ids }, showMessage: true });
 }
 
 // 作业计划数据接口参数
@@ -45,7 +38,15 @@ export interface JobPlanItem {
   [key: string]: any;
 }
 
+// 作业计划响应数据结构
+export interface JobPlanResponse {
+  time_start: string;
+  time_end: string;
+  total: number;
+  items: JobPlanItem[];
+}
+
 // 获取作业计划数据
-export function getModelJobPlan(params?: JobPlanQueryParams): Promise<ApiResponse<JobPlanItem[]>> {
-  return request.post('/api/model_job/plan', params || {});
+export function getModelJobPlan(params?: JobPlanQueryParams): Promise<ApiResponse<JobPlanResponse>> {
+  return request.post("/api/model_job/plan", params || {});
 }

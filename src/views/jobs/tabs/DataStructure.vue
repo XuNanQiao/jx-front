@@ -135,7 +135,6 @@ import LogModal from "../../development/components/LogModal.vue";
 import { dataStructureColumns, statusOptions } from "../indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const router = useRouter();
-const props = defineProps<{ id: any | null }>();
 
 // 加载状态
 const loading = ref(false);
@@ -166,7 +165,6 @@ const loadData = async () => {
   try {
     // 构建查询参数
     const params: JobListQueryParams = {
-      model_id: props.id,
       size: pagination.pageSize,
       page: pagination.current,
       name: filters.name || undefined,

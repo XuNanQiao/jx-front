@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 11:24:02
+ * @LastEditTime: 2026-01-20 11:52:22
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -13,7 +13,13 @@
       <a-space :size="16" wrap>
         <div>
           <span>时间范围：</span>
-          <a-range-picker @change="loadJobPlanData" v-model:value="filters.timeRang" allowClear style="width: 250px" />
+          <a-range-picker
+            show-time
+            @change="loadJobPlanData"
+            v-model:value="filters.timeRang"
+            allowClear
+            valueFormat="YYYY-MM-DDTHH:mm:ss"
+            style="width: 250px" />
         </div>
         <div class="switch-item">
           <a-switch v-model:checked="filters.autoMonitor" />
@@ -31,18 +37,25 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import dayjs from "dayjs";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { CustomChart } from "echarts/charts";
-import { GridComponent, TooltipComponent, LegendComponent, DataZoomComponent } from "echarts/components";
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  DataZoomComponent,
+  TitleComponent,
+} from "echarts/components";
 import { getModelJobPlan, type JobPlanItem } from "@/api/modelJob";
 import { formatDurationWithStart } from "@/utils/useTimeRangeFilter";
 
 // 注册 ECharts 组件
-use([CanvasRenderer, CustomChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent]);
+use([CanvasRenderer, CustomChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent, TitleComponent]);
 const filters = ref({
-  timeRang: [] as string[],
+  timeRang: [dayjs().startOf("day").format("YYYY-MM-DDTHH:mm:ss"), dayjs().format("YYYY-MM-DDTHH:mm:ss")] as string[],
   autoMonitor: false as boolean,
 });
 const loading = ref(false);
@@ -64,14 +77,13 @@ const loadJobPlanData = async () => {
   loading.value = true;
   try {
     const res = await getModelJobPlan({
-      model_id: 1,
+      model_id: 2,
       time_start: filters.value.timeRang[0] || "", //开始时间
       time_end: filters.value.timeRang[1] || "", //结束时间
     });
-    if (res?.data) {
-      jobData.value = res.data;
-    } else {
-      jobData.value = [];
+    jobData.value = [];
+    if (res?.data?.items) {
+      jobData.value = res.data.items;
     }
   } catch (err) {
     console.error("获取作业计划数据失败:", err);

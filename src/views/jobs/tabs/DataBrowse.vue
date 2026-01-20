@@ -68,7 +68,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'exec_log'">
           <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">
-            {{ statusMap[record.status]?.text || '-' }}
+            {{ statusMap[record.status]?.text || "-" }}
           </a-tag>
           <a-button type="link" size="small" @click="openLogModal(record)">
             <template #icon>
@@ -112,9 +112,9 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelJob, deleteModelJob, getModelJobList, type JobListQueryParams } from '@/api/modelJob';
-import type { ModelInputOutput } from '@/types/model';
-import { useTablePagination } from '@/utils/useTablePagination';
+import { batchDeleteModelJob, deleteModelJob, getModelJobList, type JobListQueryParams } from "@/api/modelJob";
+import type { ModelInputOutput } from "@/types/model";
+import { useTablePagination } from "@/utils/useTablePagination";
 import {
   ArrowUpOutlined,
   DeleteOutlined,
@@ -123,23 +123,22 @@ import {
   ReloadOutlined,
   RetweetOutlined,
   SearchOutlined,
-} from '@ant-design/icons-vue';
-import { message, Modal } from 'ant-design-vue';
-import { debounce } from 'lodash-es';
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import LogModal from '../../development/components/LogModal.vue';
-import { browseColumns, statusMap, statusOptions } from '../indexData';
+} from "@ant-design/icons-vue";
+import { message, Modal } from "ant-design-vue";
+import { debounce } from "lodash-es";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import LogModal from "../../development/components/LogModal.vue";
+import { browseColumns, statusMap, statusOptions } from "../indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const router = useRouter();
-const props = defineProps<{ id: any | null }>();
 
 // 加载状态
 const loading = ref(false);
 
 // 筛选条件
 const filters = reactive({
-  name: '',
+  name: "",
   status: undefined as number | undefined,
   autoMonitor: false,
   haveFile: false,
@@ -154,7 +153,7 @@ const dataSource = ref<ModelInputOutput[]>([]);
 // 日志弹窗状态
 const logModal = reactive({
   open: false,
-  title: '',
+  title: "",
   record: null as ModelInputOutput | null,
 });
 
@@ -163,7 +162,6 @@ const loadData = async () => {
   try {
     // 构建查询参数
     const params: JobListQueryParams = {
-      model_id: props.id,
       size: pagination.pageSize,
       page: pagination.current,
       name: filters.name || undefined,
@@ -219,7 +217,7 @@ const handleTableChange = (pag: any) => {
 // 打开日志弹窗
 const openLogModal = (record: ModelInputOutput) => {
   logModal.open = true;
-  logModal.title = record?.name ? `${record.name} 日志` : '日志详情';
+  logModal.title = record?.name ? `${record.name} 日志` : "日志详情";
   logModal.record = record;
 };
 
@@ -228,15 +226,15 @@ const openLogModal = (record: ModelInputOutput) => {
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
-    message.warning('请先选择要删除的数据');
+    message.warning("请先选择要删除的数据");
     return;
   }
 
   Modal.confirm({
-    title: '确认删除',
+    title: "确认删除",
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 条数据吗？`,
-    okText: '确定',
-    cancelText: '取消',
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await batchDeleteModelJob(selectedRowKeys.value);
@@ -245,7 +243,7 @@ const handleBatchDelete = () => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('批量删除失败:', error);
+        console.error("批量删除失败:", error);
       }
     },
   });
@@ -254,17 +252,17 @@ const handleBatchDelete = () => {
 // 菜单点击处理
 const handleMenuClick = (e: { key: string }, record: ModelInputOutput) => {
   switch (e.key) {
-    case 'priority':
+    case "priority":
       // 跳转到详情页，后续可在详情页中调整优先级
-      router.push({ name: 'ModelDevelopmentDetail', params: { id: record.id }, query: { name: record.name } });
+      router.push({ name: "ModelDevelopmentDetail", params: { id: record.id }, query: { name: record.name } });
       break;
-    case 'rerun':
+    case "rerun":
       handleRerun(record);
       break;
-    case 'retry':
+    case "retry":
       handleRetry(record);
       break;
-    case 'delete':
+    case "delete":
       handleDelete(record.id);
       break;
   }
@@ -284,10 +282,10 @@ const handleRetry = (record: ModelInputOutput) => {
 const handleDelete = (id?: string) => {
   if (!id) return;
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除这条数据吗？删除后无法恢复。',
-    okText: '确定',
-    cancelText: '取消',
+    title: "确认删除",
+    content: "确定要删除这条数据吗？删除后无法恢复。",
+    okText: "确定",
+    cancelText: "取消",
     async onOk() {
       try {
         const res = await deleteModelJob(id);
@@ -295,7 +293,7 @@ const handleDelete = (id?: string) => {
           await loadData();
         }
       } catch (error: any) {
-        console.error('删除失败:', error);
+        console.error("删除失败:", error);
       }
     },
   });
