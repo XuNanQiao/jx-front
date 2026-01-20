@@ -24,7 +24,7 @@
           </template>
           <template v-else-if="column.key === 'status'">
             <a-tag :color="record.status === 'active' ? 'green' : 'red'">
-              {{ record.status === 'active' ? '正常' : '禁用' }}
+              {{ record.status === "active" ? "正常" : "禁用" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
@@ -40,50 +40,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { PlusOutlined, UserOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+import { ref } from "vue";
+import { PlusOutlined, UserOutlined } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 
 const loading = ref(false);
 
 const columns = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-  { title: '头像', key: 'avatar', width: 80 },
-  { title: '用户名', dataIndex: 'username', key: 'username' },
-  { title: '邮箱', dataIndex: 'email', key: 'email' },
-  { title: '角色', dataIndex: 'role', key: 'role' },
-  { title: '状态', key: 'status' },
-  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt' },
-  { title: '操作', key: 'action', width: 150 },
+  { title: "ID", dataIndex: "id", key: "id", width: 80 },
+  { title: "头像", key: "avatar", width: 80 },
+  { title: "用户名", dataIndex: "username", key: "username" },
+  { title: "邮箱", dataIndex: "email", key: "email" },
+  { title: "角色", dataIndex: "role", key: "role" },
+  { title: "状态", key: "status" },
+  { title: "创建时间", dataIndex: "createdAt", key: "createdAt" },
+  { title: "操作", key: "action", width: 150, fixed: "right" },
 ];
 
 const dataSource = ref([
   {
     id: 1,
-    username: 'admin',
-    email: 'admin@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-    role: '管理员',
-    status: 'active',
-    createdAt: '2024-01-01',
+    username: "admin",
+    email: "admin@example.com",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    role: "管理员",
+    status: "active",
+    createdAt: "2024-01-01",
   },
   {
     id: 2,
-    username: 'user',
-    email: 'user@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
-    role: '普通用户',
-    status: 'active',
-    createdAt: '2024-01-02',
+    username: "user",
+    email: "user@example.com",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
+    role: "普通用户",
+    status: "active",
+    createdAt: "2024-01-02",
   },
   {
     id: 3,
-    username: 'test',
-    email: 'test@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test',
-    role: '测试用户',
-    status: 'inactive',
-    createdAt: '2024-01-03',
+    username: "test",
+    email: "test@example.com",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
+    role: "测试用户",
+    status: "inactive",
+    createdAt: "2024-01-03",
   },
 ]);
 
@@ -94,7 +94,7 @@ const pagination = {
 };
 
 const handleAdd = () => {
-  message.info('新增用户功能');
+  message.info("新增用户功能");
 };
 </script>
 

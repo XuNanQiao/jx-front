@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-20 10:14:24
+ * @LastEditTime: 2026-01-20 17:38:50
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\jobs\tabs\DataStructure.vue
@@ -116,7 +116,7 @@ import { message, Modal } from "ant-design-vue";
 import { debounce } from "lodash-es";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import LogModal from "../../development/components/LogModal.vue";
+import LogModal from "@/components/journalView/LogModal.vue";
 import { dataStructureColumns, statusOptions } from "../indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const router = useRouter();

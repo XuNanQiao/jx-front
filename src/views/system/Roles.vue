@@ -30,39 +30,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { PlusOutlined } from '@ant-design/icons-vue';
+import { ref } from "vue";
+import { PlusOutlined } from "@ant-design/icons-vue";
 
 const columns = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-  { title: '角色名称', dataIndex: 'name', key: 'name' },
-  { title: '角色标识', dataIndex: 'code', key: 'code' },
-  { title: '描述', dataIndex: 'description', key: 'description' },
-  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: "ID", dataIndex: "id", key: "id", width: 80 },
+  { title: "角色名称", dataIndex: "name", key: "name" },
+  { title: "角色标识", dataIndex: "code", key: "code" },
+  { title: "描述", dataIndex: "description", key: "description" },
+  { title: "创建时间", dataIndex: "createdAt", key: "createdAt" },
+  { title: "操作", key: "action", width: 200, fixed: "right" },
 ];
 
 const dataSource = ref([
   {
     id: 1,
-    name: '超级管理员',
-    code: 'super_admin',
-    description: '拥有系统所有权限',
-    createdAt: '2024-01-01',
+    name: "超级管理员",
+    code: "super_admin",
+    description: "拥有系统所有权限",
+    createdAt: "2024-01-01",
   },
   {
     id: 2,
-    name: '管理员',
-    code: 'admin',
-    description: '拥有系统大部分权限',
-    createdAt: '2024-01-01',
+    name: "管理员",
+    code: "admin",
+    description: "拥有系统大部分权限",
+    createdAt: "2024-01-01",
   },
   {
     id: 3,
-    name: '普通用户',
-    code: 'user',
-    description: '基础权限',
-    createdAt: '2024-01-01',
+    name: "普通用户",
+    code: "user",
+    description: "基础权限",
+    createdAt: "2024-01-01",
   },
 ]);
 

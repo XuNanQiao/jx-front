@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 16:14:56
+ * @LastEditTime: 2026-01-20 17:45:49
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { getModelDevDetail, updateModelDev } from "@/api/development";
+import { getModelDeployDetail, updateModelDeploy } from "@/api/deployment";
 import DescriptionsCom from "@/components/descriptionsCom.vue";
 import { ImportOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
@@ -134,7 +134,7 @@ const save = async (form: any) => {
   try {
     let data = JSON.parse(JSON.stringify(form));
     delete data.dependency_package;
-    await updateModelDev(data);
+    await updateModelDeploy(data);
     message.success("保存成功");
     await loadDetail(); // 保存后重新加载数据
   } catch (err) {
@@ -151,29 +151,71 @@ const loadDetail = async () => {
 
   loading.value = true;
   try {
-    const res: any = await getModelDevDetail(props.id);
+    const res: any = await getModelDeployDetail(props.id);
     if (res?.code === 200 && res?.data) {
       detail.value = res.data;
     }
     let list = basicFields();
     const newList: any = [];
-    for (let item of list) {
-      await getDataStructureList({ model_input_output_id: 2 }).then((res: any) => {
-        if (res?.code === 200) {
-          const options = res.data.items.map((ds: any) => ({
-            label: ds.name,
-            value: ds.column,
-          }));
+    if (res?.data?.input_config?.length) {
+      for (let item of res.data.input_config) {
+        try {
+          await getDataStructureList({ model_input_output_id: item.input_repo_id }).then((res: any) => {
+            if (res?.code === 200) {
+              const options = res.data.items.map((ds: any) => ({
+                label: ds.name,
+                value: ds.column,
+              }));
+              let fields: any = basicInp();
+              fields[1].options = options;
+              newList.push({
+                title: "输入配置",
+                key: "inputConfig" + item.input_repo_id,
+                fields: fields,
+              });
+            }
+          });
+        } catch (error) {
           let fields: any = basicInp();
-          fields[1].options = options;
+          fields[1].options = [];
           newList.push({
             title: "输入配置",
-            key: "inputConfig",
+            key: "inputConfig" + item.input_repo_id,
             fields: fields,
           });
         }
-      });
+      }
     }
+    if (res?.data?.output_config?.length) {
+      for (let item of res.data.output_config) {
+        try {
+          await getDataStructureList({ model_input_output_id: item.output_repo_id }).then((res: any) => {
+            if (res?.code === 200) {
+              const options = res.data.items.map((ds: any) => ({
+                label: ds.name,
+                value: ds.column,
+              }));
+              let fields: any = basicInp();
+              fields[1].options = options;
+              newList.push({
+                title: "输出配置",
+                key: "outputConfig" + item.output_repo_id,
+                fields: fields,
+              });
+            }
+          });
+        } catch (error) {
+          let fields: any = basicInp();
+          fields[1].options = [];
+          newList.push({
+            title: "输出配置",
+            key: "outputConfig" + item.output_repo_id,
+            fields: fields,
+          });
+        }
+      }
+    }
+
     // 创建新列表项
 
     // 在第一项后插入新列表

@@ -53,7 +53,7 @@ export const detailColumns = () => [
 
   { dataIndex: "created_user_id", title: "创建人", key: "created_user_id", align: "center" },
   { dataIndex: "is_active", title: "启动", key: "is_active", align: "center" },
-  { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80 },
+  { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80, fixed: "right" },
 ];
 
 export const basicFields = () => {

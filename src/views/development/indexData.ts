@@ -85,7 +85,7 @@ export const detailColumns = [
     customRender: ({ text }: any) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-"),
   },
   { dataIndex: "created_user_id", title: "创建人", key: "created_user_id", align: "center" },
-  { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80 },
+  { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80, fixed: "right" },
 ];
 // OperatorPanel 下拉项
 export const repoOptions: SelectOption[] = [

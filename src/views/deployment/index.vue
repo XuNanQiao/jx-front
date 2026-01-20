@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-20 17:05:29
+ * @LastEditTime: 2026-01-20 17:26:03
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -116,8 +116,8 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelDev, getModelDevList } from "@/api/development";
-import { deleteModelDeploy, getModelDeployList } from "@/api/deployment";
+import { getModelDevList } from "@/api/development";
+import { batchDeleteModelDeploy, deleteModelDeploy, getModelDeployList } from "@/api/deployment";
 import ImportAction from "@/components/common/ImportAction.vue";
 import { useTablePagination } from "@/utils/useTablePagination";
 import {
@@ -232,7 +232,7 @@ const handleBatchDelete = () => {
     cancelText: "取消",
     async onOk() {
       try {
-        const res = await batchDeleteModelDev(selectedRowKeys.value);
+        const res = await batchDeleteModelDeploy(selectedRowKeys.value);
         if (res.code === 200) {
           selectedRowKeys.value = [];
           await loadData();

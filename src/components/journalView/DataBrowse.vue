@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-20 16:36:03
+ * @LastEditTime: 2026-01-20 17:32:01
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\components\journalView\DataBrowse.vue
@@ -64,7 +64,7 @@
       @change="handleTableChange"
       row-key="id"
       class="model-table"
-      :scroll="{ y: 'calc(100vh - 350px)' }">
+      :scroll="tableScroll">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'exec_log'">
           <a-tag :color="statusMap[record.status]?.color || 'default'" style="cursor: pointer">
@@ -203,6 +203,17 @@ const searchHandler = () => {
   pagination.current = 1;
   loadData();
 };
+
+// 动态设置表格滚动配置
+const tableScroll = computed(() => {
+  const baseScroll = { y: "calc(100vh - 350px)" };
+  // 只有在有数据时才添加横向滚动
+  if (dataSource.value.length > 0) {
+    return { ...baseScroll, x: "max-content" };
+  }
+  return baseScroll;
+});
+
 // 行选择配置
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
