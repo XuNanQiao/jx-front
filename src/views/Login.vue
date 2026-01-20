@@ -163,4 +163,7 @@ const handleLogin = async () => {
 :deep(.input-base) {
   color: #000;
 }
+.btn-primary {
+  border: none !important;
+}
 </style>
