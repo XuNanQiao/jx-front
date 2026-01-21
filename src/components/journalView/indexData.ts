@@ -1,3 +1,12 @@
+/*
+ * @Author: ZHAO
+ * @Date: 2026-01-20 17:31:02
+ * @LastEditTime: 2026-01-21 09:15:29
+ * @LastEditors: ZHAO
+ * @Description:
+ * @FilePath: \jx\src\components\journalView\indexData.ts
+ *
+ */
 import { formatDurationWithStart } from "@/utils/useTimeRangeFilter";
 
 // 作业状态选项
@@ -8,10 +17,10 @@ export const statusOptions: SelectOption[] = [
   { label: "执行失败", value: 3 },
 ];
 export const statusMap: Record<string | number, { text: string; color: string }> = {
-  0: { text: "待执行", color: "orange" },
-  1: { text: "执行中", color: "blue" },
-  2: { text: "成功", color: "green" },
-  3: { text: "失败", color: "red" },
+  0: { text: "待执行", color: "warning" },
+  1: { text: "执行中", color: "processing" },
+  2: { text: "成功", color: "success" },
+  3: { text: "失败", color: "error" },
 };
 /* ----------------basicFields----------------- */
 export const browseColumns = [

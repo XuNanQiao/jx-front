@@ -15,6 +15,10 @@ export const triggerOptions: SelectOption[] = [
   { label: "自启动", value: 3 },
 ];
 export const retentionOptions: SelectOption[] = [{ label: "指定", value: "指定" }];
+export const jobOptions: SelectOption[] = [
+  { label: "全部", value: "全部" },
+  { label: "指定", value: "指定" },
+];
 /* ----------------------detail------------------- */
 export const detailColumns = () => [
   { dataIndex: "name", title: "名称", key: "name" },
@@ -65,17 +69,18 @@ export const basicFields = () => {
         {
           label: "模型名称",
           key: "name",
-          type: "input" as const,
+          type: "input",
           rules: [{ required: true, message: "请输入模型名称", trigger: "blur" }],
         },
-        { label: "显示名称", key: "display_name", type: "input" as const },
-        { label: "运行环境", key: "runtime_env", type: "input" as const },
+        { label: "显示名称", key: "display_name", type: "input" },
+        { label: "运行环境", key: "runtime_env", type: "input", span: 9, labelSpan: 7 },
+        { afterlabel: "复用容器", key: "is reuse container", type: "switch", span: 3, labelSpan: 14 },
         {
           label: "触发方式",
           key: "trigger_type",
-          type: "checkbox" as const,
+          type: "radio",
           options: triggerOptions,
-          rules: [{ required: true, type: "array", message: "请至少选择一种触发方式", trigger: "change" }],
+          rules: [{ required: true, message: "请至少选择一种触发方式", trigger: "change" }],
           customRender: ({ text }: any) => {
             if (!text) return "-";
             // 如果是数组，显示多个标签
@@ -91,16 +96,20 @@ export const basicFields = () => {
         },
         {
           label: "执行周期",
-          key: "cycle",
+          key: ["trigger_config", "next_run"],
           editSlot: "cycleEditor",
-          type: "input" as const,
+          type: "input",
         },
         {
           label: "作业保留数",
           key: "job_retained_numbers",
-          type: "input" as const,
-          options: retentionOptions,
+          type: "input",
+          options: jobOptions,
           editSlot: "jobRetentionEditor",
+          customRender: ({ text }: any) => {
+            if (!text) return "-";
+            return text === -1 ? "全部" : text;
+          },
         },
       ],
     },
@@ -121,11 +130,16 @@ export const basicFields = () => {
     },
   ];
 };
-export const basicInp = () => [
-  { label: "Rep", key: "created_user_id", type: "input", span: 9 },
-  { label: "数据列", key: "category", type: "select", span: 9, mode: "multiple" },
-  { label: "设备实例", key: "available_range", type: "select", span: 9, mode: "multiple" },
-  { label: "数据时间", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
-  { label: "窗口长度", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
-  { label: "对齐时间", key: "remark", type: "number", min: 1, span: 5, labelSpan: 10 },
-];
+export const basicInp = () => {
+  // 使用深拷贝确保每次调用都返回全新的对象，避免多个配置共享引用
+  return JSON.parse(
+    JSON.stringify([
+      { label: "Repo", key: "repo", type: "select", span: 9 },
+      { label: "数据列", key: "data_columns", type: "select", span: 9, mode: "multiple" },
+      { label: "设备实例", key: "device_instance", type: "select", span: 9, mode: "multiple" },
+      { label: "数据时间", key: "data_time", type: "select", options: jobOptions, span: 5, labelSpan: 10 },
+      { label: "窗口长度", key: "window_length", type: "number", unit: "M", min: 1, span: 5, labelSpan: 10 },
+      { label: "对齐时间", key: "alignment_time", type: "number", unit: "M", min: 1, span: 5, labelSpan: 10 },
+    ]),
+  );
+};

@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 17:45:49
+ * @LastEditTime: 2026-01-21 10:57:55
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -14,10 +14,11 @@
         <a-form-item :name="slotProps.field.key" :rules="slotProps.field.rules" class="form-item-inline">
           <a-input-group compact class="cycle-input-group">
             <a-input
-              v-model:value="slotProps.form[slotProps.field.key]"
+              :value="getNestedValue(slotProps.form, slotProps.field.key)"
+              @update:value="(val: any) => setNestedValue(slotProps.form, slotProps.field.key, val)"
               placeholder="请输入执行周期"
               style="width: calc(100% - 120px)" />
-            <a-button type="primary" @click="handleConfigCycle(slotProps.form, slotProps.field.key)">
+            <a-button type="primary" @click="handleConfigCycle(slotProps.form, ['trigger_config', 'cron'])">
               <template #icon>
                 <ImportOutlined />
               </template>
@@ -27,19 +28,25 @@
         </a-form-item>
       </template>
       <template #jobRetentionEditor="slotProps: any">
-        <a-form-item :name="slotProps.field.key" :rules="slotProps.field.rules" class="form-item-inline">
-          <a-input-group compact class="cycle-input-group">
-            <a-select
-              v-model:value="slotProps.form[slotProps.field.key]"
-              :options="slotProps.field.options"
-              style="width: 150px" />
+        <a-input-group compact class="cycle-input-group">
+          <a-select
+            v-model:value="slotProps.form.job_retention_mode"
+            :options="slotProps.field.options"
+            style="width: 150px" />
+          <a-form-item
+            v-if="slotProps.form.job_retention_mode != '全部'"
+            :name="slotProps.field.key"
+            :rules="slotProps.field.rules"
+            class="form-item-inline"
+            style="margin-bottom: 0">
             <a-input-number
               style="width: 200px"
-              v-model:value="slotProps.form[slotProps.field.key]"
+              :value="getNestedValue(slotProps.form, slotProps.field.key)"
+              @update:value="(val: any) => setNestedValue(slotProps.form, slotProps.field.key, val)"
               :min="0"
               placeholder="请输入数据周期" />
-          </a-input-group>
-        </a-form-item>
+          </a-form-item>
+        </a-input-group>
       </template>
     </DescriptionsCom>
 
@@ -79,6 +86,26 @@ import { message } from "ant-design-vue";
 import { ref, watch } from "vue";
 import { basicFields, basicInp } from "../indexData";
 import { getDataStructureList } from "@/api/inputOutput";
+
+// 获取嵌套属性值的辅助函数
+const getNestedValue = (obj: any, key: string | string[]): any => {
+  if (!key) return undefined;
+  const keys = Array.isArray(key) ? key : [key];
+  return keys.reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : undefined), obj);
+};
+
+// 设置嵌套属性值的辅助函数
+const setNestedValue = (obj: any, key: string | string[], value: any): void => {
+  if (!key) return;
+  const keys = Array.isArray(key) ? key : [key];
+  const lastKey = keys[keys.length - 1];
+  const parent = keys.slice(0, -1).reduce((acc, k) => {
+    if (!acc[k]) acc[k] = {};
+    return acc[k];
+  }, obj);
+  parent[lastKey] = value;
+};
+
 const props = defineProps<{ id: any | null }>();
 const loading = ref(false);
 const editMode = ref(false);
@@ -91,13 +118,12 @@ const cronForm = ref({
   expression: "",
 });
 let currentForm: any = null;
-let currentFieldKey: string = "";
+let currentFieldKey: string | string[] = "";
 
 // 配置执行周期
-const handleConfigCycle = (form: any, fieldKey: string) => {
+const handleConfigCycle = (form: any, fieldKey: string | string[]) => {
   currentForm = form;
-  currentFieldKey = fieldKey;
-  cronForm.value.expression = form[fieldKey] || "";
+  cronForm.value.expression = getNestedValue(form, currentFieldKey) || "";
   cronModalVisible.value = true;
 };
 
@@ -108,8 +134,8 @@ const handleCronConfirm = () => {
     return;
   }
 
-  if (currentForm && currentFieldKey) {
-    currentForm[currentFieldKey] = cronForm.value.expression.trim();
+  if (currentForm) {
+    setNestedValue(currentForm, ["trigger_config", "cron"], cronForm.value.expression.trim());
   }
 
   cronModalVisible.value = false;
@@ -133,7 +159,10 @@ const save = async (form: any) => {
   }
   try {
     let data = JSON.parse(JSON.stringify(form));
-    delete data.dependency_package;
+    if (data.job_retention_mode == "全部") {
+      data.job_retained_numbers = -1;
+    }
+    delete data.job_retention_mode;
     await updateModelDeploy(data);
     message.success("保存成功");
     await loadDetail(); // 保存后重新加载数据
@@ -153,31 +182,34 @@ const loadDetail = async () => {
   try {
     const res: any = await getModelDeployDetail(props.id);
     if (res?.code === 200 && res?.data) {
+      res.data.job_retention_mode = res.data.job_retained_numbers === -1 ? "全部" : "指定";
       detail.value = res.data;
     }
     let list = basicFields();
     const newList: any = [];
     if (res?.data?.input_config?.length) {
-      for (let item of res.data.input_config) {
+      for (let index in res.data.input_config) {
+        let item = res.data.input_config[index];
+        let fields: any = basicInp();
+        for (let fil of fields) {
+          fil.key = ["input_config", index, fil.key];
+        }
+        fields[0].options = [{ label: item.repo, value: item.repo }];
         try {
-          await getDataStructureList({ model_input_output_id: item.input_repo_id }).then((res: any) => {
-            if (res?.code === 200) {
-              const options = res.data.items.map((ds: any) => ({
-                label: ds.name,
-                value: ds.column,
-              }));
-              let fields: any = basicInp();
-              fields[1].options = options;
-              newList.push({
-                title: "输入配置",
-                key: "inputConfig" + item.input_repo_id,
-                fields: fields,
-              });
-            }
+          let res = await getDataStructureList({ model_input_output_id: item.input_repo_id });
+          const options = res.data.items.map((ds: any) => ({
+            label: ds.name,
+            value: ds.column,
+          }));
+          fields[1].options = options;
+          newList.push({
+            title: "输入配置",
+            key: "inputConfig" + item.input_repo_id,
+            fields: fields,
           });
         } catch (error) {
-          let fields: any = basicInp();
           fields[1].options = [];
+        } finally {
           newList.push({
             title: "输入配置",
             key: "inputConfig" + item.input_repo_id,
@@ -187,26 +219,23 @@ const loadDetail = async () => {
       }
     }
     if (res?.data?.output_config?.length) {
-      for (let item of res.data.output_config) {
+      for (let index in res.data.output_config) {
+        let item = res.data.output_config[index];
+        let fields: any = basicInp();
+        for (let fil of fields) {
+          fil.key = ["output_config", index, fil.key];
+        }
+        fields[0].options = [{ label: item.repo, value: item.repo }];
         try {
-          await getDataStructureList({ model_input_output_id: item.output_repo_id }).then((res: any) => {
-            if (res?.code === 200) {
-              const options = res.data.items.map((ds: any) => ({
-                label: ds.name,
-                value: ds.column,
-              }));
-              let fields: any = basicInp();
-              fields[1].options = options;
-              newList.push({
-                title: "输出配置",
-                key: "outputConfig" + item.output_repo_id,
-                fields: fields,
-              });
-            }
-          });
+          let res = await getDataStructureList({ model_input_output_id: item.output_repo_id });
+          const options = res.data.items.map((ds: any) => ({
+            label: ds.name,
+            value: ds.column,
+          }));
+          fields[1].options = options;
         } catch (error) {
-          let fields: any = basicInp();
           fields[1].options = [];
+        } finally {
           newList.push({
             title: "输出配置",
             key: "outputConfig" + item.output_repo_id,
@@ -215,9 +244,6 @@ const loadDetail = async () => {
         }
       }
     }
-
-    // 创建新列表项
-
     // 在第一项后插入新列表
     if (list.length > 0) {
       list.splice(1, 0, ...newList);

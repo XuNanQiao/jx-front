@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-20 17:26:03
+ * @LastEditTime: 2026-01-21 09:36:40
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -12,7 +12,7 @@
     <!-- 筛选区域 -->
     <div class="filter-section flex-between">
       <a-space :size="16" wrap>
-        <ImportAction import-url="/api/model_dev/import" />
+        <ImportAction import-url="/api/model_deploy/import" />
         <!--  :import-params="() => ({ category: filters.category, trigger_type: filters.trigger_type })"  -->
         <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
           <template #icon>

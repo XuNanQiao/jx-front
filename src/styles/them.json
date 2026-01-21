@@ -184,6 +184,11 @@
             "colorPrimary": "#1ed4e7",
             "colorBorder": "#2e5e83",
             "colorBgContainer": "transparent"
+        },
+        "Radio": {
+            "colorPrimary": "#1ed4e7",
+            "colorBorder": "#2e5e83",
+            "colorBgContainer": "transparent"
         }
     }
 }

@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-20 18:03:05
+ * @LastEditTime: 2026-01-21 09:16:28
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\components\journalView\DataBrowse.vue
@@ -67,7 +67,7 @@
       :scroll="tableScroll">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'exec_log'">
-          <a-tag :color="statusMap[record.status]?.color || 'cyan'" style="cursor: pointer">
+          <a-tag :color="statusMap[record.status]?.color || 'warning'" style="cursor: pointer">
             {{ statusMap[record.status]?.text || "-" }}
           </a-tag>
           <a-button type="link" size="small" @click="openLogModal(record)">

@@ -1,3 +1,12 @@
+<!--
+ * @Author: ZHAO
+ * @Date: 2026-01-20 16:24:36
+ * @LastEditTime: 2026-01-21 11:18:45
+ * @LastEditors: ZHAO
+ * @Description: 
+ * @FilePath: \jx\src\components\descriptionsCom.vue
+ * 
+-->
 <template>
   <div class="basic-info page">
     <!-- 全局操作 -->
@@ -23,25 +32,41 @@
             <a-col :span="field.span || 12" v-for="(field, chilIndex) in item.fields" :key="chilIndex">
               <div class="h-38px mb-16px !pl-16px">
                 <a-row :gutter="16">
-                  <a-col :span="field.labelSpan || 5">{{ field.label }}：</a-col>
+                  <a-col v-if="field.label" :span="field.labelSpan || 5" class="leading-32px">
+                    {{ field.label }}：
+                  </a-col>
                   <a-col :span="24 - (field.labelSpan || 5)">
                     <template v-if="editMode && field.editSlot">
                       <slot :name="field.editSlot" :form="form" :field="field" />
                     </template>
                     <template v-else-if="editMode && field.type === 'switch'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
-                        <a-switch v-model:checked="form[field.key]" />
+                        <a-switch
+                          :checked="getNestedValue(form, field.key)"
+                          @update:checked="(val: any) => setNestedValue(form, field.key, val)" />
                       </a-form-item>
                     </template>
                     <template v-else-if="editMode && field.type === 'checkbox'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
-                        <a-checkbox-group v-model:value="form[field.key]" :options="field.options" />
+                        <a-checkbox-group
+                          :value="getNestedValue(form, field.key)"
+                          @update:value="(val: any) => setNestedValue(form, field.key, val)"
+                          :options="field.options" />
+                      </a-form-item>
+                    </template>
+                    <template v-else-if="editMode && field.type === 'radio'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-radio-group
+                          :value="getNestedValue(form, field.key)"
+                          @update:value="(val: any) => setNestedValue(form, field.key, val)"
+                          :options="field.options" />
                       </a-form-item>
                     </template>
                     <template v-else-if="editMode && field.type === 'select'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
                         <a-select
-                          v-model:value="form[field.key]"
+                          :value="getNestedValue(form, field.key)"
+                          @update:value="(val: any) => setNestedValue(form, field.key, val)"
                           :mode="field.mode"
                           style="width: 100%"
                           placeholder="请选择">
@@ -54,29 +79,36 @@
                     <template v-else-if="editMode && field.type === 'number'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
                         <a-input-number
-                          v-model:value="form[field.key]"
+                          :value="getNestedValue(form, field.key)"
+                          @update:value="(val: any) => setNestedValue(form, field.key, val)"
                           :min="field.min"
                           :max="field.max"
+                          :addon-after="field.unit"
                           style="width: 100%"
                           placeholder="请输入" />
                       </a-form-item>
                     </template>
                     <template v-else-if="editMode && field.type === 'input'">
                       <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
-                        <a-input v-model:value="form[field.key]" />
+                        <a-input
+                          :value="getNestedValue(form, field.key)"
+                          @update:value="(val: any) => setNestedValue(form, field.key, val)" />
                       </a-form-item>
                     </template>
                     <!-- 非编辑态优先使用自定义渲染 -->
                     <template v-else-if="!editMode && field.customRender">
-                      <VNodeRenderer :vnode="field.customRender({ text: detail[field.key], record: detail })" />
+                      <VNodeRenderer
+                        class="leading-32px"
+                        :vnode="field.customRender({ text: getNestedValue(detail, field.key), record: detail })" />
                     </template>
                     <template v-else-if="!editMode && field.slot">
                       <slot :name="field.slot" />
                     </template>
                     <template v-else>
-                      <span class="desc-text">{{ formatValue(detail[field.key]) }}</span>
+                      <span class="leading-32px desc-text">{{ formatValue(getNestedValue(detail, field.key)) }}</span>
                     </template>
                   </a-col>
+                  <a-col :span="field.labelSpan || 5" class="leading-32px">{{ field.afterlabel }}</a-col>
                 </a-row>
               </div>
             </a-col>
@@ -91,6 +123,26 @@
 import { ref, watch, reactive, defineComponent, h } from "vue";
 import { message } from "ant-design-vue";
 import type { FormInstance } from "ant-design-vue";
+
+// 获取嵌套属性值的辅助函数
+const getNestedValue = (obj: any, key: string | string[]): any => {
+  if (!key) return undefined;
+  const keys = Array.isArray(key) ? key : [key];
+  return keys.reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : undefined), obj);
+};
+
+// 设置嵌套属性值的辅助函数
+const setNestedValue = (obj: any, key: string | string[], value: any): void => {
+  if (!key) return;
+  const keys = Array.isArray(key) ? key : [key];
+  const lastKey = keys[keys.length - 1];
+  const parent = keys.slice(0, -1).reduce((acc, k) => {
+    if (!acc[k]) acc[k] = {};
+    return acc[k];
+  }, obj);
+  parent[lastKey] = value;
+};
+
 // 用于直接挂载 VNode 或字符串到模板
 const VNodeRenderer = defineComponent({
   name: "VNodeRenderer",
@@ -113,26 +165,6 @@ type ValidationRule = {
   validator?: (rule: any, value: any) => Promise<void>;
   trigger?: string | string[];
 };
-interface FieldItem {
-  label: string;
-  key: string;
-  type?: "input" | "select" | "switch" | "number" | "link" | "checkbox";
-  mode?: "multiple" | "tags";
-  options?: SelectOption[];
-  rules?: ValidationRule[];
-  editSlot?: string;
-  slot?: string;
-  span?: number; // 字段占据的列数（24栅格系统）
-  labelSpan?: number; // 标签占据的列数
-  min?: number; // 数字输入框最小值
-  max?: number; // 数字输入框最大值
-  customRender?: (ctx: CustomRenderCtx) => any;
-}
-interface ModuleItem {
-  title: string;
-  key: string;
-  fields: FieldItem[];
-}
 
 const props = withDefaults(
   defineProps<{
@@ -209,6 +241,8 @@ const cancelEdit = () => {
 
 const onSave = async () => {
   try {
+    console.log(form, "-----1212");
+
     // 执行表单验证
     await formRef.value?.validate();
     // 验证通过，触发保存事件

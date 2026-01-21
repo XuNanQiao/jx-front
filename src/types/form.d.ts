@@ -42,8 +42,8 @@ interface CustomRenderCtx {
  */
 interface FieldItem {
   label: string;
-  key: string;
-  type?: "input" | "select" | "switch" | "number" | "link" | "checkbox";
+  key: string | string[]; // 支持字符串或字符串数组（用于嵌套属性）
+  type?: "input" | "select" | "switch" | "number" | "link" | "checkbox" | "radio";
   mode?: "multiple" | "tags";
   options?: SelectOption[];
   rules?: ValidationRule[];
@@ -51,6 +51,11 @@ interface FieldItem {
   slot?: string;
   span?: number; // 字段占据的列数（24栅格系统）
   labelSpan?: number; // 标签占据的列数
+  unit?: string; // 单位
+  min?: number; // 最小值（仅number类型适用）
+  max?: number; // 最大值（仅number类型适用）
+  step?: number; // 步长（仅number类型适用）
+  afterlabel?: string; // 标签后缀
   customRender?: (ctx: CustomRenderCtx) => any;
 }
 

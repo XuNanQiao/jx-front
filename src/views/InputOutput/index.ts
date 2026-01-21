@@ -97,32 +97,83 @@ export const allColumnsOptions: SelectOption[] = [
 export const basicFields: FieldConfig[] = [
   { key: "name", label: "名称" },
   { key: "node_name_en", label: "显示名称" },
-  { key: "data_type", label: "数据类型", sort: "dataType" },
-  { key: "default_device", label: "使用默认设备", sort: "defaultDevice" },
-  { key: "database_category", label: "存储引擎", sort: "storageEngine" },
-  { key: "cycle_time", label: "数据周期(ms)", sort: "cycleTime" },
+  { key: "data_type", label: "数据类型", slot: "dataType" },
+  { key: "default_device", label: "使用默认设备", slot: "defaultDevice" },
+  { key: "database_category", label: "存储引擎", slot: "storageEngine" },
+  { key: "cycle_time", label: "数据周期(ms)", slot: "cycleTime" },
 ];
-
-// 数据保留字段
-export const retentionFields: FieldConfig[] = [
-  { key: "batch_retention", label: "批量数据保留", sort: "retention" },
-  { key: "stream_retention", label: "流式数据保留", sort: "retention" },
-  { key: "archive_batch_retention", label: "归档数批保留", sort: "retention" },
-];
-
+// 获取数据保留显示标签
+const getRetentionLabel = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+  const strValue = String(value);
+  const option = retentionOptions.find((opt) => opt.value === strValue);
+  return option ? option.label : strValue;
+};
 // 数据保留选项
 export const retentionOptions: SelectOption[] = [
   { label: "不启用", value: "0" },
   { label: "永久保留", value: "-1" },
 ];
 
-// 其他信息字段
-export const otherFields: FieldConfig[] = [
-  { key: "created_time", label: "创建人 / 创建时间", sort: "created" },
-  { key: "scope", label: "可用范围" },
-  { key: "custom_pk", label: "自定义主键" },
-  { key: "ledger", label: "关联台账" },
-  { key: "mock_cycle", label: "Mock周期" },
-  { key: "category", label: "类别", sort: "category" },
-  { key: "attribute", label: "输入输出类型" },
+// 数据保留字段
+export const moduleList = [
+  {
+    title: "基础信息",
+    key: "basicInfo",
+    fields: [
+      {
+        label: "名称",
+        key: "name",
+        type: "input",
+        rules: [{ required: true, message: "请输入名称", trigger: "blur" }],
+      },
+      { label: "显示名称", key: "node_name_en", type: "input" },
+      { label: "数据类型", key: "data_type", type: "input" },
+      { label: "使用默认设备", key: "defaultDevice", type: "switch" },
+      { label: "存储引擎", key: "database_category", editSlot: "storageEngineEdit", slot: "storageEngineView" },
+      { label: "数据周期(ms)", key: "cycle_time", type: "number", min: 0 },
+    ],
+  },
+  {
+    title: "数据保留",
+    key: "retention",
+    fields: [
+      {
+        label: "批量数据保留",
+        key: "batch_retention",
+        type: "select",
+        options: retentionOptions,
+        customRender: ({ text }: any) => getRetentionLabel(text),
+      },
+      {
+        label: "流式数据保留",
+        key: "stream_retention",
+        type: "select",
+        options: retentionOptions,
+        customRender: ({ text }: any) => getRetentionLabel(text),
+      },
+      {
+        label: "归档数批保留",
+        key: "archive_batch_retention",
+        type: "select",
+        options: retentionOptions,
+        customRender: ({ text }: any) => getRetentionLabel(text),
+      },
+    ],
+  },
+  {
+    title: "其他信息",
+    key: "other",
+    fields: [
+      { label: "创建人 / 创建时间", key: "created_time", slot: "createdInfo", labelSpan: 7 },
+      { label: "可用范围", key: "scope" },
+      { label: "自定义主键", key: "custom_pk" },
+      { label: "关联台账", key: "ledger" },
+      { label: "Mock周期", key: "mock_cycle" },
+      { label: "类别", key: "category", slot: "category" },
+      { label: "输入输出类型", key: "attribute" },
+    ],
+  },
 ];
