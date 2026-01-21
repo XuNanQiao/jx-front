@@ -42,7 +42,7 @@
         </div>
 
         <button type="submit" class="btn-primary w-full h-44px text-lg font-semibold" :disabled="loading">
-          {{ loading ? '登录中...' : '登录' }}
+          {{ loading ? "登录中..." : "登录" }}
         </button>
 
         <div v-if="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
@@ -54,61 +54,60 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
-import type { LoginForm } from '@/types/user';
+import { reactive, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 
 const router = useRouter();
 const userStore = useUserStore();
 
 const loginForm = reactive<LoginForm>({
-  username: '',
-  password: '',
+  username: "",
+  password: "",
 });
 
 const errors = reactive({
-  username: '',
-  password: '',
+  username: "",
+  password: "",
 });
 
 const rememberMe = ref(false);
 const loading = ref(false);
-const errorMessage = ref('');
+const errorMessage = ref("");
 
 // 初始化：读取"记住我"功能保存的用户名
 onMounted(() => {
-  const savedRemember = localStorage.getItem('rememberMe');
-  const savedUsername = localStorage.getItem('savedUsername');
+  const savedRemember = localStorage.getItem("rememberMe");
+  const savedUsername = localStorage.getItem("savedUsername");
 
-  if (savedRemember === 'true' && savedUsername) {
+  if (savedRemember === "true" && savedUsername) {
     rememberMe.value = true;
     loginForm.username = savedUsername;
   }
 
   // 开发环境默认填充
   if (import.meta.env.DEV && !loginForm.username) {
-    loginForm.username = 'admin';
-    loginForm.password = 'password123';
+    loginForm.username = "admin";
+    loginForm.password = "password123";
   }
 });
 
 // 表单验证
 const validateForm = (): boolean => {
   let isValid = true;
-  errors.username = '';
-  errors.password = '';
+  errors.username = "";
+  errors.password = "";
 
   if (!loginForm.username.trim()) {
-    errors.username = '请输入用户名';
+    errors.username = "请输入用户名";
     isValid = false;
   }
 
   if (!loginForm.password.trim()) {
-    errors.password = '请输入密码';
+    errors.password = "请输入密码";
     isValid = false;
   } else if (loginForm.password.length < 6) {
-    errors.password = '密码长度不能少于6位';
+    errors.password = "密码长度不能少于6位";
     isValid = false;
   }
 
@@ -117,7 +116,7 @@ const validateForm = (): boolean => {
 
 // 处理登录
 const handleLogin = async () => {
-  errorMessage.value = '';
+  errorMessage.value = "";
 
   if (!validateForm()) {
     return;
@@ -129,12 +128,12 @@ const handleLogin = async () => {
     userStore.login(loginForm).then((result) => {
       if (result.success) {
         // 登录成功，跳转到首页
-        router.push('/');
+        router.push("/");
       }
     });
   } catch (error: any) {
-    console.error('登录失败：', error);
-    errorMessage.value = error?.message || '登录失败，请稍后重试';
+    console.error("登录失败：", error);
+    errorMessage.value = error?.message || "登录失败，请稍后重试";
   } finally {
     loading.value = false;
   }

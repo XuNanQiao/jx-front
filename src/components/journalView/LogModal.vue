@@ -17,7 +17,7 @@
     @update:open="emit('update:open', $event)">
     <template #title>
       <div class="log-modal__header">
-        <span>{{ title || '日志详情' }}</span>
+        <span>{{ title || "日志详情" }}</span>
         <div class="log-modal__actions">
           <span class="label text-white">自动换行</span>
           <a-switch size="small" v-model:checked="state.autoWrap" />
@@ -52,9 +52,8 @@
 </template>
 
 <script setup lang="ts">
-import { fetchModelJobLog } from '@/api/development'; // Import the new API function
-import type { ModelInputOutput } from '@/types/model';
-import { onUnmounted, reactive, ref, watch } from 'vue';
+import { fetchModelJobLog } from "@/api/development"; // Import the new API function
+import { onUnmounted, reactive, ref, watch } from "vue";
 
 type Props = {
   open: boolean;
@@ -64,16 +63,16 @@ type Props = {
 
 const props = withDefaults(defineProps<Props>(), {
   open: false,
-  title: '日志详情',
+  title: "日志详情",
   record: null,
 });
 
-const emit = defineEmits<{ (e: 'update:open', value: boolean): void }>();
+const emit = defineEmits<{ (e: "update:open", value: boolean): void }>();
 
 const state = reactive({
   autoWrap: true,
   autoRefresh: false,
-  activeTab: 'log',
+  activeTab: "log",
 });
 
 const displayLog = ref<{ exec_log?: string; refresh_interval?: number }>({});
@@ -95,7 +94,7 @@ const fetchLogs = async () => {
       displayLog.value = response.data;
       time.value = response.data.refresh_interval;
     } catch (error) {
-      console.error('日志查询失败:', error);
+      console.error("日志查询失败:", error);
     }
   }
 };
@@ -132,13 +131,13 @@ watch(
     if (!visible) {
       clearLogRefresh();
       state.autoRefresh = false;
-      state.activeTab = 'log';
+      state.activeTab = "log";
     }
   },
 );
 
 const handleCancel = () => {
-  emit('update:open', false);
+  emit("update:open", false);
 };
 
 onUnmounted(() => {

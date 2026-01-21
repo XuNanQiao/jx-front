@@ -97,7 +97,7 @@ export const basicFields = () => {
         },
         {
           label: "作业保留数",
-          key: "job_retention",
+          key: "job_retained_numbers",
           type: "input" as const,
           options: retentionOptions,
           editSlot: "jobRetentionEditor",

@@ -8,10 +8,10 @@ export const statusOptions: SelectOption[] = [
   { label: "执行失败", value: 3 },
 ];
 export const statusMap: Record<string | number, { text: string; color: string }> = {
-  0: { text: "待执行", color: "default" },
-  1: { text: "执行中", color: "processing" },
-  2: { text: "成功", color: "success" },
-  3: { text: "失败", color: "error" },
+  0: { text: "待执行", color: "orange" },
+  1: { text: "执行中", color: "blue" },
+  2: { text: "成功", color: "green" },
+  3: { text: "失败", color: "red" },
 };
 /* ----------------basicFields----------------- */
 export const browseColumns = [

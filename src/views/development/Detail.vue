@@ -44,7 +44,10 @@ import DataStructure from "./tabs/DataStructure.vue";
 import DataBrowse from "@/components/journalView/DataBrowse.vue";
 
 const route = useRoute();
-const id = computed(() => route.params.id);
+const id = computed(() => {
+  const paramId = route.params.id;
+  return Array.isArray(paramId) ? paramId[0] : paramId;
+});
 const detailName = computed(() => (route.query.name as string) || "详情");
 const activeKey = ref("basic");
 </script>

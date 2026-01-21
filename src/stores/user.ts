@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import type { UserInfo, LoginForm } from "@/types/user";
 import * as userApi from "@/api/user";
 
 export const useUserStore = defineStore("user", () => {
