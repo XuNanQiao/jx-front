@@ -105,29 +105,3 @@ a:hover {
   scrollbar-width: thin;
   scrollbar-color: #4a6fb4 rgba(255, 255, 255, 0.06);
 }
-/* 滚动条样式 */
-/* 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  transition: background 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
- */

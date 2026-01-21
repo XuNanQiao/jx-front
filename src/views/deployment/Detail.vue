@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 17:04:17
- * @LastEditTime: 2026-01-20 15:51:27
+ * @LastEditTime: 2026-01-21 15:17:49
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\Detail.vue
@@ -13,7 +13,7 @@
       <template #title>
         <a-breadcrumb style="margin-bottom: 0">
           <a-breadcrumb-item class="crumb-parent">
-            <router-link :to="{ name: 'ModelDevelopment' }">模型部署</router-link>
+            <router-link :to="{ name: 'ModelDeployment' }">模型部署</router-link>
           </a-breadcrumb-item>
           <a-breadcrumb-item class="crumb-current">{{ detailName }}</a-breadcrumb-item>
         </a-breadcrumb>

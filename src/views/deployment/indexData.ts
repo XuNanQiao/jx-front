@@ -46,7 +46,7 @@ export const detailColumns = () => [
     title: "输出Repo",
     key: "output_config",
     align: "left",
-    width: 150,
+    width: 200,
     customRender: ({ text }: { text: any }) => (text?.length ? text[0].repo : "-"),
   },
   {
@@ -57,8 +57,8 @@ export const detailColumns = () => [
     customRender: ({ text }: { text: any }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-"),
   },
 
-  { dataIndex: "created_user_id", title: "创建人", key: "created_user_id", align: "center" },
-  { dataIndex: "is_active", title: "启动", key: "is_active", align: "center" },
+  { dataIndex: "created_user_id", title: "创建人", key: "created_user_id", align: "center", width: 100 },
+  { dataIndex: "is_active", title: "启动", key: "is_active", align: "center", width: 100 },
   { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80, fixed: "right" },
 ];
 
