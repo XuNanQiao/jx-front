@@ -25,7 +25,23 @@ export const statusMap: Record<string | number, { text: string; color: string }>
   2: { text: "成功", color: "success" },
   3: { text: "失败", color: "error" },
 };
+// 状态映射:将数字状态码映射为中文状态名称
+export const statusJobMap: Record<string, string> = {
+  "0": "等待",
+  "1": "运行中",
+  "2": "成功",
+  "3": "失败",
+  "4": "计划",
+};
 
+// 状态颜色配置
+export const statusColors: Record<string, string> = {
+  等待: "#faad14",
+  运行中: "#1890ff",
+  成功: "#52c41a",
+  失败: "#ff4d4f",
+  计划: "#722ed1",
+};
 /* ----------------basicFields----------------- */
 export const browseColumns = [
   { dataIndex: "name", title: "作业名称", key: "name" },

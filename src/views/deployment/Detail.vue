@@ -26,7 +26,7 @@
           </a-tab-pane>
 
           <a-tab-pane key="browse" tab="作业">
-            <DataBrowse :id="id" v-if="activeKey === 'browse'" />
+            <DataBrowse :id="id" v-if="activeKey === 'browse'" geturl="deploylJob" />
           </a-tab-pane>
         </a-tabs>
       </div>

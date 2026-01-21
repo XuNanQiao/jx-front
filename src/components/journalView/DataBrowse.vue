@@ -1,7 +1,16 @@
 <!--
  * @Author: ZHAO
+ * @Date: 2026-01-20 17:34:18
+ * @LastEditTime: 2026-01-21 13:36:06
+ * @LastEditors: ZHAO
+ * @Description: 
+ * @FilePath: \jx\src\components\journalView\DataBrowse.vue
+ * 
+-->
+<!--
+ * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-21 09:16:28
+ * @LastEditTime: 2026-01-21 13:34:42
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\components\journalView\DataBrowse.vue
@@ -130,11 +139,16 @@ import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import LogModal from "./LogModal.vue";
 import { browseColumns, statusMap, statusOptions } from "./indexData";
+import { getDeployJobList } from "@/api/deployment";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const router = useRouter();
 const props = defineProps({
   id: {
     type: [String, Number],
+  },
+  geturl: {
+    type: String,
+    default: "modelJob",
   },
 });
 
@@ -167,15 +181,30 @@ const loadData = async () => {
   try {
     // 构建查询参数
     const params: JobListQueryParams = {
-      model_id: props.id,
       size: pagination.pageSize,
       page: pagination.current,
       name: filters.name || undefined,
       status: filters.status ?? undefined,
     };
-    const res = await getModelJobList(params);
-    dataSource.value = res?.data?.items || [];
-    pagination.total = res?.data?.total || 0;
+    switch (props.geturl) {
+      case "modelJob":
+        params.model_id = props.id;
+        await getModelJobList(params).then((res) => {
+          dataSource.value = res?.data?.items || [];
+          pagination.total = res?.data?.total || 0;
+        });
+        break;
+      case "deploylJob":
+        params.model_deploy_id = props.id;
+        await getDeployJobList(params).then((res) => {
+          dataSource.value = res?.data?.items || [];
+          pagination.total = res?.data?.total || 0;
+        });
+        break;
+
+      default:
+        break;
+    }
   } catch (err) {
     console.error(err);
     dataSource.value = [];

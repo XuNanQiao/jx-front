@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-20 17:31:02
- * @LastEditTime: 2026-01-21 09:15:29
+ * @LastEditTime: 2026-01-21 13:37:39
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\components\journalView\indexData.ts
@@ -24,7 +24,7 @@ export const statusMap: Record<string | number, { text: string; color: string }>
 };
 /* ----------------basicFields----------------- */
 export const browseColumns = [
-  { dataIndex: "name", title: "作业名称", key: "name", width: 150, ellipsis: true },
+  { dataIndex: "name", title: "作业名称", key: "name", width: 150, ellipsis: true, fixed: "left" },
   {
     dataIndex: "model_id",
     title: "模型/部署",

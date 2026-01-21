@@ -14,7 +14,7 @@
     border: none !important;
   }
   .ant-table-body {
-    min-height: calc(100vh - 48px - 24px - 56px - 8px - 16px - 24px - 38px - 64px - 1px) !important;
+    min-height: 200px !important;
   }
   .ant-table-tbody {
     & > tr > td {
@@ -59,6 +59,7 @@
 }
 .filter-inter {
   position: relative;
+  --filter-padding-left: 42px;
   .select-inter {
     position: absolute;
     top: 0;
@@ -67,7 +68,7 @@
   }
   .ant-select {
     .ant-select-selector {
-      padding-left: 42px !important;
+      padding-left: var(--filter-padding-left) !important;
     }
   }
 }
@@ -101,11 +102,11 @@
 }
 .tableComPage {
   .ant-table {
-    .ant-table-body {
+    /*  .ant-table-body {
       min-height: calc(
         100vh - 48px - 24px - 40px - 12px - 26px - 16px - 24px - 38px - 16px - 64px - 3px - 12px
       ) !important;
-    }
+    } */
   }
 }
 .ant-card {

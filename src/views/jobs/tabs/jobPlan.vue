@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-20 15:44:39
+ * @LastEditTime: 2026-01-21 11:57:36
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -29,7 +29,8 @@
     </div>
     <a-spin :spinning="loading">
       <div class="chart-container">
-        <v-chart :option="chartOption" :autoresize="true" @datazoom="handleDataZoom" />
+        <!-- @datazoom="handleDataZoom" -->
+        <v-chart :option="chartOption" :autoresize="true" />
       </div>
     </a-spin>
   </div>
@@ -51,14 +52,19 @@ import {
 } from "echarts/components";
 import { getModelJobPlan, type JobPlanItem } from "@/api/modelJob";
 import { dayjsFormat, formatDurationWithStart } from "@/utils/useTimeRangeFilter";
+import { statusJobMap, statusColors } from "../indexData";
 
 // 注册 ECharts 组件
 use([CanvasRenderer, CustomChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent, TitleComponent]);
 const filters = ref({
-  timeRang: [dayjs().startOf("day").format("YYYY-MM-DDTHH:mm:ss"), dayjs().format("YYYY-MM-DDTHH:mm:ss")] as string[],
+  timeRang: [
+    dayjs().startOf("day").format("YYYY-MM-DDTHH:mm:ss"),
+    dayjs().endOf("day").format("YYYY-MM-DDTHH:mm:ss"),
+  ] as string[],
   autoMonitor: false as boolean,
 });
 const loading = ref(false);
+const TWENTY_MINUTES = 25 * 60 * 1000;
 
 // 动态时间格式
 const xAxisFormatter = ref<(value: number) => string>((value: number) => {
@@ -125,23 +131,6 @@ const handleDataZoom = (event: any) => {
   }
 };
 
-// 状态映射:将数字状态码映射为中文状态名称
-const statusMap: Record<string, string> = {
-  "0": "等待",
-  "1": "运行中",
-  "2": "成功",
-  "3": "失败",
-  "4": "计划",
-};
-
-// 状态颜色配置
-const statusColors: Record<string, string> = {
-  等待: "#faad14",
-  运行中: "#1890ff",
-  成功: "#52c41a",
-  失败: "#ff4d4f",
-  计划: "#722ed1",
-};
 // 作业计划数据
 const jobData = ref<JobPlanItem[]>([]);
 
@@ -167,7 +156,7 @@ const loadJobPlanData = async () => {
         const minTime = Math.min(...allTimes);
         const maxTime = Math.max(...allTimes);
         const timeRange = maxTime - minTime;
-        xAxisFormatter.value = getTimeFormatter(timeRange);
+        // xAxisFormatter.value = getTimeFormatter(timeRange);
       }
     }
   } catch (err) {
@@ -201,7 +190,7 @@ const chartOption = computed(() => {
   const categories = jobData.value.map((item: any) => item.name);
   const data = jobData.value.map((item: any, index: number) => {
     const statusCode = item[statusKey];
-    const statusText = statusMap[statusCode] || "未知";
+    const statusText = statusJobMap[statusCode] || "未知";
     return {
       name: item.name,
       value: [
@@ -224,6 +213,12 @@ const chartOption = computed(() => {
   ]);
   const minTime = Math.min(...allTimes);
   const maxTime = Math.max(...allTimes);
+
+  // 计算最后5个20分钟间隔的时间范围（即100分钟）
+  const fiveIntervals = 5 * TWENTY_MINUTES; // 100分钟
+  let xAxisStartValue = Math.max(minTime, maxTime - fiveIntervals);
+  let xAxisEndValue = maxTime;
+
   const dataZoom = filters.value.autoMonitor
     ? []
     : [
@@ -244,6 +239,8 @@ const chartOption = computed(() => {
             color: "#ffffff",
           },
           labelFormatter: "",
+          startValue: xAxisStartValue,
+          endValue: xAxisEndValue,
         },
         {
           type: "slider",
@@ -269,6 +266,8 @@ const chartOption = computed(() => {
           type: "inside",
           xAxisIndex: 0,
           filterMode: "weakFilter",
+          startValue: xAxisStartValue,
+          endValue: xAxisEndValue,
         },
         /*   {
           type: "inside",
@@ -342,6 +341,9 @@ const chartOption = computed(() => {
       min: minTime,
       max: maxTime,
       scale: true,
+      interval: TWENTY_MINUTES,
+      minInterval: TWENTY_MINUTES,
+      // maxInterval: TWENTY_MINUTES,
       position: "top",
       axisLabel: {
         formatter: (value: number) => xAxisFormatter.value(value),

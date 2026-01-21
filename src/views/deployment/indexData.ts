@@ -21,7 +21,7 @@ export const jobOptions: SelectOption[] = [
 ];
 /* ----------------------detail------------------- */
 export const detailColumns = () => [
-  { dataIndex: "name", title: "名称", key: "name" },
+  { dataIndex: "name", title: "名称", key: "name", fixed: "left" },
   { dataIndex: "model_name", title: "模型", key: "model_name", align: "center" },
   {
     dataIndex: "trigger_type",
@@ -38,14 +38,16 @@ export const detailColumns = () => [
     title: "输入Repo",
     key: "input_config",
     align: "left",
-    customRender: ({ text }: { text: any }) => (text?.length ? text[0].column : "-"),
+    width: 150,
+    customRender: ({ text }: { text: any }) => (text?.length ? text[0].repo : "-"),
   },
   {
     dataIndex: "output_config",
     title: "输出Repo",
     key: "output_config",
     align: "left",
-    customRender: ({ text }: { text: any }) => (text?.length ? text[0].target : "-"),
+    width: 150,
+    customRender: ({ text }: { text: any }) => (text?.length ? text[0].repo : "-"),
   },
   {
     title: "创建时间",

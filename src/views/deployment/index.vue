@@ -1,130 +1,150 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-21 09:36:40
+ * @LastEditTime: 2026-01-21 14:46:02
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
  *
 -->
 <template>
-  <a-card title="模型部署" class="page">
-    <!-- 筛选区域 -->
-    <div class="filter-section flex-between">
-      <a-space :size="16" wrap>
-        <ImportAction import-url="/api/model_deploy/import" />
-        <!--  :import-params="() => ({ category: filters.category, trigger_type: filters.trigger_type })"  -->
-        <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-          <template #icon>
-            <DeleteOutlined />
-          </template>
-          批量删除 ({{ selectedRowKeys.length }})
-        </a-button>
-        <div class="filter-inter">
-          <span class="select-inter">类别：</span>
-          <a-select
-            :options="selectOptions"
-            @change="searchHandler"
-            v-model:value="filters.trigger_type"
-            allowClear
-            placeholder="请选择类别"
-            style="width: 150px"></a-select>
-        </div>
-        <div class="filter-inter">
-          <span class="select-inter">模型：</span>
-          <a-select
-            :options="options"
-            @change="searchHandler"
-            v-model:value="filters.model_id"
-            allowClear
-            placeholder="请选择类别"
-            style="width: 150px"></a-select>
-        </div>
-      </a-space>
-      <a-space :size="16" wrap>
-        <div class="filter-inter">
-          <a-input
-            v-model:value="filters.keyword"
-            @change="debouncedSearch"
-            @pressEnter="debouncedSearch"
-            placeholder="搜索关键词"
-            style="width: 220px"
-            allow-clear>
-            <template #suffix>
-              <SearchOutlined />
+  <div class="deployment-page">
+    <a-card title="模型部署" class="page">
+      <!-- 筛选区域 -->
+      <div class="filter-section flex-between">
+        <a-space :size="16" wrap>
+          <ImportAction import-url="/api/model_deploy/import" />
+          <!--  :import-params="() => ({ category: filters.category, trigger_type: filters.trigger_type })"  -->
+          <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+            <template #icon>
+              <DeleteOutlined />
             </template>
-          </a-input>
-        </div>
-      </a-space>
-    </div>
+            批量删除 ({{ selectedRowKeys.length }})
+          </a-button>
+          <div class="filter-inter" style="--filter-padding-left: 80px">
+            <span class="select-inter">触发方式：</span>
+            <a-select
+              :options="triggerOptions"
+              @change="searchHandler"
+              v-model:value="filters.trigger_type"
+              allowClear
+              placeholder="请选择触发方式"
+              style="width: 220px"></a-select>
+          </div>
+          <div class="filter-inter">
+            <span class="select-inter">模型：</span>
+            <a-select
+              :options="options"
+              @change="searchHandler"
+              v-model:value="filters.model_id"
+              allowClear
+              placeholder="请选择模型"
+              style="width: 150px"></a-select>
+          </div>
+        </a-space>
+        <a-space :size="16" wrap>
+          <div class="filter-inter">
+            <a-input
+              v-model:value="filters.keyword"
+              @change="debouncedSearch"
+              @pressEnter="debouncedSearch"
+              placeholder="搜索关键词"
+              style="width: 220px"
+              allow-clear>
+              <template #suffix>
+                <SearchOutlined />
+              </template>
+            </a-input>
+          </div>
+        </a-space>
+      </div>
 
-    <!-- 表格 -->
-    <a-table
-      :columns="detailColumns()"
-      :data-source="dataSource"
-      :loading="loading"
-      :pagination="pagination"
-      :row-selection="rowSelection"
-      @change="handleTableChange"
-      row-key="id"
-      class="model-table"
-      :scroll="{ y: 'calc(100vh - 300px)' }">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'name'">
-          <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
+      <!-- 表格 -->
+      <a-table
+        :columns="detailColumns()"
+        :data-source="dataSource"
+        :loading="loading"
+        :pagination="pagination"
+        :row-selection="rowSelection"
+        @change="handleTableChange"
+        row-key="id"
+        class="model-table"
+        :scroll="{ x: 'max-content', y: 'calc(100vh - 300px)' }">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'name'">
+            <a-button type="link" @click="handleMenuClick({ key: 'view' }, record)">{{ record.name }}</a-button>
+          </template>
+          <template v-else-if="column.key === 'is_active'">
+            <a-switch
+              v-model:checked="record.is_active"
+              @change="(checked: boolean) => handleStatusChange(checked, record)" />
+          </template>
+          <template v-else-if="column.key === 'action'">
+            <a-dropdown :trigger="['hover']">
+              <a-button type="text" size="small">
+                <MoreOutlined class="text-16px text-white" />
+              </a-button>
+              <template #overlay>
+                <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
+                  <a-menu-item key="view">
+                    <EditOutlined />
+                    <span style="margin-left: 8px">编辑</span>
+                  </a-menu-item>
+                  <a-menu-item key="run">
+                    <PlayCircleOutlined />
+                    <span style="margin-left: 8px">运行</span>
+                  </a-menu-item>
+                  <a-menu-item key="copy">
+                    <CopyOutlined />
+                    <span style="margin-left: 8px">复制</span>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <DownloadAction
+                      download-label="导出"
+                      downloadType="none"
+                      download-url="/api/model_deploy/export"
+                      download-file-name="operator-package"
+                      :download-params="() => ({ ids: [record.id] })" />
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="delete" danger>
+                    <DeleteOutlined />
+                    <span style="margin-left: 8px">删除</span>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </template>
         </template>
-        <template v-else-if="column.key === 'is_active'">
-          <a-switch
-            v-model:checked="record.is_active"
-            @change="(checked: boolean) => handleStatusChange(checked, record)" />
-        </template>
-        <template v-else-if="column.key === 'action'">
-          <a-dropdown :trigger="['hover']">
-            <a-button type="text" size="small">
-              <MoreOutlined class="text-16px text-white" />
-            </a-button>
-            <template #overlay>
-              <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
-                <a-menu-item key="view">
-                  <EditOutlined />
-                  <span style="margin-left: 8px">编辑</span>
-                </a-menu-item>
-                <a-menu-item key="run">
-                  <PlayCircleOutlined />
-                  <span style="margin-left: 8px">运行</span>
-                </a-menu-item>
-                <a-menu-item key="copy">
-                  <CopyOutlined />
-                  <span style="margin-left: 8px">复制</span>
-                </a-menu-item>
-                <a-menu-item key="export">
-                  <ExportOutlined />
-                  <span style="margin-left: 8px">导出</span>
-                </a-menu-item>
-                <a-menu-divider />
-                <a-menu-item key="delete" danger>
-                  <DeleteOutlined />
-                  <span style="margin-left: 8px">删除</span>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
-        </template>
-      </template>
-    </a-table>
-  </a-card>
+      </a-table>
+    </a-card>
+    <LogModal v-model:open="logModalVisible" title="运行日志" :record="currentJobRecord" />
+    <a-modal
+      v-model:open="copyModalVisible"
+      title="复制模型部署"
+      :confirm-loading="copySubmitting"
+      @ok="handleCopySubmit"
+      @cancel="resetCopyModal">
+      <a-form layout="vertical">
+        <a-form-item label="名称" required>
+          <a-input v-model:value="copyForm.name" placeholder="请输入新名称" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { getModelDevList } from "@/api/development";
-import { batchDeleteModelDeploy, deleteModelDeploy, getModelDeployList } from "@/api/deployment";
+import { batchDeleteModelDeploy, deleteModelDeploy, getModelDeployList, saveModelDeploy } from "@/api/deployment";
+import { executeJob, getModelDevList } from "@/api/development";
+import DownloadAction from "@/components/common/DownloadAction.vue";
 import ImportAction from "@/components/common/ImportAction.vue";
+import LogModal from "@/components/journalView/LogModal.vue";
 import { useTablePagination } from "@/utils/useTablePagination";
 import {
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
-  ExportOutlined,
   MoreOutlined,
   PlayCircleOutlined,
   SearchOutlined,
@@ -133,7 +153,7 @@ import { message, Modal } from "ant-design-vue";
 import { debounce } from "lodash-es";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { detailColumns, selectOptions } from "./indexData";
+import { detailColumns, triggerOptions } from "./indexData";
 const { pagination, handleTableChange: onTableChange } = useTablePagination(10);
 const route = useRoute();
 const router = useRouter();
@@ -150,6 +170,10 @@ const selectedRowKeys = ref<string[]>([]);
 // data source will be loaded from API
 const dataSource = ref<ModelInputOutput[]>([]);
 const options = ref<any[]>([]);
+const copyModalVisible = ref(false);
+const copySubmitting = ref(false);
+const copyForm = reactive({ name: "" });
+let copySource: any = null;
 const loadData = async () => {
   loading.value = true;
   try {
@@ -290,29 +314,62 @@ const handleDelete = (id: string) => {
     },
   });
 };
-
+const currentJobRecord = ref<any>(null);
+const logModalVisible = ref(false);
+const runLoading = ref(false);
 // 运行模型
-const handleRun = async (record: ModelInputOutput) => {
+const handleRun = async (record: any) => {
   try {
-    // TODO: 调用运行API
-    // await runModel(record.id);
-    message.success(`模型 ${record.name} 开始运行`);
+    runLoading.value = true;
+    const response = await executeJob({ job_id: record?.model_id || "", run_type: "formal" });
+    currentJobRecord.value = { id: response?.data?.job_id || record?.model_id };
+    logModalVisible.value = true;
   } catch (error: any) {
     console.error("运行失败:", error);
     message.error("运行失败");
+  } finally {
+    runLoading.value = false;
   }
 };
 
 // 复制模型
 const handleCopy = async (record: ModelInputOutput) => {
+  copySource = record;
+  copyForm.name = record?.name ? `${record.name}-副本` : "";
+  copyModalVisible.value = true;
+};
+
+const resetCopyModal = () => {
+  copyModalVisible.value = false;
+  copyForm.name = "";
+  copySource = null;
+};
+
+const handleCopySubmit = async () => {
+  const name = copyForm.name.trim();
+  if (!name) {
+    message.warning("请输入名称");
+    return;
+  }
+  if (!copySource) {
+    message.error("缺少复制源数据");
+    return;
+  }
+  const payload: any = { ...copySource, name };
+  delete payload.id; // 去除原有 id 以便后端创建新记录
+
+  copySubmitting.value = true;
   try {
-    // TODO: 调用复制API
-    // await copyModel(record.id);
-    message.success(`模型 ${record.name} 复制成功`);
-    await loadData();
+    const res = await saveModelDeploy(payload);
+    if (res?.code === 200) {
+      message.success("复制成功");
+      resetCopyModal();
+      await loadData();
+    }
   } catch (error: any) {
     console.error("复制失败:", error);
-    message.error("复制失败");
+  } finally {
+    copySubmitting.value = false;
   }
 };
 
