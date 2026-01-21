@@ -1,3 +1,12 @@
+/*
+ * @Author: ZHAO
+ * @Date: 2026-01-20 12:08:46
+ * @LastEditTime: 2026-01-21 15:35:40
+ * @LastEditors: ZHAO
+ * @Description:
+ * @FilePath: \jx\src\api\auth.ts
+ *
+ */
 import { request } from "@/utils/request";
 
 // 用户登录

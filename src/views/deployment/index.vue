@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-21 15:03:52
+ * @LastEditTime: 2026-01-21 15:55:22
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -135,8 +135,14 @@
 </template>
 
 <script setup lang="ts">
-import { batchDeleteModelDeploy, deleteModelDeploy, getModelDeployList, saveModelDeploy } from "@/api/deployment";
-import { executeJob, getModelDevList } from "@/api/development";
+import {
+  batchDeleteModelDeploy,
+  deleteModelDeploy,
+  executeDeploy,
+  getModelDeployList,
+  saveModelDeploy,
+} from "@/api/deployment";
+import { getModelDevList } from "@/api/development";
 import DownloadAction from "@/components/common/DownloadAction.vue";
 import ImportAction from "@/components/common/ImportAction.vue";
 import LogModal from "@/components/journalView/LogModal.vue";
@@ -321,12 +327,10 @@ const runLoading = ref(false);
 const handleRun = async (record: any) => {
   try {
     runLoading.value = true;
-    const response = await executeJob({ job_id: record?.model_id || "", run_type: "formal" });
+    const response = await executeDeploy({ job_id: record?.model_id || "", run_type: "formal" });
     currentJobRecord.value = { id: response?.data?.job_id || record?.model_id };
     logModalVisible.value = true;
   } catch (error: any) {
-    console.error("运行失败:", error);
-    message.error("运行失败");
   } finally {
     runLoading.value = false;
   }

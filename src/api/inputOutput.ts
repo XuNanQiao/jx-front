@@ -14,18 +14,28 @@ export function getDetail(id: string): Promise<ApiResponse<any>> {
 
 // 创建接口
 export function createItem(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/api/model_input_output/create", payload, { showMessage: true });
+  return request.post("/api/model_input_output/create", payload, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 更新接口
 export function updateItem(payload: any): Promise<ApiResponse<any>> {
   delete payload.updated_user_id;
-  return request.put("/api/model_input_output/update", payload, { showMessage: true });
+  return request.put("/api/model_input_output/update", payload, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 删除接口
 export function deleteItem(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_input_output/delete", { data: { id }, showMessage: true });
+  return request.delete("/api/model_input_output/delete", {
+    data: { id },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 批量删除接口
@@ -43,16 +53,27 @@ export function getDataStructureList(params: any): Promise<ApiResponse<any>> {
   return request.get("/api/model_input_output/data_struct/retrieve", { params: params });
 }
 export function createDataStructure(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/api/model_input_output/data_struct/create", payload, { showMessage: true });
+  return request.post("/api/model_input_output/data_struct/create", payload, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 export function updateDataStructure(id: string, payload: any): Promise<ApiResponse<any>> {
-  return request.put(`/api/model_input_output/data_struct/update`, { id, ...payload }, { showMessage: true });
+  return request.put(
+    `/api/model_input_output/data_struct/update`,
+    { id, ...payload },
+    { showMessage: true, messageData: ["data", "message"] },
+  );
 }
 
 // 数据结构删除接口 - 使用真实后端 API
 export function deleteDataStructure(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_input_output/data_struct/delete", { data: { id }, showMessage: true });
+  return request.delete("/api/model_input_output/data_struct/delete", {
+    data: { id },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 数据结构批量删除接口
@@ -76,15 +97,24 @@ export function getDatabaseConfig(model_input_output_id: number): Promise<ApiRes
 }
 
 export function createDatabaseConfig(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/input-output/database-config/create", payload, { showMessage: true });
+  return request.post("/input-output/database-config/create", payload, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 export function updateDatabaseConfig(id: string, payload: any): Promise<ApiResponse<any>> {
-  return request.put(`/input-output/database-config/update/${id}`, payload, { showMessage: true });
+  return request.put(`/input-output/database-config/update/${id}`, payload, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 export function deleteDatabaseConfig(id: string): Promise<ApiResponse<any>> {
-  return request.delete(`/input-output/database-config/delete/${id}`, { showMessage: true });
+  return request.delete(`/input-output/database-config/delete/${id}`, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 /* -------------------------数据浏览-------------------------------- */
 

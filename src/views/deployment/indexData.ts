@@ -76,7 +76,14 @@ export const basicFields = () => {
         },
         { label: "显示名称", key: "display_name", type: "input" },
         { label: "运行环境", key: "runtime_env", type: "input", span: 9, labelSpan: 7 },
-        { afterlabel: "复用容器", key: "is reuse container", type: "switch", span: 3, labelSpan: 14 },
+        {
+          afterlabel: "复用容器",
+          key: "is_reuse_container",
+          type: "switch",
+          textType: "switch",
+          span: 3,
+          labelSpan: 14,
+        },
         {
           label: "触发方式",
           key: "trigger_type",
@@ -84,14 +91,6 @@ export const basicFields = () => {
           options: triggerOptions,
           rules: [{ required: true, message: "请至少选择一种触发方式", trigger: "change" }],
           customRender: ({ text }: any) => {
-            if (!text) return "-";
-            // 如果是数组，显示多个标签
-            if (Array.isArray(text)) {
-              return text
-                .map((val) => triggerOptions.find((opt) => opt.value === val)?.label)
-                .filter(Boolean)
-                .join("、");
-            }
             // 如果是单个值
             return triggerOptions.find((opt) => opt.value === text)?.label || "-";
           },

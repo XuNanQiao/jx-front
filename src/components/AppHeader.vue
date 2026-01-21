@@ -63,7 +63,7 @@
               </template>
             </a-avatar> -->
             <div class="user-text">
-              <span class="username">{{ userStore.userInfo?.nickname || '管理员' }}</span>
+              <span class="username">{{ userStore.userInfo?.nickname || "管理员" }}</span>
               <span v-if="userStore.userInfo?.role" class="user-role">{{ getRoleText(userStore.userInfo.role) }}</span>
             </div>
             <DownOutlined class="dropdown-icon" />
@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from "@/stores/user";
 import {
   CloudServerOutlined,
   ClusterOutlined,
@@ -115,16 +115,16 @@ import {
   FunctionOutlined,
   ImportOutlined,
   LogoutOutlined,
-} from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-import { ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+} from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 
-const menuKeys = ['/model/input-output', '/model/development', '/model/operators', '/model/deployment', '/model/jobs'];
+const menuKeys = ["/model/input-output", "/model/development", "/model/operators", "/model/deployment", "/model/jobs"];
 const resolveSelectedKey = (path: string) => menuKeys.find((key) => path.startsWith(key)) || path;
 const selectedKeys = ref<string[]>([resolveSelectedKey(route.path)]);
 
@@ -144,9 +144,9 @@ const handleMenuClick = ({ key }: { key: string }) => {
 // 获取角色显示文本
 const getRoleText = (role: string): string => {
   const roleMap: Record<string, string> = {
-    admin: '管理员',
-    user: '普通用户',
-    guest: '访客',
+    admin: "管理员",
+    user: "普通用户",
+    guest: "访客",
   };
   return roleMap[role] || role;
 };
@@ -155,15 +155,15 @@ const getRoleText = (role: string): string => {
 const handleLogout = async () => {
   try {
     await userStore.logout();
-    message.success('退出成功');
-    router.push('/login');
+    message.success("退出成功");
+    router.push("/login");
   } catch (error) {
-    message.error('退出失败');
+    message.error("退出失败");
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .app-header {
   border-bottom: 1px solid #2e5e83;
   padding: 0 var(--spacing-lg);
@@ -188,6 +188,7 @@ const handleLogout = async () => {
   align-items: center;
   flex: 1;
   gap: 20px;
+  width: 100%;
 }
 
 /* Logo 区域 */
@@ -201,10 +202,9 @@ const handleLogout = async () => {
   transition:
     color 0.2s ease,
     transform 0.2s ease;
-}
-
-.logo-section:hover {
-  transform: translateY(-1px);
+  &:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .logo-icon {
@@ -225,28 +225,24 @@ const handleLogout = async () => {
   flex: 1;
   border-bottom: none;
   line-height: 62px;
-}
 
-.header-menu :deep(.ant-menu-item),
-.header-menu :deep(.ant-menu-submenu-title) {
-  top: 0;
-  color: var(--text-secondary) !important;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease;
-  border-radius: var(--radius-md);
-}
+  :deep(.ant-menu-item),
+  :deep(.ant-menu-submenu-title) {
+    top: 0;
+    color: var(--text-secondary) !important;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+    border-radius: var(--radius-md);
+    &:hover {
+      color: var(--text-white) !important;
+      background: rgba(255, 255, 255, 0.12);
+    }
+  }
 
-.header-menu :deep(.ant-menu-item:hover),
-.header-menu :deep(.ant-menu-submenu-title:hover) {
-  color: var(--text-white) !important;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.header-menu :deep(.ant-menu-item-selected) {
-  color: var(--text-white) !important;
-  /* background: rgba(255, 255, 255, 0.18) !important; */
-  /* box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); */
+  :deep(.ant-menu-item-selected) {
+    color: var(--text-white) !important;
+  }
 }
 
 /* 用户信息区域 */
@@ -267,12 +263,11 @@ const handleLogout = async () => {
     background-color 0.2s ease,
     box-shadow 0.2s ease;
   border: 1px solid transparent;
-}
-
-.user-info:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 24px rgba(9, 16, 32, 0.35);
-  border-color: rgba(255, 255, 255, 0.12);
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 24px rgba(9, 16, 32, 0.35);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
 }
 
 .user-text {
@@ -347,7 +342,7 @@ const handleLogout = async () => {
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 792px) {
   .header-menu {
     display: none;
   }
@@ -357,7 +352,7 @@ const handleLogout = async () => {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 368px) {
   .logo-text {
     display: none;
   }

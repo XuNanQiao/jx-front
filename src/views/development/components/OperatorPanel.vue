@@ -138,33 +138,33 @@
 </template>
 
 <script setup lang="ts">
-import { createCustomOperator, createScriptFile, updateScriptFile } from '@/api/development';
-import { getDataStructureList } from '@/api/inputOutput';
-import CodeEditor from '@/components/common/CodeEditor.vue';
-import ImportAction from '@/components/common/ImportAction.vue';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-import { reactive, ref, watch } from 'vue';
-import { aggregateOptions, granularityOptions } from '../indexData';
-import ToggleBox from './toggleBox.vue';
-const emit = defineEmits(['save', 'update']);
+import { createCustomOperator, createScriptFile, updateScriptFile } from "@/api/development";
+import { getDataStructureList } from "@/api/inputOutput";
+import CodeEditor from "@/components/common/CodeEditor.vue";
+import ImportAction from "@/components/common/ImportAction.vue";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { reactive, ref, watch } from "vue";
+import { aggregateOptions, granularityOptions } from "../indexData";
+import ToggleBox from "./toggleBox.vue";
+const emit = defineEmits(["save", "update"]);
 const props = defineProps<{
   modelId: string | number;
 }>();
 const open = ref(false);
-const activeTab = ref('info');
+const activeTab = ref("info");
 const showCreateFile = ref(false);
 const columnOptions = ref<SelectOption[]>([]);
 const repoOptions = ref<SelectOption[]>([]);
-const editFile = reactive({ name: '', content: '', editIndex: -1 });
+const editFile = reactive({ name: "", content: "", editIndex: -1 });
 const formVal = {
-  display_name: 'ceshi_name',
-  name: '测试名称',
-  operatorName: '',
+  display_name: "ceshi_name",
+  name: "测试名称",
+  operatorName: "",
   repo: null,
   columns: [] as string[],
-  language: '',
-  description: '算子描述',
+  language: "",
+  description: "算子描述",
   files: [],
 };
 const selected = reactive<any>({
@@ -176,7 +176,7 @@ const selected = reactive<any>({
   params: {
     aggregation_function: null,
     aggregation_granularity: 5,
-    aggregation_unit: '分钟',
+    aggregation_unit: "分钟",
     fill_null_values: true,
   },
 });
@@ -187,7 +187,7 @@ const handleScriptUploadSuccess = (payload: any) => {
   selected.form.files.push({
     path: payload.response.data.file_path,
     is_run: false, // 默认不是主文件，由用户手动选择
-    source_type: 'upload',
+    source_type: "upload",
     name: payload.name,
     content: null,
   });
@@ -195,11 +195,11 @@ const handleScriptUploadSuccess = (payload: any) => {
 
 const onCreateFileOk = async () => {
   if (!editFile.name) {
-    message.warning('请输入文件名称');
+    message.warning("请输入文件名称");
     return;
   }
   if (!editFile.content) {
-    message.warning('请输入文件内容');
+    message.warning("请输入文件内容");
     return;
   }
 
@@ -208,10 +208,10 @@ const onCreateFileOk = async () => {
     const file = selected.form.files[editFile.editIndex];
 
     // 如果文件是通过接口创建的，调用接口更新
-    if (file.source_type === 'create' || file.path) {
+    if (file.source_type === "create" || file.path) {
       try {
         const response = await updateScriptFile({
-          file_path: 'operators/' /* file.path || editFile.name + '.py' */,
+          file_path: "operators/" /* file.path || editFile.name + '.py' */,
           content: editFile.content,
           is_run: file.is_run || false,
         });
@@ -219,65 +219,62 @@ const onCreateFileOk = async () => {
         if (response?.code === 200) {
           selected.form.files[editFile.editIndex] = {
             ...file,
-            name: editFile.name + '.py',
+            name: editFile.name + ".py",
             content: editFile.content,
-            path: file.path || editFile.name + '.py',
+            path: file.path || editFile.name + ".py",
           };
-          message.success('文件更新成功');
         }
       } catch (error) {
-        console.error('更新脚本文件失败:', error);
-        message.error('更新脚本文件失败');
+        console.error("更新脚本文件失败:", error);
         return;
       }
     } else {
       // 本地编辑，不调用接口
-      selected.form.files[editFile.editIndex].name = editFile.name + '.py';
+      selected.form.files[editFile.editIndex].name = editFile.name + ".py";
       selected.form.files[editFile.editIndex].content = editFile.content;
     }
   } else {
     // 创建新文件
     try {
       const response = await createScriptFile({
-        file_path: editFile.name + '.py',
+        file_path: editFile.name + ".py",
         content: editFile.content,
         is_run: false,
       });
 
       if (response?.code === 200 && response?.data) {
         selected.form.files.push({
-          path: response.data.file_path || editFile.name + '.py',
+          path: response.data.file_path || editFile.name + ".py",
           is_run: false,
-          source_type: 'create',
-          name: editFile.name + '.py',
+          source_type: "create",
+          name: editFile.name + ".py",
           content: editFile.content,
         });
-        message.success('文件创建成功');
+        message.success("文件创建成功");
       }
     } catch (error) {
-      console.error('创建脚本文件失败:', error);
-      message.error('创建脚本文件失败');
+      console.error("创建脚本文件失败:", error);
       return;
     }
   }
 
-  editFile.name = '';
-  editFile.content = '';
+  editFile.name = "";
+  editFile.content = "";
   editFile.editIndex = -1;
   showCreateFile.value = false;
 };
 
 const onCreateFileCancel = () => {
-  editFile.name = '';
-  editFile.content = '';
+  editFile.name = "";
+  editFile.content = "";
   editFile.editIndex = -1;
   showCreateFile.value = false;
 };
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = 'new_script.py';
-  editFile.content = '# new script';
+  editFile.name = "new_script.py";
+  editFile.content = "# new script";
   showCreateFile.value = true;
 };
 
@@ -285,7 +282,7 @@ const editScript = (index: number) => {
   const f = selected.form.files[index];
   editFile.editIndex = index;
   editFile.name = f.name;
-  editFile.content = f.content || '';
+  editFile.content = f.content || "";
   showCreateFile.value = true;
 };
 
@@ -305,31 +302,31 @@ const openNode = (node: any) => {
   columnOptions.value = [];
   repoOptions.value = [];
   if (!node) {
-    selected.form.operatorName = 'python3自定义算子';
-    selected.form.language = 'python32';
-    selected.type = 'otherAdd';
+    selected.form.operatorName = "python3自定义算子";
+    selected.form.language = "python32";
+    selected.type = "otherAdd";
   } else {
     selected.id = node.idVal;
     selected.type = node.type;
     let data: any = {
-      display_name: node.display_name || '',
-      name: node.name || '',
+      display_name: node.display_name || "",
+      name: node.name || "",
       columns: node.columns || [],
       files: node.files || [],
     };
-    if (node.type === 'input') {
+    if (node.type === "input") {
       getColumnsForRepo(node.idVal);
-      data.operatorName = node.operator_name || 'Repo输入';
+      data.operatorName = node.operator_name || "Repo输入";
       data.repo = node.idVal;
       repoOptions.value = [{ label: node.title, value: node.idVal }];
-    } else if (node.type === 'output') {
+    } else if (node.type === "output") {
       // getColumnsForRepo(node.idVal);
-      data.operatorName = node.operator_name || 'Repo输出';
+      data.operatorName = node.operator_name || "Repo输出";
       data.repo = node.idVal;
       repoOptions.value = [{ label: node.title, value: node.idVal }];
     } else {
-      data.operatorName = node.operator_name || 'python3自定义算子';
-      data.language = node.language || 'python3';
+      data.operatorName = node.operator_name || "python3自定义算子";
+      data.language = node.language || "python3";
       data.description = node.description || null;
     }
 
@@ -339,12 +336,12 @@ const openNode = (node: any) => {
     selected.params = {
       aggregation_function: node.aggregation_function ?? null,
       aggregation_granularity: node.aggregation_granularity ?? 5,
-      aggregation_unit: node.aggregation_unit ?? '分钟',
+      aggregation_unit: node.aggregation_unit ?? "分钟",
       fill_null_values: node.fill_null_values ?? true,
     };
   }
   open.value = true;
-  activeTab.value = 'info';
+  activeTab.value = "info";
 };
 const getColumnsForRepo = async (repoId: string) => {
   try {
@@ -375,7 +372,7 @@ const saveHand = () => {
   };
   createCustomOperator(data).then((response) => {
     if (response?.code == 200 && response?.data) {
-      emit('save', { ...selected.form, node_id: response.data.node_id });
+      emit("save", { ...selected.form, node_id: response.data.node_id });
     }
   });
 };
@@ -404,7 +401,7 @@ watch(
   () => {
     if (selected.id) {
       const currentData = getCurrentData();
-      emit('update', currentData);
+      emit("update", currentData);
     }
   },
   { deep: true },
@@ -414,7 +411,7 @@ watch(
   () => {
     if (selected.id) {
       const currentData = getCurrentData();
-      emit('update', currentData);
+      emit("update", currentData);
     }
   },
   { deep: true },

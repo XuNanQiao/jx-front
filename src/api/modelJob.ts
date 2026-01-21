@@ -45,12 +45,16 @@ export function getModelJobList(params?: JobListQueryParams): Promise<ApiRespons
 
 // 删除单个模型作业
 export function deleteModelJob(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_job/delete", { data: { id }, showMessage: true });
+  return request.delete("/api/model_job/delete", { data: { id }, showMessage: true, messageData: ["data", "message"] });
 }
 
 // 批量删除模型作业
 export function batchDeleteModelJob(ids: (string | number)[]): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_job/batch_delete", { data: { ids }, showMessage: true });
+  return request.delete("/api/model_job/batch_delete", {
+    data: { ids },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 获取作业计划数据

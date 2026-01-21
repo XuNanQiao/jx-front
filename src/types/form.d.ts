@@ -56,6 +56,7 @@ interface FieldItem {
   max?: number; // 最大值（仅number类型适用）
   step?: number; // 步长（仅number类型适用）
   afterlabel?: string; // 标签后缀
+  textType?: string; // 仅在非编辑模式下使用，指定文本类型
   customRender?: (ctx: CustomRenderCtx) => any;
 }
 

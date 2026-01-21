@@ -12,22 +12,26 @@ export function getModelDevDetail(id: string | number): Promise<ApiResponse<any>
 
 // 创建模型开发
 export function createModelDev(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/api/model_dev/create", payload, { showMessage: true });
+  return request.post("/api/model_dev/create", payload, { showMessage: true, messageData: ["data", "message"] });
 }
 
 // 更新模型开发
 export function updateModelDev(payload: any): Promise<ApiResponse<any>> {
-  return request.put("/api/model_dev/update", payload, { showMessage: true });
+  return request.put("/api/model_dev/update", payload, { showMessage: true, messageData: ["data", "message"] });
 }
 
 // 删除模型开发
 export function deleteModelDev(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_dev/delete", { data: { id }, showMessage: true });
+  return request.delete("/api/model_dev/delete", { data: { id }, showMessage: true, messageData: ["data", "message"] });
 }
 
 // 批量删除模型开发
 export function batchDeleteModelDev(ids: (string | number)[]): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_dev/batch_delete", { data: { ids }, showMessage: true });
+  return request.delete("/api/model_dev/batch_delete", {
+    data: { ids },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 查询模型任务日志
@@ -50,7 +54,10 @@ export function getModelLibraryTree(payload?: Record<string, any>): Promise<ApiR
 }
 // 算子创建
 export function createCustomOperator(params: any): Promise<ApiResponse<any>> {
-  return request.post("/api/workflow/custom_operator/create", params, { showMessage: true });
+  return request.post("/api/workflow/custom_operator/create", params, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 export function uploadScriptFile(
@@ -78,7 +85,10 @@ export function uploadScriptFile(
 
 // 创建脚本文件
 export function createScriptFile(params: CreateScriptFileParams): Promise<ApiResponse<any>> {
-  return request.post("/api/workflow/script_file/create", params, { showMessage: true });
+  return request.post("/api/workflow/script_file/create", params, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 //读取文件内容
 export function readScriptFile(file_path: string): Promise<ApiResponse<any>> {
@@ -87,7 +97,10 @@ export function readScriptFile(file_path: string): Promise<ApiResponse<any>> {
 
 // 更新脚本文件
 export function updateScriptFile(params: UpdateScriptFileParams): Promise<ApiResponse<any>> {
-  return request.put("/api/workflow/script_file/update", params, { showMessage: true });
+  return request.put("/api/workflow/script_file/update", params, {
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 加载工作流
@@ -96,7 +109,7 @@ export function loadWorkflow(model_id: string | number): Promise<ApiResponse<any
 }
 // 加载工作流
 export function saveWorkflow(params: any): Promise<ApiResponse<any>> {
-  return request.post("/api/workflow/save", params, { showMessage: true });
+  return request.post("/api/workflow/save", params, { showMessage: true, messageData: ["data", "message"] });
 }
 export function getNode(model_id: string | number): Promise<ApiResponse<any>> {
   return request.post("/api/workflow/node_config/query", { model_id });

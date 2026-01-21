@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { getModelDevDetail, updateModelDev } from '@/api/development';
-import DescriptionsCom from '@/components/descriptionsCom.vue';
-import { message } from 'ant-design-vue';
-import { ref, watch } from 'vue';
-import { basicFields } from '../indexData';
+import { getModelDevDetail, updateModelDev } from "@/api/development";
+import DescriptionsCom from "@/components/descriptionsCom.vue";
+import { message } from "ant-design-vue";
+import { ref, watch } from "vue";
+import { basicFields } from "../indexData";
 const props = defineProps<{ id: any | null }>();
 const loading = ref(false);
 const editMode = ref(false);
@@ -31,24 +31,21 @@ const onSave = async (form: any) => {
 };
 const save = async (form: any) => {
   if (!form.id) {
-    message.error('缺少 id，无法保存');
+    message.error("缺少 id，无法保存");
     return;
   }
   try {
     let data = JSON.parse(JSON.stringify(form));
     delete data.dependency_package;
     await updateModelDev(data);
-    message.success('保存成功');
     await loadDetail(); // 保存后重新加载数据
-  } catch (err) {
-    message.error('保存失败');
-  }
+  } catch (err) {}
 };
 
 // 加载详情数据
 const loadDetail = async () => {
   if (!props.id) {
-    message.error('缺少ID参数');
+    message.error("缺少ID参数");
     return;
   }
 
@@ -59,7 +56,7 @@ const loadDetail = async () => {
       detail.value = res.data;
     }
   } catch (err: any) {
-    console.error('❌ 详情数据加载错误:', err);
+    console.error("❌ 详情数据加载错误:", err);
   } finally {
     loading.value = false;
   }

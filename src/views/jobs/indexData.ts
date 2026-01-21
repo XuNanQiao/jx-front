@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-20 14:24:50
+ * @LastEditTime: 2026-01-21 15:40:27
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\jobs\indexData.ts
@@ -94,6 +94,7 @@ export const dataStructureColumns = [
     title: "状态",
     key: "integrity",
     align: "center",
+    width: 80,
     customRender: ({ text }: any) => {
       const status = statusMap[text] || { text: "未知", color: "default" };
       return h(Tag, { color: status.color }, () => status.text);
@@ -103,11 +104,11 @@ export const dataStructureColumns = [
   {
     dataIndex: "exec_start_time",
     title: "作业时间（时长）",
-    width: 150,
+
     key: "name",
     align: "left",
     customRender: ({ record }: any) => formatDurationWithStart(record?.exec_start_time, record?.exec_end_time),
   },
-  { dataIndex: "created_user_id", title: "创建人", key: "name", align: "center" },
+  { dataIndex: "created_user_id", title: "创建人", key: "name", align: "center", width: 100 },
   { dataIndex: "action", title: "操作", key: "action", align: "center", width: 60 },
 ];

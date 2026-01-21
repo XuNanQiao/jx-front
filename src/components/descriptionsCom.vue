@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-20 16:24:36
- * @LastEditTime: 2026-01-21 11:18:45
+ * @LastEditTime: 2026-01-21 15:31:13
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\components\descriptionsCom.vue
@@ -103,6 +103,11 @@
                     </template>
                     <template v-else-if="!editMode && field.slot">
                       <slot :name="field.slot" />
+                    </template>
+                    <template v-else-if="!editMode && field.textType === 'switch'">
+                      <a-form-item :name="field.key" :rules="field.rules" class="form-item-inline">
+                        <a-switch disabled :checked="getNestedValue(detail, field.key)" />
+                      </a-form-item>
                     </template>
                     <template v-else>
                       <span class="leading-32px desc-text">{{ formatValue(getNestedValue(detail, field.key)) }}</span>

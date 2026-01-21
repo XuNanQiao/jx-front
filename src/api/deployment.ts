@@ -12,17 +12,29 @@ export function getModelDeployDetail(id: string | number): Promise<ApiResponse<a
 
 // 更新模型部署
 export function updateModelDeploy(payload: any): Promise<ApiResponse<any>> {
-  return request.put("/api/model_deploy/update", payload, { showMessage: true });
+  return request.put("/api/model_deploy/update", payload, { showMessage: true, messageData: ["data", "message"] });
 }
 
 // 删除模型部署
 export function deleteModelDeploy(id: string | number): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_deploy/delete", { data: { id }, showMessage: true });
+  return request.delete("/api/model_deploy/delete", {
+    data: { id },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
 }
 
 // 批量删除模型部署
 export function batchDeleteModelDeploy(ids: (string | number)[]): Promise<ApiResponse<any>> {
-  return request.delete("/api/model_deploy/batch_delete", { data: { ids }, showMessage: true });
+  return request.delete("/api/model_deploy/batch_delete", {
+    data: { ids },
+    showMessage: true,
+    messageData: ["data", "message"],
+  });
+}
+// 执行任务接口
+export function executeDeploy(params: { job_id: string; run_type: "debug" | "formal" }): Promise<ApiResponse<any>> {
+  return request.post("/api/model_deploy/execute", params, { showMessage: true, messageData: ["data", "message"] });
 }
 // 模型部署作业
 export function getDeployJobList(params: any): Promise<ApiResponse<any>> {
@@ -31,5 +43,5 @@ export function getDeployJobList(params: any): Promise<ApiResponse<any>> {
 
 // 保存/复制模型部署
 export function saveModelDeploy(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/api/model_deploy/create", payload, { showMessage: true });
+  return request.post("/api/model_deploy/create", payload, { showMessage: true, messageData: ["data", "message"] });
 }

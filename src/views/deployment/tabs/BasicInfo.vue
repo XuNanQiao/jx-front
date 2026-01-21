@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-21 10:57:55
+ * @LastEditTime: 2026-01-21 15:34:02
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -164,11 +164,8 @@ const save = async (form: any) => {
     }
     delete data.job_retention_mode;
     await updateModelDeploy(data);
-    message.success("保存成功");
     await loadDetail(); // 保存后重新加载数据
-  } catch (err) {
-    message.error("保存失败");
-  }
+  } catch (err) {}
 };
 
 // 加载详情数据
