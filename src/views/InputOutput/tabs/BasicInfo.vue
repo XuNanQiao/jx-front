@@ -1,8 +1,8 @@
 <template>
   <div class="basic-info page">
     <DescriptionsCom v-model:edit-mode-show="editMode" :detail="detail" :list="moduleList" @save="onSave">
-      <template #storageEngineEdit="{ form }">
-        <span class="desc-text">{{ form.database_category ?? "-" }}</span>
+      <template #storageEngineEdit="slotProps">
+        <span class="desc-text">{{ (slotProps as SlotProps).form.database_category ?? "-" }}</span>
         <a-button size="small" style="margin-left: 8px" @click="openDatabaseConfigModal(true)">配置</a-button>
       </template>
       <template #storageEngineView>
@@ -31,13 +31,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { getDetail, updateItem } from "@/api/inputOutput";
 import { message } from "ant-design-vue";
 import { moduleList } from "../index";
 import DatabaseConfigModal from "./DatabaseConfigModal.vue";
 import DescriptionsCom from "@/components/descriptionsCom.vue";
 import dayjs from "dayjs";
+
+// 定义 slot 的类型
+interface SlotProps {
+  form: Record<string, any>;
+  field: FieldItem;
+}
 
 const props = defineProps<{ id: any | null }>();
 

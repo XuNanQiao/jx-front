@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-21 11:57:36
+ * @LastEditTime: 2026-01-21 17:12:14
  * @LastEditors: ZHAO
  * @Description: 作业计划 - 甘特图
  * @FilePath: \jx\src\views\jobs\tabs\jobPlan.vue
@@ -140,8 +140,8 @@ const loadJobPlanData = async () => {
   try {
     const res = await getModelJobPlan({
       // model_id: 2,
-      time_start: filters.value.timeRang[0] || "", //开始时间
-      time_end: filters.value.timeRang[1] || "", //结束时间
+      data_start_time: filters.value.timeRang[0] || "", //开始时间
+      data_end_time: filters.value.timeRang[1] || "", //结束时间
     });
     jobData.value = [];
     if (res?.data?.items) {
@@ -329,8 +329,8 @@ const chartOption = computed(() => {
       itemHeight: 10,
     },
     grid: {
-      left: "50px",
-      right: filters.value.autoMonitor ? "10px" : "50px",
+      left: "0px",
+      right: filters.value.autoMonitor ? "0px" : "50px",
       top: "60px",
       bottom: filters.value.autoMonitor ? "10px" : "60px",
       containLabel: true,

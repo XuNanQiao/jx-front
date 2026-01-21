@@ -118,7 +118,7 @@ export const retentionOptions: SelectOption[] = [
 ];
 
 // 数据保留字段
-export const moduleList = [
+export const moduleList: ModuleItem[] = [
   {
     title: "基础信息",
     key: "basicInfo",
@@ -126,14 +126,14 @@ export const moduleList = [
       {
         label: "名称",
         key: "name",
-        type: "input",
+        type: "input" as const,
         rules: [{ required: true, message: "请输入名称", trigger: "blur" }],
       },
-      { label: "显示名称", key: "node_name_en", type: "input" },
-      { label: "数据类型", key: "data_type", type: "input" },
-      { label: "使用默认设备", key: "defaultDevice", type: "switch" },
+      { label: "显示名称", key: "node_name_en", type: "input" as const },
+      { label: "数据类型", key: "data_type" },
+      { label: "使用默认设备", key: "defaultDevice", type: "switch" as const },
       { label: "存储引擎", key: "database_category", editSlot: "storageEngineEdit", slot: "storageEngineView" },
-      { label: "数据周期(ms)", key: "cycle_time", type: "number", min: 0 },
+      { label: "数据周期(ms)", key: "cycle_time", type: "number" as const, min: 0 },
     ],
   },
   {
@@ -143,21 +143,21 @@ export const moduleList = [
       {
         label: "批量数据保留",
         key: "batch_retention",
-        type: "select",
+        type: "select" as const,
         options: retentionOptions,
         customRender: ({ text }: any) => getRetentionLabel(text),
       },
       {
         label: "流式数据保留",
         key: "stream_retention",
-        type: "select",
+        type: "select" as const,
         options: retentionOptions,
         customRender: ({ text }: any) => getRetentionLabel(text),
       },
       {
         label: "归档数批保留",
         key: "archive_batch_retention",
-        type: "select",
+        type: "select" as const,
         options: retentionOptions,
         customRender: ({ text }: any) => getRetentionLabel(text),
       },
