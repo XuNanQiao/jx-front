@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-20 16:24:36
- * @LastEditTime: 2026-01-22 09:23:54
+ * @LastEditTime: 2026-01-22 10:02:33
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\components\descriptionsCom.vue
@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, defineComponent, h } from "vue";
+import { ref, watch, reactive, defineComponent, h, computed } from "vue";
 import { message } from "ant-design-vue";
 import type { FormInstance } from "ant-design-vue";
 import { getNestedValue, setNestedValue } from "@/utils/useFunction";
@@ -216,21 +216,6 @@ const cancelEdit = () => {
   }
 };
 
-const onSave = async () => {
-  try {
-    console.log(form, "-----1212");
-
-    // 执行表单验证
-    await formRef.value?.validate();
-    // 验证通过，触发保存事件
-    emit("save", form);
-  } catch (error) {
-    // 验证失败
-    message.error("请检查表单填写是否正确");
-    console.error("表单验证失败:", error);
-  }
-};
-
 // 统一处理显示逻辑：支持对象或数组条件
 const shouldShowField = (field: any) => {
   const s = field?.show;
@@ -239,6 +224,57 @@ const shouldShowField = (field: any) => {
     return s.every((cond: any) => getNestedValue(form, cond.label) == cond.value);
   }
   return getNestedValue(form, s.label) == s.value;
+};
+
+// 删除嵌套属性值的辅助函数
+const deleteNestedValue = (obj: any, key: string | string[]): void => {
+  if (!key || !obj) return;
+  const keys = Array.isArray(key) ? key : [key];
+  if (keys.length === 1) {
+    delete obj[keys[0]];
+    return;
+  }
+  const lastKey = keys[keys.length - 1];
+  const parent = keys.slice(0, -1).reduce((acc, k) => {
+    return acc && acc[k] !== undefined ? acc[k] : null;
+  }, obj);
+  if (parent) {
+    delete parent[lastKey];
+  }
+};
+
+// 过滤掉不显示的字段数据
+const filterHiddenFields = (formData: any) => {
+  const filteredData = JSON.parse(JSON.stringify(formData));
+
+  // 遍历所有模块和字段，删除不显示的字段值
+  props.list.forEach((module: any) => {
+    module.fields?.forEach((field: any) => {
+      if (!shouldShowField(field) && field.key) {
+        // 删除隐藏字段的值
+        deleteNestedValue(filteredData, field.key);
+      }
+    });
+  });
+
+  return filteredData;
+};
+
+const onSave = async () => {
+  try {
+    // 执行表单验证
+    await formRef.value?.validate();
+
+    // 过滤掉不显示的字段
+    const filteredForm = filterHiddenFields(form);
+
+    // 验证通过，触发保存事件
+    emit("save", filteredForm);
+  } catch (error) {
+    // 验证失败
+    message.error("请检查表单填写是否正确");
+    console.error("表单验证失败:", error);
+  }
 };
 
 const formatValue = (value: any) => {

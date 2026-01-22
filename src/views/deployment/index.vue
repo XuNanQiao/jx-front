@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-21 18:00:51
+ * @LastEditTime: 2026-01-22 13:37:22
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -328,8 +328,8 @@ const runLoading = ref(false);
 const handleRun = async (record: any) => {
   try {
     runLoading.value = true;
-    const response = await executeDeploy({ job_id: record?.model_id || "", run_type: "formal" });
-    currentJobRecord.value = { id: response?.data?.job_id || record?.model_id };
+    const response = await executeDeploy({ deploy_id: record?.id || "", run_type: "formal" });
+    currentJobRecord.value = { id: response?.data?.job_id || record?.id };
     logModalVisible.value = true;
   } catch (error: any) {
   } finally {

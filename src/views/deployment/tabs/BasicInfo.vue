@@ -190,6 +190,13 @@ const loadDetail = async () => {
         let fields: any = basicInp();
         for (let fil of fields) {
           fil.key = ["input_config", index, fil.key];
+          // 更新 show 条件中的 label 路径
+          if (fil.show && Array.isArray(fil.show)) {
+            fil.show = fil.show.map((cond: any) => ({
+              ...cond,
+              label: ["input_config", index, ...cond.label],
+            }));
+          }
         }
         fields[0].options = [{ label: item.repo, value: item.repo }];
         try {
@@ -221,6 +228,13 @@ const loadDetail = async () => {
         let fields: any = basicInp();
         for (let fil of fields) {
           fil.key = ["output_config", index, fil.key];
+          // 更新 show 条件中的 label 路径
+          if (fil.show && Array.isArray(fil.show)) {
+            fil.show = fil.show.map((cond: any) => ({
+              ...cond,
+              label: ["output_config", index, ...cond.label],
+            }));
+          }
         }
         fields[0].options = [{ label: item.repo, value: item.repo }];
         try {

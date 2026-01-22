@@ -19,7 +19,8 @@
         "colorPrimaryTextHover": "#f0f7ff",
         "colorPrimaryTextActive": "#e0e6ff",
         "colorPrimaryActive": "#0e62d0",
-        "controlItemBgActive": "#2e3f60"
+        "controlItemBgActive": "#2e3f60",
+        "colorBorderSecondary": "transparent"
     },
     "components": {
         "Form": {
@@ -52,6 +53,7 @@
             "colorBgElevated": "#0b3f78",
             "optionSelectedBg": "#1890ff",
             "optionSelectedColor": "#fff",
+            "colorBorderSecondary": "#2e5e83",
             "controlItemBgHover": "rgba(18, 124, 160, 0.15)"
         },
         "DatePicker": {

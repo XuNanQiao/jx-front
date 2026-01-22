@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:51
- * @LastEditTime: 2026-01-22 08:49:15
+ * @LastEditTime: 2026-01-22 17:25:53
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\jobs\indexData.ts
@@ -53,7 +53,7 @@ export const dataStructureColumns = [
   },
   { dataIndex: "input_repo", title: "输入Repo", key: "input_repo", align: "left" },
   {
-    dataIndex: "output_repo",
+    dataIndex: "status",
     title: "状态",
     key: "integrity",
     align: "center",

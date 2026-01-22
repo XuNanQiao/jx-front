@@ -33,7 +33,7 @@ export function batchDeleteModelDeploy(ids: (string | number)[]): Promise<ApiRes
   });
 }
 // 执行任务接口
-export function executeDeploy(params: { job_id: string; run_type: "debug" | "formal" }): Promise<ApiResponse<any>> {
+export function executeDeploy(params: { deploy_id: string; run_type: "debug" | "formal" }): Promise<ApiResponse<any>> {
   return request.post("/api/model_deploy/execute", params, { showMessage: true, messageData: ["data", "message"] });
 }
 // 模型部署作业

@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-07 16:28:06
- * @LastEditTime: 2026-01-07 16:50:45
+ * @LastEditTime: 2026-01-22 17:03:18
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\utils\request.ts
@@ -12,8 +12,8 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
-} from 'axios';
-import { message } from 'ant-design-vue';
+} from "axios";
+import { message } from "ant-design-vue";
 
 // 扩展 AxiosRequestConfig 类型，添加自定义配置
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -25,10 +25,10 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 // 创建 axios 实例
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || "",
   timeout: 15000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -36,14 +36,14 @@ const service: AxiosInstance = axios.create({
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 从 localStorage 获取 token
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
-    console.error('Request error:', error);
+    console.error("Request error:", error);
     return Promise.reject(error);
   },
 );
@@ -53,16 +53,17 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
     const config = response.config as CustomAxiosRequestConfig;
+    console.log(res, "------res");
 
     // 如果返回的状态码不是 200，则判断为错误
-    if (res.code && res.code !== 200) {
-      console.error('Response error:', res.msg || 'Error');
+    if (!res.code && res.code !== 200) {
+      console.error("Response error:", res.msg || "Error");
 
       // 根据配置决定是否显示错误消息
       const shouldShowError =
         config.showErrorMessage !== false && (config.showMessage === true || config.showErrorMessage === true);
       if (shouldShowError) {
-        let msg = '';
+        let msg = "";
         if (config.messageData && Array.isArray(config.messageData)) {
           let data = res;
           for (const key of config.messageData) {
@@ -70,23 +71,23 @@ service.interceptors.response.use(
           }
           msg = data;
         }
-        message.error(msg || res.msg || '请求失败，请稍后重试');
+        message.error(msg || res.msg || "请求失败，请稍后重试");
       }
 
       // 401: 未授权，跳转到登录页
       if (res.code === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
-        window.location.href = '/login';
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        window.location.href = "/login";
       }
 
-      return Promise.reject(new Error(res.msg || 'Error'));
+      return Promise.reject(new Error(res.msg || "Error"));
     }
 
     // 根据配置决定是否显示成功消息
     const shouldShowSuccess = config.showSuccessMessage === true || config.showMessage === true;
     if (shouldShowSuccess) {
-      let msg = '';
+      let msg = "";
       if (config.messageData && Array.isArray(config.messageData)) {
         let data = res;
         for (const key of config.messageData) {
@@ -94,27 +95,25 @@ service.interceptors.response.use(
         }
         msg = data;
       }
-      message.success(msg || res.msg || '请求成功');
+      message.success(msg || res.msg || "请求成功");
     }
 
     return res;
   },
   (error) => {
-    console.error('Response error:', error.message);
     const config = error.config as CustomAxiosRequestConfig;
-
     // 根据配置决定是否显示错误消息
     const shouldShowError =
       config?.showErrorMessage !== false && (config?.showMessage === true || config?.showErrorMessage === true);
     if (shouldShowError) {
-      message.error(error.message || '请求失败，请稍后重试');
+      message.error(error.message || "请求失败，请稍后重试");
     }
 
     // 处理 401 未授权
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
-      window.location.href = '/login';
+      localStorage.removeItem("token");
+      localStorage.removeItem("userInfo");
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);
