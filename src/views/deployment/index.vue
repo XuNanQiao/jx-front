@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-21 15:55:22
+ * @LastEditTime: 2026-01-21 18:00:51
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\views\deployment\index.vue
@@ -141,6 +141,7 @@ import {
   executeDeploy,
   getModelDeployList,
   saveModelDeploy,
+  toggleModelDeploy,
 } from "@/api/deployment";
 import { getModelDevList } from "@/api/development";
 import DownloadAction from "@/components/common/DownloadAction.vue";
@@ -359,19 +360,16 @@ const handleCopySubmit = async () => {
     message.error("缺少复制源数据");
     return;
   }
-  const payload: any = { ...copySource, name };
-  delete payload.id; // 去除原有 id 以便后端创建新记录
+  const payload: any = { id: copySource.id, name };
 
   copySubmitting.value = true;
   try {
     const res = await saveModelDeploy(payload);
     if (res?.code === 200) {
-      message.success("复制成功");
       resetCopyModal();
       await loadData();
     }
   } catch (error: any) {
-    console.error("复制失败:", error);
   } finally {
     copySubmitting.value = false;
   }
@@ -398,14 +396,12 @@ const handleExport = async (record: ModelInputOutput) => {
 // 处理启动状态变化
 const handleStatusChange = async (checked: boolean, record: ModelInputOutput) => {
   try {
-    // TODO: 调用API更新启动状态
-    // await updateModelStatus(record.id, { is_active: checked });
-    message.success(checked ? "已启动" : "已停止");
+    const res = await toggleModelDeploy({ id: record.id as string | number, enabled: checked });
+    record.is_active = checked;
   } catch (error: any) {
     console.error("更新状态失败:", error);
     // 失败时恢复原状态
     record.is_active = !checked;
-    message.error("状态更新失败");
   }
 };
 </script>

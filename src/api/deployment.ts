@@ -43,5 +43,10 @@ export function getDeployJobList(params: any): Promise<ApiResponse<any>> {
 
 // 保存/复制模型部署
 export function saveModelDeploy(payload: any): Promise<ApiResponse<any>> {
-  return request.post("/api/model_deploy/create", payload, { showMessage: true, messageData: ["data", "message"] });
+  return request.post("/api/model_deploy/clone", payload, { showMessage: true, messageData: ["data", "message"] });
+}
+
+// 启停模型部署
+export function toggleModelDeploy(payload: { id: string | number; enabled: boolean }): Promise<ApiResponse<any>> {
+  return request.put("/api/model_deploy/toggle", payload, { showMessage: true, messageData: ["data", "status_text"] });
 }

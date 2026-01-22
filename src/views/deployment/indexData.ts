@@ -58,7 +58,7 @@ export const detailColumns = () => [
   },
 
   { dataIndex: "created_user_id", title: "创建人", key: "created_user_id", align: "center", width: 100 },
-  { dataIndex: "is_active", title: "启动", key: "is_active", align: "center", width: 100 },
+  { dataIndex: "is_active", title: "启用", key: "is_active", align: "center", width: 100 },
   { dataIndex: "action", title: "操作", key: "action", align: "center", width: 80, fixed: "right" },
 ];
 
@@ -100,6 +100,7 @@ export const basicFields = () => {
           key: ["trigger_config", "next_run"],
           editSlot: "cycleEditor",
           type: "input",
+          show: [{ label: ["trigger_type"], value: 0 }],
         },
         {
           label: "作业保留数",
@@ -139,8 +140,26 @@ export const basicInp = () => {
       { label: "数据列", key: "data_columns", type: "select", span: 9, mode: "multiple" },
       { label: "设备实例", key: "device_instance", type: "select", span: 9, mode: "multiple" },
       { label: "数据时间", key: "data_time", type: "select", options: jobOptions, span: 5, labelSpan: 10 },
-      { label: "窗口长度", key: "window_length", type: "number", unit: "M", min: 1, span: 5, labelSpan: 10 },
-      { label: "对齐时间", key: "alignment_time", type: "number", unit: "M", min: 1, span: 5, labelSpan: 10 },
+      {
+        label: "窗口长度",
+        key: "window_length",
+        type: "number",
+        unit: "M",
+        min: 1,
+        span: 5,
+        labelSpan: 10,
+        show: [{ label: ["data_time"], value: "指定" }],
+      },
+      {
+        label: "对齐时间",
+        key: "alignment_time",
+        type: "number",
+        unit: "M",
+        min: 1,
+        span: 5,
+        labelSpan: 10,
+        show: [{ label: ["data_time"], value: "指定" }],
+      },
     ]),
   );
 };
