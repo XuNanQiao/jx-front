@@ -310,7 +310,7 @@ const openNode = (node: any) => {
     selected.type = node.type;
     let data: any = {
       display_name: node.display_name || "",
-      name: node.name || "",
+      name: node.title || "",
       columns: node.columns || [],
       files: node.files || [],
     };

@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-19 11:05:35
+ * @LastEditTime: 2026-01-23 14:20:49
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -9,15 +9,19 @@
 -->
 <template>
   <div style="position: relative; width: 100%; height: 100%">
-    <v-chart
-      ref="chartRef"
-      :option="chartOption"
-      :autoresize="true"
-      :style="chartStyle"
-      @dragover.prevent
+    <VueFlow
+      v-model:nodes="nodes"
+      v-model:edges="edges"
+      :default-viewport="{ zoom: 1 }"
+      :min-zoom="0.2"
+      :max-zoom="4"
+      @node-click="onNodeClick"
+      @node-context-menu="onNodeContextMenu"
+      @pane-click="onPaneClick"
       @drop="onDrop"
-      @click="onChartClick"
-      @contextmenu="onContextMenu" />
+      @dragover="onDragOver">
+      <Background />
+    </VueFlow>
 
     <!-- 右键菜单 -->
     <div
@@ -42,13 +46,9 @@
 
 <script setup lang="ts">
 import { DeleteOutlined } from "@ant-design/icons-vue";
-import type { EChartsOption } from "echarts";
-import { GraphChart } from "echarts/charts";
-import { DataZoomComponent, GridComponent, TitleComponent, TooltipComponent } from "echarts/components";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { computed, reactive, ref } from "vue";
-import VChart from "vue-echarts";
+import { Background } from "@vue-flow/background";
+import { VueFlow, useVueFlow } from "@vue-flow/core";
+import { reactive, ref, watch } from "vue";
 
 const props = defineProps({
   width: { type: String, default: "100%" },
@@ -71,8 +71,13 @@ const emit = defineEmits<{
   (e: "node-click", payload: any): void;
   (e: "node-delete", payload: any): void;
 }>();
-const chartRef = ref<any>(null);
+
+const nodes = ref<any[]>([]);
+const edges = ref<any[]>([]);
 const selectedId = ref<string | null>(null);
+
+// 获取 VueFlow 实例
+const { project } = useVueFlow();
 
 // 右键菜单状态
 const contextMenu = reactive({
@@ -82,47 +87,208 @@ const contextMenu = reactive({
   node: null as any,
 });
 
-const onDrop = (e: DragEvent) => {
-  e.preventDefault();
-  try {
-    const raw = e.dataTransfer?.getData("application/json");
-    if (!raw) return;
-    const nodeData = JSON.parse(raw);
-    const el = (chartRef.value && (chartRef.value as any).$el) || chartRef.value;
-    const rect = el?.getBoundingClientRect ? el.getBoundingClientRect() : { left: 0, top: 0 };
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    emit("add-node", { ...nodeData, x, y });
-  } catch (err) {
-    console.error("drop parse error", err);
-  }
-};
-
-const onChartClick = (params: any) => {
-  // 如果点击空白或非节点区域，取消选中
-  if (!params || !params.data) {
-    selectedId.value = null;
+// 构建节点和边
+const buildGraph = () => {
+  const hasGraphData = props.graphData && props.graphData.length;
+  if (!hasGraphData) {
+    nodes.value = [];
+    edges.value = [];
     return;
   }
-  // 点击节点时，params.data 包含节点信息
-  if (params.data) {
-    selectedId.value = params.data.id ?? params.data.name ?? null;
-    emit("node-click", params.data);
+
+  const inputs = props.graphData.filter((n: any) => n.type === "input");
+  const outputs = props.graphData.filter((n: any) => n.type === "output");
+  const others = props.graphData.filter((n: any) => n.type === "operator");
+
+  const base = 600;
+  const offset = 160;
+  const baseY = 50;
+  const offsetY = 160;
+
+  // 创建节点
+  const nodeList: any[] = [];
+
+  // 输入节点
+  inputs.forEach((item: any, index: number) => {
+    const multiplier = Math.ceil(index / 2);
+    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
+    const nodeId = item.title + (item.idVal ?? "");
+    nodeList.push({
+      id: nodeId,
+      type: "default",
+      position: { x, y: baseY },
+      label: item.title,
+      data: item,
+      style: {
+        background: "#35658b",
+        color: "#ffffff",
+        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        borderRadius: "4px",
+        padding: "8px 12px",
+        width: "100px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "12px",
+      },
+    });
+  });
+
+  // 操作节点
+  others.forEach((item: any) => {
+    const nodeId = item.title + (item.idVal ?? "");
+    nodeList.push({
+      id: nodeId,
+      type: "default",
+      position: { x: base, y: baseY + offsetY },
+      label: item.title,
+      data: item,
+      style: {
+        background: "#35658b",
+        color: "#ffffff",
+        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        borderRadius: "4px",
+        padding: "8px 12px",
+        width: "100px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "12px",
+      },
+    });
+  });
+
+  // 输出节点
+  outputs.forEach((item: any, index: number) => {
+    const multiplier = Math.ceil(index / 2);
+    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
+    const nodeId = item.title + (item.idVal ?? "");
+    nodeList.push({
+      id: nodeId,
+      type: "default",
+      position: { x, y: baseY + offsetY * 2 },
+      label: item.title,
+      data: item,
+      style: {
+        background: "#35658b",
+        color: "#ffffff",
+        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        borderRadius: "4px",
+        padding: "8px 12px",
+        width: "100px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "12px",
+      },
+    });
+  });
+
+  // 创建边（连接线）- 使用 smoothstep 类型实现 S 型曲线
+  const edgeList: any[] = [];
+
+  others.forEach((node: any) => {
+    inputs.forEach((inp: any) => {
+      edgeList.push({
+        id: `e-${inp.title + (inp.idVal ?? "")}-${node.title + (node.idVal ?? "")}`,
+        source: inp.title + (inp.idVal ?? ""),
+        target: node.title + (node.idVal ?? ""),
+        type: "smoothstep", // smoothstep 类型产生 S 型曲线
+        animated: false,
+        style: {
+          stroke: "#64acd1",
+          strokeWidth: 2,
+        },
+        markerEnd: {
+          type: "arrowclosed",
+          width: 15,
+          height: 15,
+          color: "#64acd1",
+        },
+      });
+    });
+    outputs.forEach((out: any) => {
+      edgeList.push({
+        id: `e-${node.title + (node.idVal ?? "")}-${out.title + (out.idVal ?? "")}`,
+        source: node.title + (node.idVal ?? ""),
+        target: out.title + (out.idVal ?? ""),
+        type: "smoothstep", // smoothstep 类型产生 S 型曲线
+        animated: false,
+        style: {
+          stroke: "#64acd1",
+          strokeWidth: 2,
+        },
+        markerEnd: {
+          type: "arrowclosed",
+          width: 15,
+          height: 15,
+          color: "#64acd1",
+        },
+      });
+    });
+  });
+
+  nodes.value = nodeList;
+  edges.value = edgeList;
+};
+
+// 监听数据变化
+watch(
+  () => props.graphData,
+  () => {
+    buildGraph();
+  },
+  { deep: true, immediate: true },
+);
+
+// 节点点击
+const onNodeClick = (event: any) => {
+  selectedId.value = event.node.id;
+  console.log(event, "--------event");
+
+  emit("node-click", { ...event.node.data, id: event.node.id });
+  buildGraph(); // 重新构建以更新选中样式
+};
+
+// 空白处点击
+const onPaneClick = () => {
+  selectedId.value = null;
+  buildGraph(); // 重新构建以更新选中样式
+};
+
+// 节点右键
+const onNodeContextMenu = (event: any) => {
+  event.event.preventDefault();
+  contextMenu.visible = true;
+  contextMenu.x = event.event.clientX;
+  contextMenu.y = event.event.clientY;
+  contextMenu.node = { ...event.node.data, id: event.node.id };
+};
+
+// 拖放处理
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "move";
   }
 };
 
-// 右键菜单处理
-const onContextMenu = (params: any) => {
-  // 只处理节点的右键菜单
-  if (params && params.data && params.event) {
-    const event = params.event.event;
-    event.preventDefault();
+const onDrop = (event: DragEvent) => {
+  event.preventDefault();
+  try {
+    const raw = event.dataTransfer?.getData("application/json");
+    if (!raw) return;
+    const nodeData = JSON.parse(raw);
 
-    // 设置菜单位置和节点信息
-    contextMenu.visible = true;
-    contextMenu.x = event.clientX;
-    contextMenu.y = event.clientY;
-    contextMenu.node = params.data;
+    // 使用 project 转换坐标
+    const position = project({ x: event.clientX, y: event.clientY });
+
+    emit("add-node", { ...nodeData, x: position.x, y: position.y });
+  } catch (err) {
+    console.error("drop parse error", err);
   }
 };
 
@@ -139,147 +305,22 @@ const handleDeleteNode = () => {
   }
   closeContextMenu();
 };
-
-// 注册 ECharts 组件
-use([CanvasRenderer, GraphChart, GridComponent, TooltipComponent, TitleComponent, DataZoomComponent]);
-
-const chartStyle = computed(() => `height:${props.height}; width:${props.width}`);
-
-const chartOption = computed<EChartsOption>(() => {
-  const hasGraphData = props.graphData && props.graphData.length;
-  if (!hasGraphData) return {};
-  const inputs = props.graphData.filter((n: any) => n.type === "input");
-  const outputs = props.graphData.filter((n: any) => n.type === "output");
-  const others = props.graphData.filter((n: any) => n.type === "operator");
-  const base = 300;
-  const offset = 20;
-  let inputsList = inputs.map((item: any, index) => {
-    const multiplier = Math.ceil(index / 2);
-    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
-    return {
-      name: item.title,
-      x,
-      y: 50,
-      id: item.title + (item.idVal ?? ""),
-      ...item,
-    };
-  });
-  let outputsList = outputs.map((item: any, index) => {
-    const multiplier = Math.ceil(index / 2);
-    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
-    return {
-      name: item.title,
-      x: x,
-      y: 90,
-      id: item.title + (item.idVal ?? ""),
-      ...item,
-    };
-  });
-  let othersList = others.map((item: any) => {
-    return {
-      name: item.title,
-      x: base,
-      y: 70,
-      id: item.title + (item.idVal ?? ""),
-      ...item,
-    };
-  });
-  console.log(inputsList, outputsList, othersList, "------chat");
-
-  const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
-    // 若为选中节点，使用高亮样式
-    if (selectedId.value && (d.id === selectedId.value || d.name === selectedId.value)) {
-      return {
-        ...d,
-        itemStyle: {
-          color: "#18e2ad",
-          borderColor: "#18e2ad",
-          borderWidth: 4,
-        },
-      };
-    }
-    return d;
-  });
-
-  let links: Array<{ source: number | string; target: number | string; lineStyle?: any }> = [];
-
-  const attrLinks: Array<{ source: number | string; target: number | string; lineStyle?: any }> = [];
-  if (hasGraphData) {
-    others.forEach((node: any) => {
-      inputs.forEach((inp: any) => {
-        attrLinks.push({
-          source: inp.title + (inp.idVal ?? ""),
-          target: node.title + (node.idVal ?? ""),
-        });
-      });
-      outputs.forEach((out: any) => {
-        attrLinks.push({
-          source: node.title + (node.idVal ?? ""),
-          target: out.title + (out.idVal ?? ""),
-        });
-      });
-    });
-  }
-
-  links = attrLinks.length > 0 ? attrLinks : [];
-
-  return {
-    title: {
-      text: "可拖动的方形关系图",
-      left: "center",
-      show: false,
-    },
-    tooltip: {
-      show: false,
-    },
-    animationDurationUpdate: 1500,
-    animationEasingUpdate: "quinticInOut",
-    dataZoom: [
-      {
-        type: "inside",
-        zoomOnMouseWheel: true,
-        moveOnMouseMove: true,
-        preventDefaultMouseMove: true,
-      },
-    ],
-    series: [
-      {
-        type: "graph",
-        layout: "none",
-        roam: true,
-        draggable: true,
-        symbol: "rect",
-        symbolSize: [100, 30],
-        itemStyle: {
-          color: "#35658b", // 节点填充色
-          borderColor: "#18e2ad", // 节点边框色
-          borderWidth: 2,
-        },
-        label: {
-          show: true,
-          position: "inside",
-        },
-        edgeSymbol: ["circle", "arrow"],
-        // edgeSymbolSize: [6, 12],
-        data,
-        links,
-        lineStyle: {
-          opacity: 1,
-          width: 2,
-          curveness: 0,
-          color: "#64acd1",
-        },
-        emphasis: {
-          focus: "adjacency",
-          lineStyle: { width: 4 },
-        },
-      },
-    ],
-  } as unknown as EChartsOption;
-});
 </script>
 
+<style lang="scss">
+@import "@vue-flow/core/dist/style.css";
+@import "@vue-flow/core/dist/theme-default.css";
+</style>
+
 <style scoped lang="scss">
+:deep(.vue-flow__handle) {
+  opacity: 0 !important; /* 隐藏但不移除元素 */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important; /* 禁止交互，避免误连线 */
+}
+
 .context-menu {
   position: fixed;
   z-index: 1000;

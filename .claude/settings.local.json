@@ -13,7 +13,8 @@
       "Bash(ren:*)",
       "Bash(ren component.ts component.d.ts)",
       "Bash(ren upload.ts upload.d.ts)",
-      "Bash(npx vue-tsc:*)"
+      "Bash(npx vue-tsc:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }
