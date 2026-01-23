@@ -101,6 +101,7 @@ export const basicFields = () => {
           editSlot: "cycleEditor",
           type: "input",
           show: [{ label: ["trigger_type"], value: 0 }],
+          customRender: ({ text }: { text: any }) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm:ss") : "-"),
         },
         {
           label: "作业保留数",

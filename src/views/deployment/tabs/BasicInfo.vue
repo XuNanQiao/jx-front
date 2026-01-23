@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-21 15:34:02
+ * @LastEditTime: 2026-01-23 10:11:20
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -13,11 +13,14 @@
       <template #cycleEditor="slotProps: any">
         <a-form-item :name="slotProps.field.key" :rules="slotProps.field.rules" class="form-item-inline">
           <a-input-group compact class="cycle-input-group">
-            <a-input
-              :value="getNestedValue(slotProps.form, slotProps.field.key)"
+            <a-date-picker
+              show-time
+              :value="toDayjs(getNestedValue(slotProps.form, slotProps.field.key))"
               @update:value="(val: any) => setNestedValue(slotProps.form, slotProps.field.key, val)"
               placeholder="请输入执行周期"
-              style="width: calc(100% - 120px)" />
+              style="width: calc(100% - 120px)"
+              @change="(val: any) => setNestedValue(slotProps.form, slotProps.field.key, val)"
+              @ok="(val: any) => setNestedValue(slotProps.form, slotProps.field.key, val)" />
             <a-button type="primary" @click="handleConfigCycle(slotProps.form, ['trigger_config', 'cron'])">
               <template #icon>
                 <ImportOutlined />
@@ -83,9 +86,12 @@ import { getModelDeployDetail, updateModelDeploy } from "@/api/deployment";
 import DescriptionsCom from "@/components/descriptionsCom.vue";
 import { ImportOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
+import dayjs from "dayjs";
 import { ref, watch } from "vue";
 import { basicFields, basicInp } from "../indexData";
 import { getDataStructureList } from "@/api/inputOutput";
+
+const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 // 获取嵌套属性值的辅助函数
 const getNestedValue = (obj: any, key: string | string[]): any => {
@@ -106,6 +112,13 @@ const setNestedValue = (obj: any, key: string | string[], value: any): void => {
   parent[lastKey] = value;
 };
 
+// 为日期组件提供稳定的 Dayjs 值，避免 locale 报错
+const toDayjs = (value: any) => {
+  if (!value) return null;
+  const parsed = dayjs(value);
+  return parsed.isValid() ? parsed : null;
+};
+
 const props = defineProps<{ id: any | null }>();
 const loading = ref(false);
 const editMode = ref(false);
@@ -123,6 +136,7 @@ let currentFieldKey: string | string[] = "";
 // 配置执行周期
 const handleConfigCycle = (form: any, fieldKey: string | string[]) => {
   currentForm = form;
+  currentFieldKey = fieldKey;
   cronForm.value.expression = getNestedValue(form, currentFieldKey) || "";
   cronModalVisible.value = true;
 };
@@ -200,7 +214,7 @@ const loadDetail = async () => {
         }
         fields[0].options = [{ label: item.repo, value: item.repo }];
         try {
-          let res = await getDataStructureList({ model_input_output_id: item.input_repo_id });
+          let res = await getDataStructureList({ model_input_output_id: item.model_input_output_id });
           const options = res.data.items.map((ds: any) => ({
             label: ds.name,
             value: ds.column,
@@ -238,7 +252,7 @@ const loadDetail = async () => {
         }
         fields[0].options = [{ label: item.repo, value: item.repo }];
         try {
-          let res = await getDataStructureList({ model_input_output_id: item.output_repo_id });
+          let res = await getDataStructureList({ model_input_output_id: item.model_input_output_id });
           const options = res.data.items.map((ds: any) => ({
             label: ds.name,
             value: ds.column,

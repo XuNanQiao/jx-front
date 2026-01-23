@@ -53,7 +53,6 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
     const config = response.config as CustomAxiosRequestConfig;
-    console.log(res, "------res");
 
     // 如果返回的状态码不是 200，则判断为错误
     if (!res.code && res.code !== 200) {

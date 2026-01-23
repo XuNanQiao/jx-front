@@ -1,7 +1,7 @@
 /*
  * @Author: ZHAO
  * @Date: 2026-01-20 17:31:02
- * @LastEditTime: 2026-01-21 13:37:39
+ * @LastEditTime: 2026-01-22 18:13:44
  * @LastEditors: ZHAO
  * @Description:
  * @FilePath: \jx\src\components\journalView\indexData.ts
@@ -32,7 +32,7 @@ export const browseColumns = [
     align: "center",
     width: 150,
     ellipsis: true,
-    customRender: ({ text }: any) => `${text}/模型部署`,
+    customRender: ({ text }: any) => `${text}`,
   },
   { dataIndex: "input_repo", title: "输入Repo", key: "input_repo", align: "left", width: 150, ellipsis: true },
   { dataIndex: "output_repo", title: "输出Repo", key: "output_repo", align: "left", width: 150, ellipsis: true },
@@ -43,7 +43,14 @@ export const browseColumns = [
     ellipsis: true,
     customRender: ({ record }: any) => formatDurationWithStart(record?.data_start_time, record?.data_end_time),
   },
-  { dataIndex: "data_rows_nums", title: "数据行", key: "data_rows_nums", align: "left", width: 100 },
+  {
+    dataIndex: "data_rows_nums",
+    title: "数据行",
+    key: "data_rows_nums",
+    align: "left",
+    width: 100,
+    customRender: ({ text }: any) => (text == -1 ? "全部" : text),
+  },
   {
     dataIndex: "exec_log",
     title: "查看日志",

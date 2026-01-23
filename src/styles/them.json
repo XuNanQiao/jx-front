@@ -64,6 +64,9 @@
             "controlItemBgActive": "#1ed4e7",
             "colorSplit": "rgb(46, 94, 131)"
         },
+        "Descriptions": {
+            "colorSplit": "#285187"
+        },
         "Button": {
             "colorPrimary": "#1890ff",
             "colorPrimaryActive": "#1ed4e7cc",

@@ -32,23 +32,27 @@
     </div>
 
     <!-- 点击遮罩层关闭菜单 -->
-    <div v-if="contextMenu.visible" class="context-menu-mask" @click="closeContextMenu" @contextmenu.prevent="closeContextMenu"></div>
+    <div
+      v-if="contextMenu.visible"
+      class="context-menu-mask"
+      @click="closeContextMenu"
+      @contextmenu.prevent="closeContextMenu"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DeleteOutlined } from '@ant-design/icons-vue';
-import type { EChartsOption } from 'echarts';
-import { GraphChart } from 'echarts/charts';
-import { DataZoomComponent, GridComponent, TitleComponent, TooltipComponent } from 'echarts/components';
-import { use } from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
-import { computed, reactive, ref } from 'vue';
-import VChart from 'vue-echarts';
+import { DeleteOutlined } from "@ant-design/icons-vue";
+import type { EChartsOption } from "echarts";
+import { GraphChart } from "echarts/charts";
+import { DataZoomComponent, GridComponent, TitleComponent, TooltipComponent } from "echarts/components";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { computed, reactive, ref } from "vue";
+import VChart from "vue-echarts";
 
 const props = defineProps({
-  width: { type: String, default: '100%' },
-  height: { type: String, default: '100%' },
+  width: { type: String, default: "100%" },
+  height: { type: String, default: "100%" },
   showAreaStyle: { type: Boolean, default: true },
   grid: {
     type: Object as () => { left?: number; right?: number; top?: number; bottom?: number },
@@ -63,9 +67,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: 'add-node', payload: any): void;
-  (e: 'node-click', payload: any): void;
-  (e: 'node-delete', payload: any): void;
+  (e: "add-node", payload: any): void;
+  (e: "node-click", payload: any): void;
+  (e: "node-delete", payload: any): void;
 }>();
 const chartRef = ref<any>(null);
 const selectedId = ref<string | null>(null);
@@ -81,16 +85,16 @@ const contextMenu = reactive({
 const onDrop = (e: DragEvent) => {
   e.preventDefault();
   try {
-    const raw = e.dataTransfer?.getData('application/json');
+    const raw = e.dataTransfer?.getData("application/json");
     if (!raw) return;
     const nodeData = JSON.parse(raw);
     const el = (chartRef.value && (chartRef.value as any).$el) || chartRef.value;
     const rect = el?.getBoundingClientRect ? el.getBoundingClientRect() : { left: 0, top: 0 };
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    emit('add-node', { ...nodeData, x, y });
+    emit("add-node", { ...nodeData, x, y });
   } catch (err) {
-    console.error('drop parse error', err);
+    console.error("drop parse error", err);
   }
 };
 
@@ -103,7 +107,7 @@ const onChartClick = (params: any) => {
   // 点击节点时，params.data 包含节点信息
   if (params.data) {
     selectedId.value = params.data.id ?? params.data.name ?? null;
-    emit('node-click', params.data);
+    emit("node-click", params.data);
   }
 };
 
@@ -131,7 +135,7 @@ const closeContextMenu = () => {
 // 处理删除节点
 const handleDeleteNode = () => {
   if (contextMenu.node) {
-    emit('node-delete', contextMenu.node);
+    emit("node-delete", contextMenu.node);
   }
   closeContextMenu();
 };
@@ -144,9 +148,9 @@ const chartStyle = computed(() => `height:${props.height}; width:${props.width}`
 const chartOption = computed<EChartsOption>(() => {
   const hasGraphData = props.graphData && props.graphData.length;
   if (!hasGraphData) return {};
-  const inputs = props.graphData.filter((n: any) => n.type === 'input');
-  const outputs = props.graphData.filter((n: any) => n.type === 'output');
-  const others = props.graphData.filter((n: any) => n.type === 'operator');
+  const inputs = props.graphData.filter((n: any) => n.type === "input");
+  const outputs = props.graphData.filter((n: any) => n.type === "output");
+  const others = props.graphData.filter((n: any) => n.type === "operator");
   const base = 300;
   const offset = 20;
   let inputsList = inputs.map((item: any, index) => {
@@ -156,7 +160,7 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x,
       y: 50,
-      id: item.title + (item.idVal ?? ''),
+      id: item.title + (item.idVal ?? ""),
       ...item,
     };
   });
@@ -167,7 +171,7 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x: x,
       y: 90,
-      id: item.title + (item.idVal ?? ''),
+      id: item.title + (item.idVal ?? ""),
       ...item,
     };
   });
@@ -176,11 +180,11 @@ const chartOption = computed<EChartsOption>(() => {
       name: item.title,
       x: base,
       y: 70,
-      id: item.title + (item.idVal ?? ''),
+      id: item.title + (item.idVal ?? ""),
       ...item,
     };
   });
-  console.log(inputsList, outputsList, othersList, '------chat');
+  console.log(inputsList, outputsList, othersList, "------chat");
 
   const data = [...inputsList, ...outputsList, ...othersList].map((d) => {
     // 若为选中节点，使用高亮样式
@@ -188,8 +192,8 @@ const chartOption = computed<EChartsOption>(() => {
       return {
         ...d,
         itemStyle: {
-          color: '#18e2ad',
-          borderColor: '#18e2ad',
+          color: "#18e2ad",
+          borderColor: "#18e2ad",
           borderWidth: 4,
         },
       };
@@ -204,14 +208,14 @@ const chartOption = computed<EChartsOption>(() => {
     others.forEach((node: any) => {
       inputs.forEach((inp: any) => {
         attrLinks.push({
-          source: inp.title + (inp.idVal ?? ''),
-          target: node.title + (node.idVal ?? ''),
+          source: inp.title + (inp.idVal ?? ""),
+          target: node.title + (node.idVal ?? ""),
         });
       });
       outputs.forEach((out: any) => {
         attrLinks.push({
-          source: node.title + (node.idVal ?? ''),
-          target: out.title + (out.idVal ?? ''),
+          source: node.title + (node.idVal ?? ""),
+          target: out.title + (out.idVal ?? ""),
         });
       });
     });
@@ -221,18 +225,18 @@ const chartOption = computed<EChartsOption>(() => {
 
   return {
     title: {
-      text: '可拖动的方形关系图',
-      left: 'center',
+      text: "可拖动的方形关系图",
+      left: "center",
       show: false,
     },
     tooltip: {
       show: false,
     },
     animationDurationUpdate: 1500,
-    animationEasingUpdate: 'quinticInOut',
+    animationEasingUpdate: "quinticInOut",
     dataZoom: [
       {
-        type: 'inside',
+        type: "inside",
         zoomOnMouseWheel: true,
         moveOnMouseMove: true,
         preventDefaultMouseMove: true,
@@ -240,22 +244,22 @@ const chartOption = computed<EChartsOption>(() => {
     ],
     series: [
       {
-        type: 'graph',
-        layout: 'none',
+        type: "graph",
+        layout: "none",
         roam: true,
         draggable: true,
-        symbol: 'rect',
+        symbol: "rect",
         symbolSize: [100, 30],
         itemStyle: {
-          color: '#35658b', // 节点填充色
-          borderColor: '#18e2ad', // 节点边框色
+          color: "#35658b", // 节点填充色
+          borderColor: "#18e2ad", // 节点边框色
           borderWidth: 2,
         },
         label: {
           show: true,
-          position: 'inside',
+          position: "inside",
         },
-        edgeSymbol: ['circle', 'arrow'],
+        edgeSymbol: ["circle", "arrow"],
         // edgeSymbolSize: [6, 12],
         data,
         links,
@@ -263,10 +267,10 @@ const chartOption = computed<EChartsOption>(() => {
           opacity: 1,
           width: 2,
           curveness: 0,
-          color: '#64acd1',
+          color: "#64acd1",
         },
         emphasis: {
-          focus: 'adjacency',
+          focus: "adjacency",
           lineStyle: { width: 4 },
         },
       },
