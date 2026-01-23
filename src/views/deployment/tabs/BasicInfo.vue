@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-14 09:12:50
- * @LastEditTime: 2026-01-23 10:11:20
+ * @LastEditTime: 2026-01-23 15:39:58
  * @LastEditors: ZHAO
  * @Description: 
  * @FilePath: \jx\src\views\deployment\tabs\BasicInfo.vue
@@ -143,10 +143,10 @@ const handleConfigCycle = (form: any, fieldKey: string | string[]) => {
 
 // 确认配置
 const handleCronConfirm = () => {
-  if (!cronForm.value.expression.trim()) {
+  /*  if (!cronForm.value.expression.trim()) {
     message.warning("请输入 Crontab 表达式");
     return;
-  }
+  } */
 
   if (currentForm) {
     setNestedValue(currentForm, ["trigger_config", "cron"], cronForm.value.expression.trim());

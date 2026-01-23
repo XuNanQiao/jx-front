@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-23 15:02:55
+ * @LastEditTime: 2026-01-23 16:02:54
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -12,6 +12,7 @@
     <VueFlow
       v-model:nodes="nodes"
       v-model:edges="edges"
+      :node-types="nodeTypes"
       :default-viewport="{ zoom: 1 }"
       :min-zoom="0.2"
       :max-zoom="4"
@@ -48,8 +49,8 @@
 <script setup lang="ts">
 import { DeleteOutlined } from "@ant-design/icons-vue";
 import { Background } from "@vue-flow/background";
-import { VueFlow, useVueFlow } from "@vue-flow/core";
-import { reactive, ref, watch } from "vue";
+import { Handle, Position, VueFlow, useVueFlow } from "@vue-flow/core";
+import { computed, defineComponent, h, reactive, ref, watch } from "vue";
 
 const props = defineProps({
   width: { type: String, default: "100%" },
@@ -88,6 +89,49 @@ const contextMenu = reactive({
   node: null as any,
 });
 
+const calcHandleLeft = (index: number, total: number) => `${((index + 1) / (total + 1)) * 100}%`;
+
+const MultiHandleNode = defineComponent({
+  name: "MultiHandleNode",
+  props: {
+    id: { type: String, required: true },
+    data: { type: Object as () => any, required: true },
+    label: { type: String, default: "" },
+  },
+  setup(props) {
+    const targetHandles = computed(() => props.data?.targetHandles ?? []);
+    const sourceHandles = computed(() => props.data?.sourceHandles ?? []);
+    const displayLabel = computed(() => props.data?.label ?? props.label ?? "");
+
+    return () =>
+      h("div", { class: "multi-handle-node" }, [
+        ...targetHandles.value.map((handleId: string, index: number) =>
+          h(Handle, {
+            id: handleId,
+            type: "target",
+            position: props.data?.targetPosition ?? Position.Top,
+            style: { left: calcHandleLeft(index, targetHandles.value.length) },
+            key: `${props.id}-target-${handleId}`,
+          }),
+        ),
+        h("div", { class: "multi-handle-node__body" }, displayLabel.value),
+        ...sourceHandles.value.map((handleId: string, index: number) =>
+          h(Handle, {
+            id: handleId,
+            type: "source",
+            position: props.data?.sourcePosition ?? Position.Bottom,
+            style: { left: calcHandleLeft(index, sourceHandles.value.length) },
+            key: `${props.id}-source-${handleId}`,
+          }),
+        ),
+      ]);
+  },
+});
+
+const nodeTypes = { multi: MultiHandleNode };
+const buildHandleIds = (count: number, prefix: string) =>
+  Array.from({ length: count }, (_, index) => `${prefix}-${index}`);
+
 // 构建节点和边
 const buildGraph = () => {
   const hasGraphData = props.graphData && props.graphData.length;
@@ -109,17 +153,24 @@ const buildGraph = () => {
   // 创建节点
   const nodeList: any[] = [];
 
-  // 输入节点
+  // 输入节点（均匀分布，防止重叠）
+  const inputStartX = base - ((inputs.length - 1) * offset) / 2;
   inputs.forEach((item: any, index: number) => {
-    const multiplier = Math.ceil(index / 2);
-    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
+    const x = inputStartX + index * offset;
     const nodeId = item.title + (item.idVal ?? "");
     nodeList.push({
       id: nodeId,
-      type: "default",
+      type: "multi",
       position: { x, y: baseY },
       label: item.title,
-      data: item,
+      data: {
+        ...item,
+        label: item.title,
+        sourceHandles: buildHandleIds(others.length, "out"),
+        targetHandles: [],
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
+      },
       style: {
         background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
         color: "#ffffff",
@@ -145,12 +196,19 @@ const buildGraph = () => {
     const nodeId = item.title + (item.idVal ?? "");
     nodeList.push({
       id: nodeId,
-      type: "default",
+      type: "multi",
       position: { x: base, y: baseY + offsetY },
       label: item.title,
-      data: item,
+      data: {
+        ...item,
+        label: item.title,
+        sourceHandles: buildHandleIds(outputs.length, "out"),
+        targetHandles: buildHandleIds(inputs.length, "in"),
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
+      },
       style: {
-        background: "#35658b",
+        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
         color: "#ffffff",
         border: "2px solid #18e2ad",
         boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
@@ -170,18 +228,26 @@ const buildGraph = () => {
   });
 
   // 输出节点
+  const outputsStartX = base - ((outputs.length - 1) * offset) / 2;
+
   outputs.forEach((item: any, index: number) => {
-    const multiplier = Math.ceil(index / 2);
-    let x = index % 2 === 1 ? base + offset * multiplier : base - offset * multiplier;
+    const x = outputsStartX + index * offset;
     const nodeId = item.title + (item.idVal ?? "");
     nodeList.push({
       id: nodeId,
-      type: "default",
+      type: "multi",
       position: { x, y: baseY + offsetY * 2 },
       label: item.title,
-      data: item,
+      data: {
+        ...item,
+        label: item.title,
+        sourceHandles: [],
+        targetHandles: buildHandleIds(others.length, "in"),
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
+      },
       style: {
-        background: "#35658b",
+        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
         color: "#ffffff",
         border: "2px solid #18e2ad",
         boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
@@ -203,12 +269,14 @@ const buildGraph = () => {
   // 创建边（连接线）- 使用 smoothstep 类型实现 S 型曲线
   const edgeList: any[] = [];
 
-  others.forEach((node: any) => {
-    inputs.forEach((inp: any) => {
+  others.forEach((node: any, operatorIndex: number) => {
+    inputs.forEach((inp: any, inputIndex: number) => {
       edgeList.push({
         id: `e-${inp.title + (inp.idVal ?? "")}-${node.title + (node.idVal ?? "")}`,
         source: inp.title + (inp.idVal ?? ""),
         target: node.title + (node.idVal ?? ""),
+        sourceHandle: `out-${operatorIndex}`,
+        targetHandle: `in-${inputIndex}`,
         type: "smoothstep", // smoothstep 类型产生 S 型曲线
         animated: false,
         style: {
@@ -223,11 +291,13 @@ const buildGraph = () => {
         },
       });
     });
-    outputs.forEach((out: any) => {
+    outputs.forEach((out: any, outputIndex: number) => {
       edgeList.push({
         id: `e-${node.title + (node.idVal ?? "")}-${out.title + (out.idVal ?? "")}`,
         source: node.title + (node.idVal ?? ""),
         target: out.title + (out.idVal ?? ""),
+        sourceHandle: `out-${outputIndex}`,
+        targetHandle: `in-${operatorIndex}`,
         type: "smoothstep", // smoothstep 类型产生 S 型曲线
         animated: false,
         style: {
@@ -320,12 +390,39 @@ const handleDeleteNode = () => {
 </style>
 
 <style scoped lang="scss">
+:deep(.vue-flow__node) {
+  overflow: unset !important;
+  z-index: 999 !important;
+}
 :deep(.vue-flow__handle) {
-  opacity: 0 !important; /* 隐藏但不移除元素 */
-  background: transparent !important;
+  width: 6px;
+  height: 6px;
+  opacity: 1 !important;
+  background: #18e2ad !important;
   border: none !important;
-  box-shadow: none !important;
-  pointer-events: none !important; /* 禁止交互，避免误连线 */
+  pointer-events: auto !important;
+}
+
+:deep(.vue-flow__handle-top) {
+  top: -3px;
+}
+
+:deep(.vue-flow__handle-bottom) {
+  bottom: -3px;
+}
+
+.multi-handle-node {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.multi-handle-node__body {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .context-menu {
