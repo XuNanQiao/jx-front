@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-23 14:20:49
+ * @LastEditTime: 2026-01-23 15:02:55
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -18,8 +18,9 @@
       @node-click="onNodeClick"
       @node-context-menu="onNodeContextMenu"
       @pane-click="onPaneClick"
-      @drop="onDrop"
-      @dragover="onDragOver">
+      @drop.prevent="onDrop"
+      @dragover.prevent
+      @drop="onDrop">
       <Background />
     </VueFlow>
 
@@ -120,9 +121,10 @@ const buildGraph = () => {
       label: item.title,
       data: item,
       style: {
-        background: "#35658b",
+        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
         color: "#ffffff",
-        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        border: "2px solid #18e2ad",
+        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
         borderRadius: "4px",
         padding: "8px 12px",
         width: "100px",
@@ -131,6 +133,9 @@ const buildGraph = () => {
         alignItems: "center",
         justifyContent: "center",
         fontSize: "12px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     });
   });
@@ -147,7 +152,8 @@ const buildGraph = () => {
       style: {
         background: "#35658b",
         color: "#ffffff",
-        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        border: "2px solid #18e2ad",
+        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
         borderRadius: "4px",
         padding: "8px 12px",
         width: "100px",
@@ -156,6 +162,9 @@ const buildGraph = () => {
         alignItems: "center",
         justifyContent: "center",
         fontSize: "12px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     });
   });
@@ -174,7 +183,8 @@ const buildGraph = () => {
       style: {
         background: "#35658b",
         color: "#ffffff",
-        border: selectedId.value === nodeId ? "4px solid #18e2ad" : "2px solid #18e2ad",
+        border: "2px solid #18e2ad",
+        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
         borderRadius: "4px",
         padding: "8px 12px",
         width: "100px",
@@ -183,6 +193,9 @@ const buildGraph = () => {
         alignItems: "center",
         justifyContent: "center",
         fontSize: "12px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     });
   });
@@ -255,8 +268,8 @@ const onNodeClick = (event: any) => {
 
 // 空白处点击
 const onPaneClick = () => {
-  selectedId.value = null;
-  buildGraph(); // 重新构建以更新选中样式
+  /*   selectedId.value = null;
+  buildGraph(); // 重新构建以更新选中样式 */
 };
 
 // 节点右键
@@ -268,15 +281,9 @@ const onNodeContextMenu = (event: any) => {
   contextMenu.node = { ...event.node.data, id: event.node.id };
 };
 
-// 拖放处理
-const onDragOver = (event: DragEvent) => {
-  event.preventDefault();
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = "move";
-  }
-};
-
 const onDrop = (event: DragEvent) => {
+  console.log("------onDrop");
+
   event.preventDefault();
   try {
     const raw = event.dataTransfer?.getData("application/json");
