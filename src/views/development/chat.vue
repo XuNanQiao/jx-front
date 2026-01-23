@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-23 16:14:00
+ * @LastEditTime: 2026-01-23 18:02:29
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -128,7 +128,7 @@ const MultiHandleNode = defineComponent({
   },
 });
 
-const nodeTypes = { multi: MultiHandleNode };
+const nodeTypes: any = { multi: MultiHandleNode };
 const buildHandleIds = (count: number, prefix: string) =>
   Array.from({ length: count }, (_, index) => `${prefix}-${index}`);
 
