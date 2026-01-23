@@ -1,7 +1,7 @@
 <!--
  * @Author: ZHAO
  * @Date: 2026-01-06 11:33:14
- * @LastEditTime: 2026-01-23 16:02:54
+ * @LastEditTime: 2026-01-23 16:14:00
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
@@ -149,6 +149,7 @@ const buildGraph = () => {
   const offset = 160;
   const baseY = 50;
   const offsetY = 160;
+  const edgeType = "default";
 
   // 创建节点
   const nodeList: any[] = [];
@@ -277,7 +278,7 @@ const buildGraph = () => {
         target: node.title + (node.idVal ?? ""),
         sourceHandle: `out-${operatorIndex}`,
         targetHandle: `in-${inputIndex}`,
-        type: "smoothstep", // smoothstep 类型产生 S 型曲线
+        type: edgeType,
         animated: false,
         style: {
           stroke: "#64acd1",
@@ -298,7 +299,7 @@ const buildGraph = () => {
         target: out.title + (out.idVal ?? ""),
         sourceHandle: `out-${outputIndex}`,
         targetHandle: `in-${operatorIndex}`,
-        type: "smoothstep", // smoothstep 类型产生 S 型曲线
+        type: edgeType,
         animated: false,
         style: {
           stroke: "#64acd1",
