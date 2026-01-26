@@ -11,7 +11,7 @@
   <div>
     <a-card :bordered="false" class="page">
       <template #title>
-        <a-breadcrumb style="margin-bottom: 0">
+        <a-breadcrumb class="mb-0">
           <a-breadcrumb-item class="crumb-parent">
             <router-link :to="{ name: 'ModelDevelopment' }">模型开发</router-link>
           </a-breadcrumb-item>

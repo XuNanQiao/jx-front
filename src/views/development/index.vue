@@ -35,7 +35,7 @@
             v-model:value="filters.category"
             allowClear
             placeholder="请选择类别"
-            style="width: 150px"></a-select>
+            class="w-150px"></a-select>
         </div>
       </a-space>
       <a-space :size="16" wrap>
@@ -45,7 +45,7 @@
             @change="debouncedSearch"
             @pressEnter="debouncedSearch"
             placeholder="搜索关键词"
-            style="width: 220px"
+            class="w-220px"
             allow-clear>
             <template #suffix>
               <SearchOutlined />
@@ -79,20 +79,20 @@
               <a-menu @click="(e: { key: string }) => handleMenuClick(e, record)">
                 <a-menu-item key="exploitation">
                   <EditOutlined />
-                  <span style="margin-left: 8px">开发</span>
+                  <span class="ml-2">开发</span>
                 </a-menu-item>
                 <a-menu-item key="view">
                   <EyeOutlined />
-                  <span style="margin-left: 8px">查看详情</span>
+                  <span class="ml-2">查看详情</span>
                 </a-menu-item>
                 <a-menu-item key="edit">
                   <EditOutlined />
-                  <span style="margin-left: 8px">编辑</span>
+                  <span class="ml-2">编辑</span>
                 </a-menu-item>
                 <a-menu-divider />
                 <a-menu-item key="delete" danger>
                   <DeleteOutlined />
-                  <span style="margin-left: 8px">删除</span>
+                  <span class="ml-2">删除</span>
                 </a-menu-item>
               </a-menu>
             </template>

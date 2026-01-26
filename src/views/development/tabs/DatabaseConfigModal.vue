@@ -13,7 +13,7 @@
       <div
         v-for="(item, index) in form.dependencies"
         :key="index"
-        style="margin-bottom: 16px; padding: 16px; border: 1px solid #f0f0f0; border-radius: 4px; position: relative">
+        class="mb-4 p-4 border border-#f0f0f0 rounded relative">
         <a-row :gutter="16">
           <a-col :span="11">
             <a-form-item
@@ -31,14 +31,14 @@
               <a-input v-model:value="item.version" placeholder="请输入版本号" />
             </a-form-item>
           </a-col>
-          <a-col :span="2" style="display: flex; align-items: flex-end; padding-bottom: 24px">
+          <a-col :span="2" class="flex items-end pb-6">
             <a-button v-if="form.dependencies.length > 1" type="text" danger @click="removeDependency(index)">
               删除
             </a-button>
           </a-col>
         </a-row>
       </div>
-      <a-button type="dashed" block @click="addDependency" style="margin-top: 8px">+ 添加依赖包</a-button>
+      <a-button type="dashed" block @click="addDependency" class="mt-2">+ 添加依赖包</a-button>
     </a-form>
   </a-modal>
 </template>

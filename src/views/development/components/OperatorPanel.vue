@@ -43,7 +43,7 @@
                   <a-input v-model:value="selected.form.description" />
                 </a-form-item>
                 <a-form-item label="脚本文件">
-                  <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
+                  <div class="flex items-center gap-2 mb-2">
                     <ImportAction
                       import-label="上传文件"
                       accept=".py,.pyc"
@@ -66,21 +66,22 @@
                     <a-list :dataSource="selected.form.files" bordered>
                       <template #renderItem="{ item, index }">
                         <a-list-item>
-                          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
-                            <span style="margin-left: 8px">{{ item.name }}</span>
-                            <div style="display: flex; gap: 8px; align-items: center">
+                          <div class="flex items-center justify-between w-full">
+                            <div class="file-name">
+                              <a-tooltip :title="item.name">
+                                <span>{{ item.name }}</span>
+                              </a-tooltip>
+                            </div>
+
+                            <div class="flex items-center gap-2">
                               <a-tooltip title="设为主文件">
                                 <a-radio :checked="item.is_run === true" @click="setMainScript(index)" />
                               </a-tooltip>
-                              <a-tooltip title="编辑" v-if="item.name.endsWith('.pyc')">
-                                <EditOutlined
-                                  :style="{ fontSize: '16px', cursor: 'pointer', color: '#1890ff' }"
-                                  @click="editScript(index)" />
+                              <a-tooltip title="编辑" v-if="item.content">
+                                <EditOutlined class="text-16px cursor-pointer text-#1890ff" @click="editScript(index)" />
                               </a-tooltip>
                               <a-tooltip title="删除">
-                                <DeleteOutlined
-                                  :style="{ fontSize: '16px', cursor: 'pointer', color: '#ff4d4f' }"
-                                  @click="removeScript(index)" />
+                                <DeleteOutlined class="text-16px cursor-pointer text-#ff4d4f" @click="removeScript(index)" />
                               </a-tooltip>
                             </div>
                           </div>
@@ -227,7 +228,8 @@ const onCreateFileOk = async () => {
     if (file.source_type === "create" || file.path) {
       try {
         const response = await updateScriptFile({
-          file_path: "operators/" /* file.path || editFile.name + '.pyc' */,
+          name: editFile.name,
+          file_path: "operators/",
           content: editFile.content,
           is_run: file.is_run || false,
         });
@@ -235,9 +237,9 @@ const onCreateFileOk = async () => {
         if (response?.code === 200) {
           selected.form.files[editFile.editIndex] = {
             ...file,
-            name: editFile.name + ".pyc",
+            name: editFile.name,
             content: editFile.content,
-            path: file.path || editFile.name + ".pyc",
+            path: file.path || editFile.name,
           };
         }
       } catch (error) {
@@ -246,7 +248,7 @@ const onCreateFileOk = async () => {
       }
     } else {
       // 本地编辑，不调用接口
-      selected.form.files[editFile.editIndex].name = editFile.name + ".pyc";
+      selected.form.files[editFile.editIndex].name = editFile.name;
       selected.form.files[editFile.editIndex].content = editFile.content;
     }
   } else {
@@ -260,22 +262,22 @@ const onCreateFileOk = async () => {
 
     try {
       const response = await createScriptFile({
-        file_path: editFile.name + ".pyc",
+        file_path: editFile.name,
         content: editFile.content,
         is_run: isMainFile,
       });
 
       if (response?.code === 200 && response?.data) {
         selected.form.files.push({
-          path: response.data.file_path || editFile.name + ".pyc",
+          path: response.data.file_path || editFile.name,
           is_run: isMainFile,
           source_type: "create",
-          name: editFile.name + ".pyc",
+          name: editFile.name,
           content: editFile.content,
         });
 
         if (isMainFile) {
-          message.success(`已将 ${editFile.name}.pyc 设置为主文件`);
+          message.success(`已将 ${editFile.name}.py 设置为主文件`);
         }
       }
     } catch (error) {
@@ -299,7 +301,7 @@ const onCreateFileCancel = () => {
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = "new_script.pyc";
+  editFile.name = "new_script.py";
   editFile.content = "# new script";
   showCreateFile.value = true;
 };
@@ -476,5 +478,12 @@ defineExpose({ openNode, saveHand, getCurrentData, closePanel });
     color: #bbb;
     margin-bottom: 16px;
   }
+}
+.file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

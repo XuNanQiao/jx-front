@@ -8,7 +8,7 @@
  *
 -->
 <template>
-  <div style="position: relative; width: 100%; height: 100%">
+  <div class="relative w-full h-full">
     <VueFlow
       v-model:nodes="nodes"
       v-model:edges="edges"
@@ -199,30 +199,36 @@ const buildGraph = () => {
   // 输入节点（均匀分布）
   const inputStartX = LAYOUT.BASE_X - ((inputs.length - 1) * LAYOUT.OFFSET_X) / 2;
   inputs.forEach((item: any, index: number) => {
-    nodeList.push(createNode(
-      item,
-      { x: inputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y },
-      { source: operators.length, target: 0 }
-    ));
+    nodeList.push(
+      createNode(
+        item,
+        { x: inputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y },
+        { source: operators.length, target: 0 },
+      ),
+    );
   });
 
   // 操作节点
   operators.forEach((item: any) => {
-    nodeList.push(createNode(
-      item,
-      { x: LAYOUT.BASE_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y },
-      { source: outputs.length, target: inputs.length }
-    ));
+    nodeList.push(
+      createNode(
+        item,
+        { x: LAYOUT.BASE_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y },
+        { source: outputs.length, target: inputs.length },
+      ),
+    );
   });
 
   // 输出节点（均匀分布）
   const outputStartX = LAYOUT.BASE_X - ((outputs.length - 1) * LAYOUT.OFFSET_X) / 2;
   outputs.forEach((item: any, index: number) => {
-    nodeList.push(createNode(
-      item,
-      { x: outputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y * 2 },
-      { source: 0, target: operators.length }
-    ));
+    nodeList.push(
+      createNode(
+        item,
+        { x: outputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y * 2 },
+        { source: 0, target: operators.length },
+      ),
+    );
   });
 
   // 创建边（连接线）
@@ -231,24 +237,14 @@ const buildGraph = () => {
   // 输入 -> 操作节点
   operators.forEach((operator: any, operatorIndex: number) => {
     inputs.forEach((input: any, inputIndex: number) => {
-      edgeList.push(createEdge(
-        getNodeId(input),
-        getNodeId(operator),
-        `out-${operatorIndex}`,
-        `in-${inputIndex}`
-      ));
+      edgeList.push(createEdge(getNodeId(input), getNodeId(operator), `out-${operatorIndex}`, `in-${inputIndex}`));
     });
   });
 
   // 操作节点 -> 输出
   operators.forEach((operator: any, operatorIndex: number) => {
     outputs.forEach((output: any, outputIndex: number) => {
-      edgeList.push(createEdge(
-        getNodeId(operator),
-        getNodeId(output),
-        `out-${outputIndex}`,
-        `in-${operatorIndex}`
-      ));
+      edgeList.push(createEdge(getNodeId(operator), getNodeId(output), `out-${outputIndex}`, `in-${operatorIndex}`));
     });
   });
 

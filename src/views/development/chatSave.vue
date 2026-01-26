@@ -8,7 +8,7 @@
  * 
 -->
 <template>
-  <div style="position: relative; width: 100%; height: 100%">
+  <div class="relative w-full h-full">
     <v-chart
       ref="chartRef"
       :option="chartOption"

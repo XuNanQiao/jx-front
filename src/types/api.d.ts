@@ -134,6 +134,7 @@ interface CreateScriptFileParams {
  * 更新脚本文件参数
  */
 interface UpdateScriptFileParams {
+  name: string; // 文件名称
   file_path: string; // 文件路径
   content: string; // 文件内容
   is_run?: boolean; // 是否是主函数
