@@ -5,7 +5,7 @@
  * @LastEditors: ZHAO
  * @Description: Chart view component
  * @FilePath: \jx\src\views\development\chat.vue
- * 
+ *
 -->
 <template>
   <div style="position: relative; width: 100%; height: 100%">
@@ -18,10 +18,8 @@
       :max-zoom="4"
       @node-click="onNodeClick"
       @node-context-menu="onNodeContextMenu"
-      @pane-click="onPaneClick"
       @drop.prevent="onDrop"
-      @dragover.prevent
-      @drop="onDrop">
+      @dragover.prevent>
       <Background />
     </VueFlow>
 
@@ -53,18 +51,6 @@ import { Handle, Position, VueFlow, useVueFlow } from "@vue-flow/core";
 import { computed, defineComponent, h, reactive, ref, watch } from "vue";
 
 const props = defineProps({
-  width: { type: String, default: "100%" },
-  height: { type: String, default: "100%" },
-  showAreaStyle: { type: Boolean, default: true },
-  grid: {
-    type: Object as () => { left?: number; right?: number; top?: number; bottom?: number },
-    default: () => ({
-      left: 40,
-      right: 20,
-      top: 20,
-      bottom: 30,
-    }),
-  },
   graphData: { type: Array, default: () => [] },
 });
 
@@ -77,9 +63,45 @@ const emit = defineEmits<{
 const nodes = ref<any[]>([]);
 const edges = ref<any[]>([]);
 const selectedId = ref<string | null>(null);
-
-// 获取 VueFlow 实例
 const { project } = useVueFlow();
+
+// 布局常量
+const LAYOUT = {
+  BASE_X: 600,
+  BASE_Y: 50,
+  OFFSET_X: 160,
+  OFFSET_Y: 160,
+} as const;
+
+// 节点样式常量
+const NODE_STYLE_BASE = {
+  color: "#ffffff",
+  border: "2px solid #18e2ad",
+  borderRadius: "4px",
+  padding: "8px 12px",
+  width: "100px",
+  height: "30px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+} as const;
+
+// 边样式常量
+const EDGE_STYLE = {
+  stroke: "#64acd1",
+  strokeWidth: 2,
+} as const;
+
+const EDGE_MARKER = {
+  type: "arrowclosed",
+  width: 15,
+  height: 15,
+  color: "#64acd1",
+} as const;
 
 // 右键菜单状态
 const contextMenu = reactive({
@@ -89,8 +111,18 @@ const contextMenu = reactive({
   node: null as any,
 });
 
+// 工具函数
 const calcHandleLeft = (index: number, total: number) => `${((index + 1) / (total + 1)) * 100}%`;
+const buildHandleIds = (count: number, prefix: string) =>
+  Array.from({ length: count }, (_, index) => `${prefix}-${index}`);
+const getNodeId = (item: any) => item.title + (item.idVal ?? "");
+const getNodeStyle = (nodeId: string) => ({
+  ...NODE_STYLE_BASE,
+  background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
+  boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
+});
 
+// 自定义节点组件
 const MultiHandleNode = defineComponent({
   name: "MultiHandleNode",
   props: {
@@ -129,13 +161,30 @@ const MultiHandleNode = defineComponent({
 });
 
 const nodeTypes: any = { multi: MultiHandleNode };
-const buildHandleIds = (count: number, prefix: string) =>
-  Array.from({ length: count }, (_, index) => `${prefix}-${index}`);
+
+// 创建节点的通用函数
+const createNode = (item: any, position: { x: number; y: number }, handles: { source: number; target: number }) => {
+  const nodeId = getNodeId(item);
+  return {
+    id: nodeId,
+    type: "multi",
+    position,
+    label: item.title,
+    data: {
+      ...item,
+      label: item.title,
+      sourceHandles: buildHandleIds(handles.source, "out"),
+      targetHandles: buildHandleIds(handles.target, "in"),
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Top,
+    },
+    style: getNodeStyle(nodeId),
+  };
+};
 
 // 构建节点和边
 const buildGraph = () => {
-  const hasGraphData = props.graphData && props.graphData.length;
-  if (!hasGraphData) {
+  if (!props.graphData?.length) {
     nodes.value = [];
     edges.value = [];
     return;
@@ -143,175 +192,63 @@ const buildGraph = () => {
 
   const inputs = props.graphData.filter((n: any) => n.type === "input");
   const outputs = props.graphData.filter((n: any) => n.type === "output");
-  const others = props.graphData.filter((n: any) => n.type === "operator");
+  const operators = props.graphData.filter((n: any) => n.type === "operator");
 
-  const base = 600;
-  const offset = 160;
-  const baseY = 50;
-  const offsetY = 160;
-  const edgeType = "default";
-
-  // 创建节点
   const nodeList: any[] = [];
 
-  // 输入节点（均匀分布，防止重叠）
-  const inputStartX = base - ((inputs.length - 1) * offset) / 2;
+  // 输入节点（均匀分布）
+  const inputStartX = LAYOUT.BASE_X - ((inputs.length - 1) * LAYOUT.OFFSET_X) / 2;
   inputs.forEach((item: any, index: number) => {
-    const x = inputStartX + index * offset;
-    const nodeId = item.title + (item.idVal ?? "");
-    nodeList.push({
-      id: nodeId,
-      type: "multi",
-      position: { x, y: baseY },
-      label: item.title,
-      data: {
-        ...item,
-        label: item.title,
-        sourceHandles: buildHandleIds(others.length, "out"),
-        targetHandles: [],
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Top,
-      },
-      style: {
-        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
-        color: "#ffffff",
-        border: "2px solid #18e2ad",
-        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
-        borderRadius: "4px",
-        padding: "8px 12px",
-        width: "100px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "12px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      },
-    });
+    nodeList.push(createNode(
+      item,
+      { x: inputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y },
+      { source: operators.length, target: 0 }
+    ));
   });
 
   // 操作节点
-  others.forEach((item: any) => {
-    const nodeId = item.title + (item.idVal ?? "");
-    nodeList.push({
-      id: nodeId,
-      type: "multi",
-      position: { x: base, y: baseY + offsetY },
-      label: item.title,
-      data: {
-        ...item,
-        label: item.title,
-        sourceHandles: buildHandleIds(outputs.length, "out"),
-        targetHandles: buildHandleIds(inputs.length, "in"),
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Top,
-      },
-      style: {
-        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
-        color: "#ffffff",
-        border: "2px solid #18e2ad",
-        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
-        borderRadius: "4px",
-        padding: "8px 12px",
-        width: "100px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "12px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      },
-    });
+  operators.forEach((item: any) => {
+    nodeList.push(createNode(
+      item,
+      { x: LAYOUT.BASE_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y },
+      { source: outputs.length, target: inputs.length }
+    ));
   });
 
-  // 输出节点
-  const outputsStartX = base - ((outputs.length - 1) * offset) / 2;
-
+  // 输出节点（均匀分布）
+  const outputStartX = LAYOUT.BASE_X - ((outputs.length - 1) * LAYOUT.OFFSET_X) / 2;
   outputs.forEach((item: any, index: number) => {
-    const x = outputsStartX + index * offset;
-    const nodeId = item.title + (item.idVal ?? "");
-    nodeList.push({
-      id: nodeId,
-      type: "multi",
-      position: { x, y: baseY + offsetY * 2 },
-      label: item.title,
-      data: {
-        ...item,
-        label: item.title,
-        sourceHandles: [],
-        targetHandles: buildHandleIds(others.length, "in"),
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Top,
-      },
-      style: {
-        background: selectedId.value === nodeId ? "#18e2ad" : "#35658b",
-        color: "#ffffff",
-        border: "2px solid #18e2ad",
-        boxShadow: selectedId.value === nodeId ? "0 0 0 4px rgba(24, 226, 173, 0.35)" : "none",
-        borderRadius: "4px",
-        padding: "8px 12px",
-        width: "100px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "12px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      },
-    });
+    nodeList.push(createNode(
+      item,
+      { x: outputStartX + index * LAYOUT.OFFSET_X, y: LAYOUT.BASE_Y + LAYOUT.OFFSET_Y * 2 },
+      { source: 0, target: operators.length }
+    ));
   });
 
-  // 创建边（连接线）- 使用 smoothstep 类型实现 S 型曲线
+  // 创建边（连接线）
   const edgeList: any[] = [];
 
-  others.forEach((node: any, operatorIndex: number) => {
-    inputs.forEach((inp: any, inputIndex: number) => {
-      edgeList.push({
-        id: `e-${inp.title + (inp.idVal ?? "")}-${node.title + (node.idVal ?? "")}`,
-        source: inp.title + (inp.idVal ?? ""),
-        target: node.title + (node.idVal ?? ""),
-        sourceHandle: `out-${operatorIndex}`,
-        targetHandle: `in-${inputIndex}`,
-        type: edgeType,
-        animated: false,
-        style: {
-          stroke: "#64acd1",
-          strokeWidth: 2,
-        },
-        markerEnd: {
-          type: "arrowclosed",
-          width: 15,
-          height: 15,
-          color: "#64acd1",
-        },
-      });
+  // 输入 -> 操作节点
+  operators.forEach((operator: any, operatorIndex: number) => {
+    inputs.forEach((input: any, inputIndex: number) => {
+      edgeList.push(createEdge(
+        getNodeId(input),
+        getNodeId(operator),
+        `out-${operatorIndex}`,
+        `in-${inputIndex}`
+      ));
     });
-    outputs.forEach((out: any, outputIndex: number) => {
-      edgeList.push({
-        id: `e-${node.title + (node.idVal ?? "")}-${out.title + (out.idVal ?? "")}`,
-        source: node.title + (node.idVal ?? ""),
-        target: out.title + (out.idVal ?? ""),
-        sourceHandle: `out-${outputIndex}`,
-        targetHandle: `in-${operatorIndex}`,
-        type: edgeType,
-        animated: false,
-        style: {
-          stroke: "#64acd1",
-          strokeWidth: 2,
-        },
-        markerEnd: {
-          type: "arrowclosed",
-          width: 15,
-          height: 15,
-          color: "#64acd1",
-        },
-      });
+  });
+
+  // 操作节点 -> 输出
+  operators.forEach((operator: any, operatorIndex: number) => {
+    outputs.forEach((output: any, outputIndex: number) => {
+      edgeList.push(createEdge(
+        getNodeId(operator),
+        getNodeId(output),
+        `out-${outputIndex}`,
+        `in-${operatorIndex}`
+      ));
     });
   });
 
@@ -319,64 +256,58 @@ const buildGraph = () => {
   edges.value = edgeList;
 };
 
-// 监听数据变化
-watch(
-  () => props.graphData,
-  () => {
-    buildGraph();
-  },
-  { deep: true, immediate: true },
-);
+// 创建边的通用函数
+const createEdge = (source: string, target: string, sourceHandle: string, targetHandle: string) => ({
+  id: `e-${source}-${target}-${sourceHandle}`,
+  source,
+  target,
+  sourceHandle,
+  targetHandle,
+  type: "default",
+  animated: false,
+  style: EDGE_STYLE,
+  markerEnd: EDGE_MARKER,
+});
 
-// 节点点击
+// 监听数据变化
+watch(() => props.graphData, buildGraph, { deep: true, immediate: true });
+
+// 事件处理
 const onNodeClick = (event: any) => {
   selectedId.value = event.node.id;
-  console.log(event, "--------event");
-
   emit("node-click", { ...event.node.data, id: event.node.id });
-  buildGraph(); // 重新构建以更新选中样式
+  buildGraph();
 };
 
-// 空白处点击
-const onPaneClick = () => {
-  /*   selectedId.value = null;
-  buildGraph(); // 重新构建以更新选中样式 */
-};
-
-// 节点右键
 const onNodeContextMenu = (event: any) => {
   event.event.preventDefault();
-  contextMenu.visible = true;
-  contextMenu.x = event.event.clientX;
-  contextMenu.y = event.event.clientY;
-  contextMenu.node = { ...event.node.data, id: event.node.id };
+  Object.assign(contextMenu, {
+    visible: true,
+    x: event.event.clientX,
+    y: event.event.clientY,
+    node: { ...event.node.data, id: event.node.id },
+  });
 };
 
 const onDrop = (event: DragEvent) => {
-  console.log("------onDrop");
-
   event.preventDefault();
+  const raw = event.dataTransfer?.getData("application/json");
+  if (!raw) return;
+
   try {
-    const raw = event.dataTransfer?.getData("application/json");
-    if (!raw) return;
     const nodeData = JSON.parse(raw);
-
-    // 使用 project 转换坐标
     const position = project({ x: event.clientX, y: event.clientY });
-
-    emit("add-node", { ...nodeData, x: position.x, y: position.y });
+    emit("add-node", { ...nodeData, ...position });
   } catch (err) {
-    console.error("drop parse error", err);
+    console.error("Failed to parse drop data:", err);
   }
 };
 
-// 关闭右键菜单
 const closeContextMenu = () => {
   contextMenu.visible = false;
   contextMenu.node = null;
 };
 
-// 处理删除节点
 const handleDeleteNode = () => {
   if (contextMenu.node) {
     emit("node-delete", contextMenu.node);

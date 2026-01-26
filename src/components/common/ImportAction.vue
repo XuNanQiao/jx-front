@@ -76,8 +76,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "import-success", payload?: unknown): void;
-  (e: "import-error", error: unknown): void;
+  (e: "import-success", payload?: unknown, fileList?: UploadFile[]): void;
+  (e: "import-error", error: unknown, fileList?: UploadFile[]): void;
 }>();
 
 const ensureFormDataValue = (value: any): string | Blob => {
@@ -142,11 +142,8 @@ const isImportDisabled = computed(() => {
 
 const manualUpload = async (rawFile: File, displayName: string) => {
   if (!props.importUrl) {
-    if (props.multiple) {
-      emit("import-success", [rawFile]);
-    } else {
-      emit("import-success", rawFile);
-    }
+    const filesForEmit = props.multiple ? [rawFile] : rawFile;
+    emit("import-success", filesForEmit);
     message.success("导入成功");
     uploadFileList.value = [];
     return;
@@ -236,7 +233,9 @@ const handleFileChange = (info: UploadChangeParam) => {
   }
 
   uploadFileList.value = info.fileList;
-  const { file } = info;
+  const { file, fileList } = info;
+  const hasUploading = fileList.some((item) => item.status === "uploading");
+  const allFinished = fileList.every((item) => item.status === "done" || item.status === "error");
 
   if (file.status === "uploading") {
     innerImportLoading.value = true;
@@ -244,19 +243,18 @@ const handleFileChange = (info: UploadChangeParam) => {
   }
 
   if (file.status === "done") {
-    innerImportLoading.value = false;
     message.success(`${file.name} 上传成功`);
-    emit("import-success", file);
-    uploadFileList.value = [];
-    return;
+    emit("import-success", file, fileList);
   }
 
   if (file.status === "error") {
-    innerImportLoading.value = false;
     const errorMsg = (file?.response as any)?.detail?.msg || (file.error as any)?.message;
-    console.log(file, "------file.status");
     message.error(errorMsg || `${file.name} 上传失败`);
-    emit("import-error", file.error ?? new Error(`${file.name} 上传失败`));
+    emit("import-error", file.error ?? new Error(`${file.name} 上传失败`), fileList);
+  }
+
+  innerImportLoading.value = hasUploading;
+  if (!hasUploading && allFinished) {
     uploadFileList.value = [];
   }
 };

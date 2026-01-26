@@ -13,7 +13,7 @@
           :key="file.path || file.content"
           :class="['file-item', { active: file.path === currentFile?.path }]"
           @click="handleSelectFile(file)">
-          {{ file.path || '未命名文件' }}
+          {{ file.path || "未命名文件" }}
         </div>
       </div>
       <div v-else class="file-empty">暂无文件</div>
@@ -34,16 +34,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import hljs from 'highlight.js/lib/core';
-import python from 'highlight.js/lib/languages/python';
-import json from 'highlight.js/lib/languages/json';
-import plaintext from 'highlight.js/lib/languages/plaintext';
-import 'highlight.js/styles/github-dark.css';
+import { computed, nextTick, onMounted, ref, watch } from "vue";
+import hljs from "highlight.js/lib/core";
+import python from "highlight.js/lib/languages/python";
+import json from "highlight.js/lib/languages/json";
+import plaintext from "highlight.js/lib/languages/plaintext";
+import "highlight.js/styles/github-dark.css";
 
-hljs.registerLanguage('python', python);
-hljs.registerLanguage('json', json);
-hljs.registerLanguage('plaintext', plaintext);
+hljs.registerLanguage("python", python);
+hljs.registerLanguage("json", json);
+hljs.registerLanguage("plaintext", plaintext);
 
 interface SourceFile {
   path: string;
@@ -58,7 +58,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:open', value: boolean): void;
+  (e: "update:open", value: boolean): void;
 }>();
 
 const codeRef = ref<HTMLElement | null>(null);
@@ -66,22 +66,22 @@ const codeRef = ref<HTMLElement | null>(null);
 const currentFile = ref(null as SourceFile | null);
 
 const languageClass = computed(() => {
-  const path = currentFile.value?.path || '';
-  if (/\.pyc?$/i.test(path)) return 'language-python';
-  return 'language-plaintext';
+  const path = currentFile.value?.path || "";
+  if (/\.py?$/i.test(path)) return "language-python";
+  return "language-plaintext";
 });
 
 const normalizeContent = (value: unknown) => {
-  if (typeof value === 'string') return value;
-  if (value && typeof value === 'object') return JSON.stringify(value, null, 2);
-  return String(value ?? '');
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object") return JSON.stringify(value, null, 2);
+  return String(value ?? "");
 };
 
 const formattedContent = computed(() => {
   const raw = currentFile.value?.content;
-  if (raw === undefined || raw === null || raw === '') return '暂无内容';
+  if (raw === undefined || raw === null || raw === "") return "暂无内容";
 
-  if (typeof raw === 'string') {
+  if (typeof raw === "string") {
     try {
       const parsed = JSON.parse(raw);
 
@@ -95,7 +95,7 @@ const formattedContent = computed(() => {
 });
 
 const handleClose = () => {
-  emit('update:open', false);
+  emit("update:open", false);
 };
 
 const highlight = () => {
@@ -181,7 +181,7 @@ watch(
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   line-height: 1.5;
 }
 </style>

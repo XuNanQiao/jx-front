@@ -46,7 +46,7 @@
                   <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
                     <ImportAction
                       import-label="上传文件"
-                      accept=".pyc"
+                      accept=".py,.pyc"
                       :paramsResolver="[
                         {
                           key: 'file_path',
@@ -72,7 +72,7 @@
                               <a-tooltip title="设为主文件">
                                 <a-radio :checked="item.is_run === true" @click="setMainScript(index)" />
                               </a-tooltip>
-                              <a-tooltip title="编辑" v-if="item.name.endsWith('.py')">
+                              <a-tooltip title="编辑" v-if="item.name.endsWith('.pyc')">
                                 <EditOutlined
                                   :style="{ fontSize: '16px', cursor: 'pointer', color: '#1890ff' }"
                                   @click="editScript(index)" />
@@ -183,14 +183,27 @@ const selected = reactive<any>({
 
 const handleScriptUploadSuccess = (payload: any) => {
   if (!payload) return;
+  // 检查文件名（去掉后缀）是否为 "main"
+  const fileName = payload.name;
+  const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, ""); // 去掉文件后缀
+  const isMainFile = fileNameWithoutExt === "main";
 
-  selected.form.files.push({
+  // 如果是主文件，将其他文件的 is_run 设为 false
+  if (isMainFile) {
+    selected.form.files.forEach((file: any) => {
+      file.is_run = false;
+    });
+  }
+
+  const newFile = {
     path: payload.response.data.file_path,
-    is_run: false, // 默认不是主文件，由用户手动选择
+    is_run: isMainFile, // 文件名为 main 时自动设为主文件
     source_type: "upload",
-    name: payload.name,
+    name: fileName,
     content: null,
-  });
+  };
+
+  selected.form.files.push(newFile);
 };
 
 const onCreateFileOk = async () => {
@@ -203,6 +216,9 @@ const onCreateFileOk = async () => {
     return;
   }
 
+  // 检查文件名是否为 "main"
+  const isMainFile = editFile.name === "main";
+
   // 编辑已有文件
   if (editFile.editIndex >= 0) {
     const file = selected.form.files[editFile.editIndex];
@@ -211,7 +227,7 @@ const onCreateFileOk = async () => {
     if (file.source_type === "create" || file.path) {
       try {
         const response = await updateScriptFile({
-          file_path: "operators/" /* file.path || editFile.name + '.py' */,
+          file_path: "operators/" /* file.path || editFile.name + '.pyc' */,
           content: editFile.content,
           is_run: file.is_run || false,
         });
@@ -219,9 +235,9 @@ const onCreateFileOk = async () => {
         if (response?.code === 200) {
           selected.form.files[editFile.editIndex] = {
             ...file,
-            name: editFile.name + ".py",
+            name: editFile.name + ".pyc",
             content: editFile.content,
-            path: file.path || editFile.name + ".py",
+            path: file.path || editFile.name + ".pyc",
           };
         }
       } catch (error) {
@@ -230,27 +246,37 @@ const onCreateFileOk = async () => {
       }
     } else {
       // 本地编辑，不调用接口
-      selected.form.files[editFile.editIndex].name = editFile.name + ".py";
+      selected.form.files[editFile.editIndex].name = editFile.name + ".pyc";
       selected.form.files[editFile.editIndex].content = editFile.content;
     }
   } else {
     // 创建新文件
+    // 如果是主文件，将其他文件的 is_run 设为 false
+    if (isMainFile) {
+      selected.form.files.forEach((file: any) => {
+        file.is_run = false;
+      });
+    }
+
     try {
       const response = await createScriptFile({
-        file_path: editFile.name + ".py",
+        file_path: editFile.name + ".pyc",
         content: editFile.content,
-        is_run: false,
+        is_run: isMainFile,
       });
 
       if (response?.code === 200 && response?.data) {
         selected.form.files.push({
-          path: response.data.file_path || editFile.name + ".py",
-          is_run: false,
+          path: response.data.file_path || editFile.name + ".pyc",
+          is_run: isMainFile,
           source_type: "create",
-          name: editFile.name + ".py",
+          name: editFile.name + ".pyc",
           content: editFile.content,
         });
-        message.success("文件创建成功");
+
+        if (isMainFile) {
+          message.success(`已将 ${editFile.name}.pyc 设置为主文件`);
+        }
       }
     } catch (error) {
       console.error("创建脚本文件失败:", error);
@@ -273,7 +299,7 @@ const onCreateFileCancel = () => {
 
 const createFile = () => {
   editFile.editIndex = -1;
-  editFile.name = "new_script.py";
+  editFile.name = "new_script.pyc";
   editFile.content = "# new script";
   showCreateFile.value = true;
 };
@@ -287,9 +313,11 @@ const editScript = (index: number) => {
 };
 
 const setMainScript = (index: number) => {
+  // 确保只有一个主文件
   selected.form.files.forEach((f: any, i: number) => {
     f.is_run = i === index;
   });
+  message.success(`已将 ${selected.form.files[index].name} 设置为主文件`);
 };
 
 const removeScript = (index: number) => {
@@ -298,6 +326,13 @@ const removeScript = (index: number) => {
 
 // 对外暴露方法：用于父组件在点击节点时调用
 const openNode = (node: any) => {
+  console.log("openNode 被调用, node:", node);
+  console.log("openNode 被调用前 files 长度:", selected.form.files.length);
+
+  // 保存当前正在编辑的节点ID和文件列表
+  const currentEditingId = selected.id;
+  const currentFiles = selected.form.files;
+
   Object.assign(selected.form, formVal);
   columnOptions.value = [];
   repoOptions.value = [];
@@ -308,12 +343,18 @@ const openNode = (node: any) => {
   } else {
     selected.id = node.idVal;
     selected.type = node.type;
+
+    // 如果是同一个节点重新打开，保留当前的文件列表
+    const shouldPreserveFiles = currentEditingId === node.idVal && currentFiles.length > 0;
+
     let data: any = {
       display_name: node.display_name || "",
       name: node.title || "",
       columns: node.columns || [],
-      files: node.files || [],
+      files: shouldPreserveFiles ? currentFiles : node.files || [],
     };
+
+    console.log("shouldPreserveFiles:", shouldPreserveFiles, "files:", data.files);
     if (node.type === "input") {
       getColumnsForRepo(node.idVal);
       data.operatorName = node.operator_name || "Repo输入";

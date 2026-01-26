@@ -88,6 +88,7 @@ export function createScriptFile(params: CreateScriptFileParams): Promise<ApiRes
   return request.post("/api/workflow/script_file/create", params, {
     showMessage: true,
     messageData: ["data", "message"],
+    message: "文件创建",
   });
 }
 //读取文件内容

@@ -13,7 +13,7 @@
       <div
         v-for="(item, index) in form.dependencies"
         :key="index"
-        style="margin-bottom: 16px; padding: 16px; border: 1px solid #f0f0f0; border-radius: 4px; position: relative;">
+        style="margin-bottom: 16px; padding: 16px; border: 1px solid #f0f0f0; border-radius: 4px; position: relative">
         <a-row :gutter="16">
           <a-col :span="11">
             <a-form-item
@@ -31,28 +31,22 @@
               <a-input v-model:value="item.version" placeholder="请输入版本号" />
             </a-form-item>
           </a-col>
-          <a-col :span="2" style="display: flex; align-items: flex-end; padding-bottom: 24px;">
-            <a-button
-              v-if="form.dependencies.length > 1"
-              type="text"
-              danger
-              @click="removeDependency(index)">
+          <a-col :span="2" style="display: flex; align-items: flex-end; padding-bottom: 24px">
+            <a-button v-if="form.dependencies.length > 1" type="text" danger @click="removeDependency(index)">
               删除
             </a-button>
           </a-col>
         </a-row>
       </div>
-      <a-button type="dashed" block @click="addDependency" style="margin-top: 8px;">
-        + 添加依赖包
-      </a-button>
+      <a-button type="dashed" block @click="addDependency" style="margin-top: 8px">+ 添加依赖包</a-button>
     </a-form>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { updateModelDev } from '@/api/development';
-import { type FormInstance } from 'ant-design-vue';
-import { ref } from 'vue';
+import { updateModelDev } from "@/api/development";
+import { type FormInstance } from "ant-design-vue";
+import { ref } from "vue";
 
 interface Dependency {
   name: string | null;
@@ -63,7 +57,7 @@ interface FormData {
   dependencies: Dependency[];
 }
 
-const emit = defineEmits(['saved']);
+const emit = defineEmits(["saved"]);
 const visibleLocal = ref<boolean>(false);
 const loadingLocal = ref(false);
 const formRef = ref<FormInstance>();
@@ -128,13 +122,13 @@ const onOk = async () => {
     // 将所有依赖包添加到数组中
     form.value.dependencies.forEach((dep) => {
       data.dependency_package.push({
-        name: dep.name + '.txt',
+        name: dep.name,
         version: dep.version,
       });
     });
     const res: any = await updateModelDev(data);
     if (res && res.code === 200) {
-      emit('saved', data);
+      emit("saved", data);
       visibleLocal.value = false;
       resetForm();
     }

@@ -21,6 +21,7 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   showSuccessMessage?: boolean; // 是否显示成功消息，默认 false
   showErrorMessage?: boolean; // 是否显示错误消息，默认 true
   messageData?: string[]; // 指定响应数据中用于消息提示的字段路径数组
+  message?: string; // 自定义消息内容
 }
 
 // 创建 axios 实例
@@ -63,7 +64,9 @@ service.interceptors.response.use(
         config.showErrorMessage !== false && (config.showMessage === true || config.showErrorMessage === true);
       if (shouldShowError) {
         let msg = "";
-        if (config.messageData && Array.isArray(config.messageData)) {
+        if (config.message) {
+          msg = config.message + "失败";
+        } else if (config.messageData && Array.isArray(config.messageData)) {
           let data = res;
           for (const key of config.messageData) {
             data = data[key];
@@ -87,7 +90,9 @@ service.interceptors.response.use(
     const shouldShowSuccess = config.showSuccessMessage === true || config.showMessage === true;
     if (shouldShowSuccess) {
       let msg = "";
-      if (config.messageData && Array.isArray(config.messageData)) {
+      if (config.message) {
+        msg = config.message + "成功";
+      } else if (config.messageData && Array.isArray(config.messageData)) {
         let data = res;
         for (const key of config.messageData) {
           data = data[key];
@@ -105,7 +110,7 @@ service.interceptors.response.use(
     const shouldShowError =
       config?.showErrorMessage !== false && (config?.showMessage === true || config?.showErrorMessage === true);
     if (shouldShowError) {
-      message.error(error.message || "请求失败，请稍后重试");
+      message.error(error.response?.data?.detail?.msg || error.message || "请求失败，请稍后重试");
     }
 
     // 处理 401 未授权
